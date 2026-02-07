@@ -32,11 +32,7 @@ const COLORS = {
     white: '#ffffff',
 };
 
-interface TopNavProps {
-    onBooking: () => void;
-}
-
-export const TopNav: React.FC<TopNavProps> = ({ onBooking }) => {
+export const TopNav: React.FC = () => {
     const location = useLocation();
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -105,13 +101,13 @@ export const TopNav: React.FC<TopNavProps> = ({ onBooking }) => {
                     </div>
 
                     {/* CTA Button - Primary Style */}
-                    <button
-                        onClick={onBooking}
+                    <Link
+                        to="/reservations"
                         className="px-4 py-1.5 rounded-full font-bold text-xs transition-all hover:scale-105 active:scale-95"
-                        style={{ backgroundColor: COLORS.primary, color: COLORS.secondary }}
+                        style={{ backgroundColor: COLORS.primary, color: COLORS.secondary, display: 'inline-block' }}
                     >
                         Reservar
-                    </button>
+                    </Link>
                 </div>
             </nav>
         </div>

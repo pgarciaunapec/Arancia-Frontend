@@ -11,6 +11,9 @@ import Events from './pages/Events';
 import Services from './pages/Services';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
+import Reservations from './pages/Reservations';
+import BookingConfirmation from './pages/BookingConfirmation';
+import NotFound from './pages/NotFound';
 
 type PopupInfo = { displayFlag: boolean; titleContent: string; bodyContent: string };
 type PopupAction =
@@ -41,29 +44,30 @@ const RestaurantApp: React.FC = () => {
     dispatchPopupAction({ kind: 'TERMINATE_POPUP' });
   }, []);
 
-  const bookingRequestAction = useCallback(() => {
-    launchPopupWindow('Próximamente', 'Esta funcionalidad estará próximamente disponible.');
-  }, [launchPopupWindow]);
-
   return (
     <BrowserRouter>
       <div className="min-h-screen w-full bg-background text-foreground">
-        {/* Top Nav - Only visible on desktop */}
-        <TopNav onBooking={bookingRequestAction} />
+        {/* Top Nav */}
+        <TopNav />
 
-        {/* Mobile Sidebar - Only visible on mobile */}
-        <MobileSidebar onBooking={bookingRequestAction} />
+        {/* Mobile Sidebar */}
+        <MobileSidebar />
 
         {/* Main Content */}
         <main className="min-h-screen">
           <Routes>
-            <Route path="/" element={<Home onShowModal={bookingRequestAction} />} />
+            <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu onShowModal={launchPopupWindow} />} />
             <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Events onShowModal={bookingRequestAction} />} />
+            <Route path="/events" element={<Events onShowModal={launchPopupWindow} />} />
             <Route path="/services" element={<Services />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact onShowModal={launchPopupWindow} />} />
+
+            {/* New Routes */}
+            <Route path="/reservations" element={<Reservations />} />
+            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
 
           {/* Footer */}

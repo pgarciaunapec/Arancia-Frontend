@@ -38,11 +38,7 @@ const COLORS = {
     white: '#ffffff',
 };
 
-interface MobileSidebarProps {
-    onBooking: () => void;
-}
-
-export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
+export const MobileSidebar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
 
@@ -120,13 +116,14 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
 
                     {/* CTA Button */}
                     <div className="p-4" style={{ borderTop: `2px solid ${COLORS.primary}` }}>
-                        <button
-                            onClick={() => { onBooking(); setIsOpen(false); }}
-                            className="w-full py-4 px-4 rounded-xl font-bold text-lg transition-all hover:scale-105 active:scale-95"
+                        <Link
+                            to="/reservations"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full py-4 px-4 rounded-xl font-bold text-lg transition-all hover:scale-105 active:scale-95 block text-center"
                             style={{ backgroundColor: COLORS.primary, color: COLORS.secondary }}
                         >
                             ✨ Reservar Mesa
-                        </button>
+                        </Link>
                         <p className="text-xs text-center mt-4" style={{ color: COLORS.white }}>© 2026 Bob Toronja</p>
                     </div>
                 </div>

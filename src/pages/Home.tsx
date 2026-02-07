@@ -14,10 +14,9 @@ const COLORS = {
 };
 
 interface HomeProps {
-    onShowModal: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onShowModal }) => {
+const Home: React.FC<HomeProps> = () => {
     const [isAtBottom, setIsAtBottom] = useState(false);
     const sectionsRef = useRef<HTMLElement[]>([]);
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
@@ -77,7 +76,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
         {
             title: 'Eventos Especiales',
             description: 'Celebra ocasiones memorables con servicio personalizado',
-            image: 'https://images.unsplash.com/photo-1758977404304-30ff5f68753c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwdGFibGUlMjBzZXR0aW5nJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzAzMzA4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080',
+            image: 'https://images.unsplash.com/photo-1758977404304-30ff5f68753c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxyZXN0YXVyYW50JTIwdGFibGUlMjBzZXR0aW5nJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzAzMzA4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080',
             link: '/events'
         }
     ];
@@ -93,7 +92,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
             >
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1762928289633-c1565bc92931?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVnYW50JTIwcmVzdGF1cmFudCUyMGludGVyaW9yJTIwbW9kZXJufGVufDF8fHx8MTc3MDM3MDcwMnww&ixlib=rb-4.1.0&q=80&w=1080"
+                        src="https://images.unsplash.com/photo-1762928289633-c1565bc92931?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxlbGVnYW50JTIwcmVzdGF1cmFudCUyMGludGVyaW9yJTIwbW9kZXJufGVufDF8fHx8MTc3MDM3MDcwMnww&ixlib=rb-4.1.0&q=80&w=1080"
                         alt="Restaurant"
                         className="w-full h-full object-cover"
                     />
@@ -137,9 +136,11 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
                         className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4"
                     >
                         {/* Primary Button */}
-                        <Button size="lg" onClick={onShowModal}>
-                            Reservar Mesa
-                            <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                        <Button size="lg" asChild>
+                            <Link to="/reservations">
+                                Reservar Mesa
+                                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                            </Link>
                         </Button>
                         {/* Outline Button */}
                         <Button size="lg" variant="outline" asChild>
@@ -292,9 +293,11 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
                                     excepcional en nuestro restaurante
                                 </p>
                                 {/* Secondary Button */}
-                                <Button size="lg" variant="secondary" onClick={onShowModal}>
-                                    Reservar Ahora
-                                    <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                                <Button size="lg" variant="secondary" asChild>
+                                    <Link to="/reservations">
+                                        Reservar Ahora
+                                        <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                                    </Link>
                                 </Button>
                             </div>
                         </Card>
