@@ -1,6 +1,8 @@
 import React, { useReducer, useCallback } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Sidebar } from './components/Sidebar';
+import { MobileSidebar } from './components/MobileSidebar';
+import { BottomNav } from './components/BottomNav';
+import { Footer } from './components/Footer';
 import { ModernModal } from './components/ModernModal';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
@@ -11,7 +13,7 @@ import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 
 type PopupInfo = { displayFlag: boolean; titleContent: string; bodyContent: string };
-type PopupAction = 
+type PopupAction =
   | { kind: 'LAUNCH_POPUP'; payload: { titleContent: string; bodyContent: string } }
   | { kind: 'TERMINATE_POPUP' };
 
@@ -45,12 +47,12 @@ const RestaurantApp: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <div className="flex h-screen w-full overflow-hidden bg-background">
-        {/* Sidebar */}
-        <Sidebar onBooking={bookingRequestAction} />
-        
+      <div className="min-h-screen w-full bg-background text-foreground">
+        {/* Mobile Sidebar - Only visible on mobile */}
+        <MobileSidebar onBooking={bookingRequestAction} />
+
         {/* Main Content */}
-        <main className="flex-1 h-full overflow-y-auto overflow-x-hidden">
+        <main className="min-h-screen pb-20 lg:pb-24">
           <Routes>
             <Route path="/" element={<Home onShowModal={bookingRequestAction} />} />
             <Route path="/menu" element={<Menu onShowModal={launchPopupWindow} />} />
@@ -60,7 +62,13 @@ const RestaurantApp: React.FC = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact onShowModal={launchPopupWindow} />} />
           </Routes>
+
+          {/* Footer */}
+          <Footer />
         </main>
+
+        {/* Bottom Nav - Only visible on desktop */}
+        <BottomNav onBooking={bookingRequestAction} />
 
         {/* Modal */}
         <ModernModal

@@ -223,25 +223,21 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                     ⭐ Más Popular
                   </Badge>
                 )}
-                <Card className={`p-6 sm:p-8 h-full flex flex-col border-border/50 ${
-                  pkg.featured 
-                    ? 'bg-gradient-warm text-white shadow-2xl scale-100 lg:scale-105' 
+                <Card className={`p-6 sm:p-8 h-full flex flex-col border-border/50 ${pkg.featured
+                    ? 'bg-gradient-warm text-white shadow-2xl scale-100 lg:scale-105'
                     : 'bg-card hover:shadow-xl'
-                } transition-all`}>
+                  } transition-all`}>
                   <div className="text-center mb-4 sm:mb-6">
-                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${
-                      pkg.featured ? 'text-white' : 'text-foreground'
-                    }`}>
+                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${pkg.featured ? 'text-white' : 'text-foreground'
+                      }`}>
                       {pkg.name}
                     </h3>
-                    <div className={`text-3xl sm:text-4xl font-bold mb-2 ${
-                      pkg.featured ? 'text-white' : 'text-primary'
-                    }`}>
+                    <div className={`text-3xl sm:text-4xl font-bold mb-2 ${pkg.featured ? 'text-white' : 'text-primary'
+                      }`}>
                       {pkg.price}
                     </div>
-                    <p className={`text-xs sm:text-sm ${
-                      pkg.featured ? 'text-white/80' : 'text-muted-foreground'
-                    }`}>
+                    <p className={`text-xs sm:text-sm ${pkg.featured ? 'text-white/80' : 'text-muted-foreground'
+                      }`}>
                       {pkg.description}
                     </p>
                   </div>
@@ -250,14 +246,12 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                     <ul className="space-y-2 sm:space-y-3">
                       {pkg.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                            pkg.featured ? 'bg-white/20' : 'bg-primary/10'
-                          }`}>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${pkg.featured ? 'bg-white/20' : 'bg-primary/10'
+                            }`}>
                             <span className={pkg.featured ? 'text-white text-xs' : 'text-primary text-xs'}>✓</span>
                           </div>
-                          <span className={`text-sm sm:text-base ${
-                            pkg.featured ? 'text-white/90' : 'text-muted-foreground'
-                          }`}>
+                          <span className={`text-sm sm:text-base ${pkg.featured ? 'text-white/90' : 'text-muted-foreground'
+                            }`}>
                             {feature}
                           </span>
                         </li>
@@ -267,11 +261,10 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
 
                   <Button
                     onClick={onShowModal}
-                    className={`w-full ${
-                      pkg.featured
+                    className={`w-full ${pkg.featured
                         ? 'bg-white text-primary hover:bg-white/90'
                         : 'bg-gradient-warm text-white hover:shadow-lg'
-                    } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base`}
+                      } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base`}
                   >
                     Solicitar Información
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -291,10 +284,10 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-secondary-foreground">
               ¿Listo para Planear Tu Evento?
             </h2>
-            <p className="text-xl text-secondary-foreground/90 mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-secondary-foreground/90 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto px-4">
               Contáctanos para discutir los detalles de tu evento y recibir una
               cotización personalizada. Nuestro equipo está listo para hacer de
               tu celebración una experiencia inolvidable.
@@ -302,9 +295,9 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             <Button
               size="lg"
               onClick={onShowModal}
-              className="bg-white text-secondary hover:bg-white/90 px-8 py-6 text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
+              className="bg-white text-secondary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
-              <Phone className="mr-2 w-5 h-5" />
+              <Phone className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
               Contactar Ahora
             </Button>
           </motion.div>

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Home, 
-  UtensilsCrossed, 
-  Info, 
-  Calendar, 
-  Briefcase, 
-  Image, 
+import {
+  Home,
+  UtensilsCrossed,
+  Info,
+  Calendar,
+  Briefcase,
+  Image,
   Phone,
   ChevronRight,
   Menu,
@@ -62,10 +62,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={isOpen ? { x: 0 } : { x: '-100%' }}
-        className="fixed lg:sticky top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 lg:translate-x-0 overflow-y-auto flex-shrink-0"
+      <aside
+        className={`fixed lg:relative top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 overflow-y-auto flex-shrink-0 shadow-xl lg:shadow-none transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo and Close Button */}
@@ -96,11 +95,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group relative overflow-hidden ${
-                    isActive
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group relative overflow-hidden ${isActive
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    }`}
                 >
                   {isActive && (
                     <motion.div
@@ -113,9 +111,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
                   <span className="relative z-10 font-medium">{item.label}</span>
                   <ChevronRight
                     size={16}
-                    className={`ml-auto relative z-10 transition-transform ${
-                      isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
-                    }`}
+                    className={`ml-auto relative z-10 transition-transform ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
+                      }`}
                   />
                 </Link>
               );
@@ -138,10 +135,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
             </p>
           </div>
         </div>
-      </motion.aside>
+      </aside>
 
-      {/* Desktop Sidebar Spacer */}
-      <div className="hidden lg:block w-72" />
+
     </>
   );
 };

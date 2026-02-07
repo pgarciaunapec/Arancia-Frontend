@@ -1,13 +1,13 @@
 :root {
   --font-size: 16px;
 
-  /* Modern Restaurant Color Palette */
-  --background: #fdfbf7;
-  --foreground: #1a1410;
-  --card: #ffffff;
-  --card-foreground: #1a1410;
-  --popover: #ffffff;
-  --popover-foreground: #1a1410;
+  /* Modern Restaurant Color Palette - Dark Elegant Theme */
+  --background: #0a0a0a;
+  --foreground: #fdfbf7;
+  --card: #141414;
+  --card-foreground: #fdfbf7;
+  --popover: #1a1a1a;
+  --popover-foreground: #fdfbf7;
 
   /* Primary - Warm Terracotta */
   --primary: #d4622a;
@@ -27,12 +27,12 @@
   --accent-light: #d8a86f;
   --accent-dark: #b08447;
 
-  /* Neutral Tones */
-  --muted: #f4f1ed;
-  --muted-foreground: #6b6560;
-  --border: #e6e1db;
-  --input: #e6e1db;
-  --input-background: #ffffff;
+  /* Neutral Tones - Dark Theme */
+  --muted: #1f1f1f;
+  --muted-foreground: #a0a0a0;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --input-background: #141414;
   --ring: #d4622a;
 
   /* Semantic Colors */
@@ -45,11 +45,9 @@
 
   /* Special Effects */
   --gradient-warm: linear-gradient(135deg, #d4622a 0%, #c9975b 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(212, 98, 42, 0.95) 0%,
-    rgba(45, 74, 62, 0.95) 100%
-  );
+  --gradient-hero: linear-gradient(135deg,
+      rgba(212, 98, 42, 0.95) 0%,
+      rgba(45, 74, 62, 0.95) 100%);
   --shadow-sm: 0 1px 2px 0 rgba(26, 20, 16, 0.05);
   --shadow-md:
     0 4px 6px -1px rgba(26, 20, 16, 0.1), 0 2px 4px -1px rgba(26, 20, 16, 0.06);
@@ -248,6 +246,7 @@ html {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -259,6 +258,7 @@ html {
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -270,6 +270,7 @@ html {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -281,6 +282,7 @@ html {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -301,4 +303,59 @@ html {
 
 .animate-scaleIn {
   animation: scaleIn 0.4s ease-out;
+}
+
+/* Desktop-specific enhancements */
+@media (min-width: 1024px) {
+
+  /* Enhanced hover states for desktop */
+  .group:hover .group-hover\:shadow-2xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* Better focus states for accessibility */
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Smooth transitions for interactive elements */
+  button,
+  a,
+  .card {
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+/* Ultra-wide screens (2xl+) */
+@media (min-width: 1536px) {
+
+  /* Limit line length for readability */
+  p {
+    max-width: 75ch;
+  }
+
+  /* Add extra breathing room */
+  section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Animation for page transitions */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.3s ease-out;
 }

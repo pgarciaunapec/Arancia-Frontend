@@ -1,25 +1,153 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Footer.css';
+import {
+  UtensilsCrossed,
+  Phone,
+  Mail,
+  MapPin,
+  Instagram,
+  Facebook,
+  Clock
+} from 'lucide-react';
 
-const Footer: React.FC = () => {
+export const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <h2>BOB TORONJA</h2>
+    <footer className="bg-black border-t border-white/10">
+      {/* Main Footer Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link to="/" className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-warm flex items-center justify-center">
+                <UtensilsCrossed size={24} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white">BOB</h3>
+                <p className="text-xs text-white/60 tracking-widest">TORONJA</p>
+              </div>
+            </Link>
+            <p className="text-white/60 text-sm leading-relaxed">
+              Más de 40 años de excelencia gastronómica.
+              Tradición, sabor y hospitalidad en cada visita.
+            </p>
           </div>
-          <div className="footer-links">
-            <Link to="/about">Sobre Nosotros</Link>
-            <Link to="/services">Servicios</Link>
-            <Link to="/events">Eventos</Link>
-            <a href="#contact">Contacto</a>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+              Navegación
+            </h4>
+            <ul className="space-y-2">
+              {[
+                { label: 'Inicio', path: '/' },
+                { label: 'Menú', path: '/menu' },
+                { label: 'Eventos', path: '/events' },
+                { label: 'Galería', path: '/gallery' },
+                { label: 'Contacto', path: '/contact' },
+              ].map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="text-white/60 hover:text-primary text-sm transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+              Contacto
+            </h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3 text-white/60 text-sm">
+                <MapPin size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                <span>Calle Principal #123, Santa Fe, Rep. Dominicana</span>
+              </li>
+              <li className="flex items-center gap-3 text-white/60 text-sm">
+                <Phone size={16} className="text-primary flex-shrink-0" />
+                <a href="tel:+18095550123" className="hover:text-primary transition-colors">
+                  (809) 555-0123
+                </a>
+              </li>
+              <li className="flex items-center gap-3 text-white/60 text-sm">
+                <Mail size={16} className="text-primary flex-shrink-0" />
+                <a href="mailto:info@bobtoronja.com" className="hover:text-primary transition-colors">
+                  info@bobtoronja.com
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Hours */}
+          <div>
+            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+              Horarios
+            </h4>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-3 text-white/60 text-sm">
+                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white/80">Lun - Jue</p>
+                  <p>12:00 PM - 10:00 PM</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3 text-white/60 text-sm">
+                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white/80">Vie - Sáb</p>
+                  <p>12:00 PM - 11:30 PM</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3 text-white/60 text-sm">
+                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white/80">Domingo</p>
+                  <p>11:00 AM - 9:00 PM</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-white/40 text-sm text-center sm:text-left">
+              © {currentYear} Bob Toronja. Todos los derechos reservados.
+            </p>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-4">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 hover:bg-primary flex items-center justify-center text-white/60 hover:text-white transition-all"
+              >
+                <Instagram size={18} />
+              </a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 hover:bg-primary flex items-center justify-center text-white/60 hover:text-white transition-all"
+              >
+                <Facebook size={18} />
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </footer>
   );
 };
-
-export default Footer;
