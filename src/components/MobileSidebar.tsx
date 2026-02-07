@@ -40,10 +40,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
 
     return (
         <>
-            {/* Mobile Menu Button - Only visible on mobile */}
+            {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed top-4 left-4 z-40 lg:hidden bg-secondary/90 backdrop-blur-sm p-3 rounded-xl border border-primary/30 hover:bg-primary/20 transition-colors shadow-lg"
+                className="fixed top-4 left-4 z-40 lg:hidden bg-secondary p-3 rounded-xl border-2 border-primary hover:bg-secondary-light transition-colors"
             >
                 <Menu size={24} className="text-primary" />
             </button>
@@ -56,31 +56,31 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsOpen(false)}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
+                        className="fixed inset-0 bg-black z-40 lg:hidden"
                     />
                 )}
             </AnimatePresence>
 
             {/* Sidebar */}
             <aside
-                className={`fixed lg:hidden top-0 left-0 h-screen w-80 bg-secondary/98 backdrop-blur-xl border-r border-primary/20 z-50 overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed lg:hidden top-0 left-0 h-screen w-80 bg-secondary border-r-2 border-primary z-50 overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <div className="flex flex-col h-full">
                     {/* Logo and Close Button */}
-                    <div className="flex items-center justify-between p-6 border-b border-primary/20">
+                    <div className="flex items-center justify-between p-6 border-b-2 border-primary">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                            <div className="w-12 h-12 rounded-full bg-gradient-warm flex items-center justify-center shadow-lg">
+                            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center border-2 border-primary-dark">
                                 <UtensilsCrossed size={24} className="text-secondary" />
                             </div>
                             <div>
                                 <h2 className="text-2xl font-bold text-primary">BOB</h2>
-                                <p className="text-xs text-primary/60 tracking-widest">TORONJA</p>
+                                <p className="text-xs text-primary-light tracking-widest">TORONJA</p>
                             </div>
                         </Link>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="text-white/60 hover:text-primary transition-colors p-2 hover:bg-white/10 rounded-xl"
+                            className="text-white hover:text-primary transition-colors p-2 hover:bg-secondary-light rounded-xl border-2 border-transparent hover:border-primary"
                         >
                             <X size={24} />
                         </button>
@@ -95,9 +95,9 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                                     key={item.path}
                                     to={item.path}
                                     onClick={() => setIsOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group ${isActive
-                                            ? 'bg-white text-secondary shadow-lg'
-                                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group border-2 ${isActive
+                                            ? 'bg-white text-secondary border-primary'
+                                            : 'text-white border-transparent hover:bg-secondary-light hover:text-white hover:border-primary'
                                         }`}
                                 >
                                     <span className={isActive ? 'text-primary' : ''}>{item.icon}</span>
@@ -113,17 +113,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                     </nav>
 
                     {/* CTA Button */}
-                    <div className="p-4 border-t border-primary/20">
+                    <div className="p-4 border-t-2 border-primary">
                         <button
                             onClick={() => {
                                 onBooking();
                                 setIsOpen(false);
                             }}
-                            className="w-full bg-gradient-warm text-secondary py-4 px-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-primary/30 transition-all hover:scale-105 active:scale-95"
+                            className="w-full bg-primary text-secondary py-4 px-4 rounded-xl font-bold text-lg hover:bg-primary-light transition-all border-2 border-primary-dark"
                         >
                             ✨ Reservar Mesa
                         </button>
-                        <p className="text-xs text-center text-white/40 mt-4">
+                        <p className="text-xs text-center text-white mt-4">
                             © 2026 Bob Toronja
                         </p>
                     </div>
