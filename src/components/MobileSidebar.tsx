@@ -30,11 +30,9 @@ const navItems: NavItem[] = [
     { label: 'Contacto', path: '/contact', icon: <Phone size={20} /> },
 ];
 
-// Color constants
 const COLORS = {
     primary: '#f5b400',
     primaryLight: '#ffc933',
-    primaryDark: '#cc9600',
     secondary: '#2d1f0f',
     secondaryLight: '#4a3520',
     white: '#ffffff',
@@ -54,10 +52,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
             <button
                 onClick={() => setIsOpen(true)}
                 className="fixed top-4 left-4 z-40 lg:hidden p-3 rounded-xl transition-colors"
-                style={{
-                    backgroundColor: COLORS.secondary,
-                    border: `2px solid ${COLORS.primary}`
-                }}
+                style={{ backgroundColor: COLORS.secondary, border: `2px solid ${COLORS.primary}` }}
             >
                 <Menu size={24} style={{ color: COLORS.primary }} />
             </button>
@@ -80,22 +75,13 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
             <aside
                 className={`fixed lg:hidden top-0 left-0 h-screen w-80 z-50 overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
-                style={{
-                    backgroundColor: COLORS.secondary,
-                    borderRight: `2px solid ${COLORS.primary}`
-                }}
+                style={{ backgroundColor: COLORS.secondary, borderRight: `2px solid ${COLORS.primary}` }}
             >
                 <div className="flex flex-col h-full">
                     {/* Logo and Close Button */}
-                    <div
-                        className="flex items-center justify-between p-6"
-                        style={{ borderBottom: `2px solid ${COLORS.primary}` }}
-                    >
+                    <div className="flex items-center justify-between p-6" style={{ borderBottom: `2px solid ${COLORS.primary}` }}>
                         <Link to="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                            <div
-                                className="w-12 h-12 rounded-full flex items-center justify-center"
-                                style={{ backgroundColor: COLORS.primary }}
-                            >
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.primary }}>
                                 <UtensilsCrossed size={24} style={{ color: COLORS.secondary }} />
                             </div>
                             <div>
@@ -103,11 +89,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                                 <p className="text-xs tracking-widest" style={{ color: COLORS.primaryLight }}>TORONJA</p>
                             </div>
                         </Link>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 rounded-xl transition-colors"
-                            style={{ color: COLORS.white }}
-                        >
+                        <button onClick={() => setIsOpen(false)} className="p-2 rounded-xl" style={{ color: COLORS.white }}>
                             <X size={24} />
                         </button>
                     </div>
@@ -130,34 +112,22 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                                 >
                                     <span style={{ color: isActive ? COLORS.primary : 'inherit' }}>{item.icon}</span>
                                     <span className="font-medium">{item.label}</span>
-                                    <ChevronRight
-                                        size={16}
-                                        className="ml-auto transition-transform group-hover:translate-x-1"
-                                        style={{ color: isActive ? COLORS.primary : 'inherit' }}
-                                    />
+                                    <ChevronRight size={16} className="ml-auto transition-transform group-hover:translate-x-1" style={{ color: isActive ? COLORS.primary : 'inherit' }} />
                                 </Link>
                             );
                         })}
                     </nav>
 
-                    {/* CTA Button - Primary Style */}
+                    {/* CTA Button */}
                     <div className="p-4" style={{ borderTop: `2px solid ${COLORS.primary}` }}>
                         <button
-                            onClick={() => {
-                                onBooking();
-                                setIsOpen(false);
-                            }}
+                            onClick={() => { onBooking(); setIsOpen(false); }}
                             className="w-full py-4 px-4 rounded-xl font-bold text-lg transition-all hover:scale-105 active:scale-95"
-                            style={{
-                                backgroundColor: COLORS.primary,
-                                color: COLORS.secondary
-                            }}
+                            style={{ backgroundColor: COLORS.primary, color: COLORS.secondary }}
                         >
                             ✨ Reservar Mesa
                         </button>
-                        <p className="text-xs text-center mt-4" style={{ color: COLORS.white }}>
-                            © 2026 Bob Toronja
-                        </p>
+                        <p className="text-xs text-center mt-4" style={{ color: COLORS.white }}>© 2026 Bob Toronja</p>
                     </div>
                 </div>
             </aside>
