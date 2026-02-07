@@ -11,26 +11,42 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+// Color constants
+const COLORS = {
+  primary: '#f5b400',
+  primaryLight: '#ffc933',
+  primaryDark: '#cc9600',
+  secondary: '#2d1f0f',
+  secondaryLight: '#4a3520',
+  white: '#ffffff',
+};
+
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-secondary border-t-2 border-primary">
+    <footer style={{ backgroundColor: COLORS.secondary, borderTop: `2px solid ${COLORS.primary}` }}>
       {/* CTA Banner */}
-      <div className="bg-primary">
+      <div style={{ backgroundColor: COLORS.primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
-              <h3 className="text-2xl sm:text-3xl font-bold text-secondary mb-2">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: COLORS.secondary }}>
                 ¿Listo para una experiencia inolvidable?
               </h3>
-              <p className="text-secondary-light">
+              <p style={{ color: COLORS.secondaryLight }}>
                 Reserva tu mesa y disfruta de nuestra gastronomía excepcional
               </p>
             </div>
+            {/* Secondary Button Style: Brown bg, yellow border */}
             <Link
               to="/contact"
-              className="bg-secondary text-primary px-8 py-4 rounded-full font-bold text-lg hover:bg-secondary-light transition-all flex items-center gap-2 border-2 border-secondary-dark"
+              className="px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 flex items-center gap-2"
+              style={{
+                backgroundColor: COLORS.secondary,
+                color: COLORS.primary,
+                border: `2px solid ${COLORS.primaryDark}`
+              }}
             >
               Reservar Ahora
               <ArrowRight size={20} />
@@ -46,15 +62,18 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center border-2 border-primary-dark">
-                <UtensilsCrossed size={28} className="text-secondary" />
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: COLORS.primary }}
+              >
+                <UtensilsCrossed size={28} style={{ color: COLORS.secondary }} />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-primary">BOB</h3>
-                <p className="text-xs text-primary-light tracking-widest">TORONJA</p>
+                <h3 className="text-2xl font-bold" style={{ color: COLORS.primary }}>BOB</h3>
+                <p className="text-xs tracking-widest" style={{ color: COLORS.primaryLight }}>TORONJA</p>
               </div>
             </Link>
-            <p className="text-white text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed" style={{ color: COLORS.white }}>
               Más de 40 años de excelencia gastronómica.
               Tradición, sabor y hospitalidad en cada visita.
             </p>
@@ -62,7 +81,7 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-primary font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider" style={{ color: COLORS.primary }}>
               Navegación
             </h4>
             <ul className="space-y-2">
@@ -76,9 +95,10 @@ export const Footer: React.FC = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-white hover:text-primary text-sm transition-colors flex items-center gap-2 group"
+                    className="text-sm transition-colors flex items-center gap-2 group hover:text-[#f5b400]"
+                    style={{ color: COLORS.white }}
                   >
-                    <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all text-primary" />
+                    <ArrowRight size={14} className="opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" style={{ color: COLORS.primary }} />
                     {link.label}
                   </Link>
                 </li>
@@ -88,23 +108,23 @@ export const Footer: React.FC = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-primary font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider" style={{ color: COLORS.primary }}>
               Contacto
             </h4>
             <ul className="space-y-3">
-              <li className="flex items-start gap-3 text-white text-sm">
-                <MapPin size={16} className="text-primary mt-0.5 flex-shrink-0" />
+              <li className="flex items-start gap-3 text-sm" style={{ color: COLORS.white }}>
+                <MapPin size={16} className="mt-0.5 flex-shrink-0" style={{ color: COLORS.primary }} />
                 <span>Calle Principal #123, Santa Fe, Rep. Dominicana</span>
               </li>
-              <li className="flex items-center gap-3 text-white text-sm">
-                <Phone size={16} className="text-primary flex-shrink-0" />
-                <a href="tel:+18095550123" className="hover:text-primary transition-colors">
+              <li className="flex items-center gap-3 text-sm" style={{ color: COLORS.white }}>
+                <Phone size={16} className="flex-shrink-0" style={{ color: COLORS.primary }} />
+                <a href="tel:+18095550123" className="hover:text-[#f5b400] transition-colors">
                   (809) 555-0123
                 </a>
               </li>
-              <li className="flex items-center gap-3 text-white text-sm">
-                <Mail size={16} className="text-primary flex-shrink-0" />
-                <a href="mailto:info@bobtoronja.com" className="hover:text-primary transition-colors">
+              <li className="flex items-center gap-3 text-sm" style={{ color: COLORS.white }}>
+                <Mail size={16} className="flex-shrink-0" style={{ color: COLORS.primary }} />
+                <a href="mailto:info@bobtoronja.com" className="hover:text-[#f5b400] transition-colors">
                   info@bobtoronja.com
                 </a>
               </li>
@@ -113,28 +133,28 @@ export const Footer: React.FC = () => {
 
           {/* Hours */}
           <div>
-            <h4 className="text-primary font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider" style={{ color: COLORS.primary }}>
               Horarios
             </h4>
             <ul className="space-y-2">
-              <li className="flex items-start gap-3 text-white text-sm">
-                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+              <li className="flex items-start gap-3 text-sm" style={{ color: COLORS.white }}>
+                <Clock size={16} className="mt-0.5 flex-shrink-0" style={{ color: COLORS.primary }} />
                 <div>
-                  <p className="text-primary font-medium">Lun - Jue</p>
+                  <p className="font-medium" style={{ color: COLORS.primary }}>Lun - Jue</p>
                   <p>12:00 PM - 10:00 PM</p>
                 </div>
               </li>
-              <li className="flex items-start gap-3 text-white text-sm">
-                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+              <li className="flex items-start gap-3 text-sm" style={{ color: COLORS.white }}>
+                <Clock size={16} className="mt-0.5 flex-shrink-0" style={{ color: COLORS.primary }} />
                 <div>
-                  <p className="text-primary font-medium">Vie - Sáb</p>
+                  <p className="font-medium" style={{ color: COLORS.primary }}>Vie - Sáb</p>
                   <p>12:00 PM - 11:30 PM</p>
                 </div>
               </li>
-              <li className="flex items-start gap-3 text-white text-sm">
-                <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+              <li className="flex items-start gap-3 text-sm" style={{ color: COLORS.white }}>
+                <Clock size={16} className="mt-0.5 flex-shrink-0" style={{ color: COLORS.primary }} />
                 <div>
-                  <p className="text-primary font-medium">Domingo</p>
+                  <p className="font-medium" style={{ color: COLORS.primary }}>Domingo</p>
                   <p>11:00 AM - 9:00 PM</p>
                 </div>
               </li>
@@ -144,10 +164,10 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t-2 border-primary">
+      <div style={{ borderTop: `2px solid ${COLORS.primary}` }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-white text-sm text-center sm:text-left">
+            <p className="text-sm text-center sm:text-left" style={{ color: COLORS.white }}>
               © {currentYear} Bob Toronja. Todos los derechos reservados.
             </p>
 
@@ -157,7 +177,12 @@ export const Footer: React.FC = () => {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-secondary-light hover:bg-primary flex items-center justify-center text-white hover:text-secondary transition-all border-2 border-primary"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                style={{
+                  backgroundColor: COLORS.secondaryLight,
+                  color: COLORS.white,
+                  border: `2px solid ${COLORS.primary}`
+                }}
               >
                 <Instagram size={18} />
               </a>
@@ -165,7 +190,12 @@ export const Footer: React.FC = () => {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-secondary-light hover:bg-primary flex items-center justify-center text-white hover:text-secondary transition-all border-2 border-primary"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                style={{
+                  backgroundColor: COLORS.secondaryLight,
+                  color: COLORS.white,
+                  border: `2px solid ${COLORS.primary}`
+                }}
               >
                 <Facebook size={18} />
               </a>

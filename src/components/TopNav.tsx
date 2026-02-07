@@ -40,13 +40,10 @@ export const TopNav: React.FC<TopNavProps> = ({ onBooking }) => {
             const currentScrollY = window.scrollY;
 
             if (currentScrollY < 100) {
-                // Always show when near top
                 setIsVisible(true);
             } else if (currentScrollY > lastScrollY) {
-                // Scrolling down - hide
                 setIsVisible(false);
             } else {
-                // Scrolling up - show
                 setIsVisible(true);
             }
 
@@ -62,14 +59,14 @@ export const TopNav: React.FC<TopNavProps> = ({ onBooking }) => {
             className={`hidden lg:block fixed top-0 left-0 right-0 z-50 px-8 xl:px-16 2xl:px-24 pt-5 transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
                 }`}
         >
-            <nav className="max-w-4xl mx-auto bg-secondary rounded-full border-2 border-primary">
+            <nav className="max-w-4xl mx-auto rounded-full border-2 shadow-lg" style={{ backgroundColor: '#2d1f0f', borderColor: '#f5b400' }}>
                 <div className="flex items-center justify-between px-2 py-1.5">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-1.5 pl-1 group">
-                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <UtensilsCrossed size={14} className="text-secondary" />
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: '#f5b400' }}>
+                            <UtensilsCrossed size={14} style={{ color: '#2d1f0f' }} />
                         </div>
-                        <span className="font-bold text-primary text-xs tracking-wider hidden xl:block">
+                        <span className="font-bold text-xs tracking-wider hidden xl:block" style={{ color: '#f5b400' }}>
                             BOB TORONJA
                         </span>
                     </Link>
@@ -82,22 +79,28 @@ export const TopNav: React.FC<TopNavProps> = ({ onBooking }) => {
                                 <Link
                                     key={item.path}
                                     to={item.path}
-                                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full transition-all text-xs font-medium ${isActive
-                                            ? 'bg-white text-secondary'
-                                            : 'text-white/80 hover:text-white hover:bg-white/10'
-                                        }`}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-full transition-all text-xs font-medium"
+                                    style={{
+                                        backgroundColor: isActive ? '#ffffff' : 'transparent',
+                                        color: isActive ? '#2d1f0f' : 'rgba(255,255,255,0.8)',
+                                    }}
                                 >
-                                    <span className={isActive ? 'text-primary' : ''}>{item.icon}</span>
+                                    <span style={{ color: isActive ? '#f5b400' : 'inherit' }}>{item.icon}</span>
                                     <span className="hidden xl:inline">{item.label}</span>
                                 </Link>
                             );
                         })}
                     </div>
 
-                    {/* CTA Button */}
+                    {/* CTA Button - Primary Style: Solid Yellow */}
                     <button
                         onClick={onBooking}
-                        className="bg-primary text-secondary px-4 py-1.5 rounded-full font-bold text-xs hover:bg-primary-light transition-all border-2 border-primary-dark"
+                        className="px-4 py-1.5 rounded-full font-bold text-xs transition-all hover:scale-105 active:scale-95"
+                        style={{
+                            backgroundColor: '#f5b400',
+                            color: '#2d1f0f',
+                            border: 'none'
+                        }}
                     >
                         Reservar
                     </button>

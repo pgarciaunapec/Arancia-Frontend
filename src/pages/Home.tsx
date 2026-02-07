@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Users, Award, Clock } from 'lucide-react';
+import { ArrowRight, ArrowDown, Star, Users, Award, Clock } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 
 interface HomeProps {
   onShowModal: () => void;
@@ -50,7 +49,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full pt-20 lg:pt-0">
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0 }}
@@ -72,9 +71,9 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Badge className="mb-4 sm:mb-6 bg-primary/20 backdrop-blur-sm border-primary/30 text-primary-foreground px-4 sm:px-6 py-2">
+            <span className="inline-block mb-4 sm:mb-6 bg-primary text-secondary px-4 sm:px-6 py-2 rounded-full font-bold text-sm border-2 border-primary-dark">
               ⭐ Más de 40 años de tradición
-            </Badge>
+            </span>
           </motion.div>
 
           <motion.h1
@@ -106,7 +105,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
             <Button
               size="lg"
               onClick={onShowModal}
-              className="bg-primary hover:bg-primary-dark text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+              className="px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg"
             >
               Reservar Mesa
               <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
@@ -115,21 +114,21 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
               size="lg"
               variant="outline"
               asChild
-              className="border-2 border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl"
+              className="px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg"
             >
               <Link to="/menu">Ver Menú</Link>
             </Button>
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Scroll Indicator - Circular with Arrow */}
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
           className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 hidden md:block"
         >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2" />
+          <div className="w-12 h-12 rounded-full bg-primary border-2 border-primary-dark flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+            <ArrowDown className="w-5 h-5 text-secondary" />
           </div>
         </motion.div>
       </motion.section>
@@ -232,7 +231,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
             <Button
               variant="outline"
               asChild
-              className="border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-secondary"
             >
               <Link to="/about">
                 Conoce Más Sobre Nosotros
@@ -271,7 +270,7 @@ const Home: React.FC<HomeProps> = ({ onShowModal }) => {
                 <Button
                   size="lg"
                   onClick={onShowModal}
-                  className="bg-white text-primary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
+                  className="bg-secondary text-primary border-2 border-primary hover:bg-secondary-light px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg"
                 >
                   Reservar Ahora
                   <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
