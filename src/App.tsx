@@ -1,7 +1,7 @@
 import React, { useReducer, useCallback } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MobileSidebar } from './components/MobileSidebar';
-import { BottomNav } from './components/BottomNav';
+import { TopNav } from './components/TopNav';
 import { Footer } from './components/Footer';
 import { ModernModal } from './components/ModernModal';
 import Home from './pages/Home';
@@ -48,11 +48,14 @@ const RestaurantApp: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="min-h-screen w-full bg-background text-foreground">
+        {/* Top Nav - Only visible on desktop */}
+        <TopNav onBooking={bookingRequestAction} />
+
         {/* Mobile Sidebar - Only visible on mobile */}
         <MobileSidebar onBooking={bookingRequestAction} />
 
         {/* Main Content */}
-        <main className="min-h-screen pb-20 lg:pb-24">
+        <main className="min-h-screen">
           <Routes>
             <Route path="/" element={<Home onShowModal={bookingRequestAction} />} />
             <Route path="/menu" element={<Menu onShowModal={launchPopupWindow} />} />
@@ -66,9 +69,6 @@ const RestaurantApp: React.FC = () => {
           {/* Footer */}
           <Footer />
         </main>
-
-        {/* Bottom Nav - Only visible on desktop */}
-        <BottomNav onBooking={bookingRequestAction} />
 
         {/* Modal */}
         <ModernModal

@@ -9,23 +9,23 @@
   --popover: #1a1a1a;
   --popover-foreground: #fdfbf7;
 
-  /* Primary - Warm Terracotta */
-  --primary: #d4622a;
-  --primary-foreground: #ffffff;
-  --primary-light: #e67e4a;
-  --primary-dark: #b54d1a;
+  /* Primary - Warm Golden Yellow */
+  --primary: #f5b400;
+  --primary-foreground: #2d1f0f;
+  --primary-light: #ffc933;
+  --primary-dark: #cc9600;
 
-  /* Secondary - Deep Forest Green */
-  --secondary: #2d4a3e;
-  --secondary-foreground: #ffffff;
-  --secondary-light: #3d6152;
-  --secondary-dark: #1d3329;
+  /* Secondary - Rich Brown */
+  --secondary: #2d1f0f;
+  --secondary-foreground: #fdfbf7;
+  --secondary-light: #4a3520;
+  --secondary-dark: #1a1208;
 
-  /* Accent - Warm Gold */
-  --accent: #c9975b;
-  --accent-foreground: #1a1410;
-  --accent-light: #d8a86f;
-  --accent-dark: #b08447;
+  /* Accent - Bright Gold */
+  --accent: #ffd700;
+  --accent-foreground: #2d1f0f;
+  --accent-light: #ffe44d;
+  --accent-dark: #ccac00;
 
   /* Neutral Tones - Dark Theme */
   --muted: #1f1f1f;
@@ -44,10 +44,10 @@
   --warning-foreground: #ffffff;
 
   /* Special Effects */
-  --gradient-warm: linear-gradient(135deg, #d4622a 0%, #c9975b 100%);
+  --gradient-warm: linear-gradient(135deg, #f5b400 0%, #ffd700 100%);
   --gradient-hero: linear-gradient(135deg,
-      rgba(212, 98, 42, 0.95) 0%,
-      rgba(45, 74, 62, 0.95) 100%);
+      rgba(245, 180, 0, 0.95) 0%,
+      rgba(45, 31, 15, 0.95) 100%);
   --shadow-sm: 0 1px 2px 0 rgba(26, 20, 16, 0.05);
   --shadow-md:
     0 4px 6px -1px rgba(26, 20, 16, 0.1), 0 2px 4px -1px rgba(26, 20, 16, 0.06);
@@ -70,14 +70,14 @@
   --chart-5: #3d6152;
 
   /* Sidebar */
-  --sidebar: #1a1410;
+  --sidebar: #1a1208;
   --sidebar-foreground: #fdfbf7;
-  --sidebar-primary: #d4622a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2d4a3e;
+  --sidebar-primary: #f5b400;
+  --sidebar-primary-foreground: #2d1f0f;
+  --sidebar-accent: #2d1f0f;
   --sidebar-accent-foreground: #fdfbf7;
-  --sidebar-border: #3a3430;
-  --sidebar-ring: #d4622a;
+  --sidebar-border: #3a2a18;
+  --sidebar-ring: #f5b400;
 }
 
 .dark {

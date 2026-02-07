@@ -43,9 +43,9 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
             {/* Mobile Menu Button - Only visible on mobile */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed top-4 left-4 z-40 lg:hidden bg-black/80 backdrop-blur-sm p-3 rounded-xl border border-white/20 hover:bg-white/10 transition-colors"
+                className="fixed top-4 left-4 z-40 lg:hidden bg-secondary/90 backdrop-blur-sm p-3 rounded-xl border border-primary/30 hover:bg-primary/20 transition-colors shadow-lg"
             >
-                <Menu size={24} className="text-white" />
+                <Menu size={24} className="text-primary" />
             </button>
 
             {/* Overlay */}
@@ -56,33 +56,33 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsOpen(false)}
-                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
                     />
                 )}
             </AnimatePresence>
 
             {/* Sidebar */}
             <aside
-                className={`fixed lg:hidden top-0 left-0 h-screen w-72 bg-black/95 backdrop-blur-xl border-r border-white/10 z-50 overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed lg:hidden top-0 left-0 h-screen w-80 bg-secondary/98 backdrop-blur-xl border-r border-primary/20 z-50 overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <div className="flex flex-col h-full">
                     {/* Logo and Close Button */}
-                    <div className="flex items-center justify-between p-6 border-b border-white/10">
+                    <div className="flex items-center justify-between p-6 border-b border-primary/20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                            <div className="w-10 h-10 rounded-full bg-gradient-warm flex items-center justify-center">
-                                <UtensilsCrossed size={20} className="text-white" />
+                            <div className="w-12 h-12 rounded-full bg-gradient-warm flex items-center justify-center shadow-lg">
+                                <UtensilsCrossed size={24} className="text-secondary" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-white">BOB</h2>
-                                <p className="text-xs text-white/60">TORONJA</p>
+                                <h2 className="text-2xl font-bold text-primary">BOB</h2>
+                                <p className="text-xs text-primary/60 tracking-widest">TORONJA</p>
                             </div>
                         </Link>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="text-white/60 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+                            className="text-white/60 hover:text-primary transition-colors p-2 hover:bg-white/10 rounded-xl"
                         >
-                            <X size={20} />
+                            <X size={24} />
                         </button>
                     </div>
 
@@ -95,16 +95,16 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                                     key={item.path}
                                     to={item.path}
                                     onClick={() => setIsOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${isActive
-                                            ? 'bg-primary text-white'
+                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group ${isActive
+                                            ? 'bg-white text-secondary shadow-lg'
                                             : 'text-white/70 hover:bg-white/10 hover:text-white'
                                         }`}
                                 >
-                                    <span>{item.icon}</span>
+                                    <span className={isActive ? 'text-primary' : ''}>{item.icon}</span>
                                     <span className="font-medium">{item.label}</span>
                                     <ChevronRight
                                         size={16}
-                                        className={`ml-auto transition-transform ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
+                                        className={`ml-auto transition-transform ${isActive ? 'translate-x-1 text-primary' : 'group-hover:translate-x-1'
                                             }`}
                                     />
                                 </Link>
@@ -113,17 +113,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ onBooking }) => {
                     </nav>
 
                     {/* CTA Button */}
-                    <div className="p-4 border-t border-white/10">
+                    <div className="p-4 border-t border-primary/20">
                         <button
                             onClick={() => {
                                 onBooking();
                                 setIsOpen(false);
                             }}
-                            className="w-full bg-gradient-warm text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                            className="w-full bg-gradient-warm text-secondary py-4 px-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-primary/30 transition-all hover:scale-105 active:scale-95"
                         >
-                            Reservar Mesa
+                            ✨ Reservar Mesa
                         </button>
-                        <p className="text-xs text-center text-white/40 mt-3">
+                        <p className="text-xs text-center text-white/40 mt-4">
                             © 2026 Bob Toronja
                         </p>
                     </div>
