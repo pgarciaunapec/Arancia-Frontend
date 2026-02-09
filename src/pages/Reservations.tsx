@@ -43,7 +43,7 @@ const Reservations: React.FC = () => {
     const prevStep = () => setStep(prev => prev - 1);
 
     return (
-        <div className="w-full pt-28 pb-20 px-4 min-h-screen flex items-center justify-center bg-background">
+        <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen flex items-center justify-center bg-background">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -82,7 +82,7 @@ const Home: React.FC<HomeProps> = () => {
     ];
 
     return (
-        <div className="w-full pt-20 lg:pt-0">
+        <div className="w-full sm:pt-20 lg:pt-0">
             {/* Hero Section */}
             <motion.section
                 data-section

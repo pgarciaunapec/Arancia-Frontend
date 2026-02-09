@@ -42,7 +42,7 @@ const Checkout: React.FC = () => {
     };
 
     return (
-        <div className="w-full pt-28 pb-20 px-4 min-h-screen bg-background">
+        <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
             <div className="max-w-4xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
