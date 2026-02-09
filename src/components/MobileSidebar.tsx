@@ -11,7 +11,9 @@ import {
     Phone,
     ChevronRight,
     Menu,
-    X
+    X,
+    ShoppingBag,
+    User
 } from 'lucide-react';
 
 interface NavItem {
@@ -23,6 +25,9 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: 'Inicio', path: '/', icon: <Home size={20} /> },
     { label: 'Menú', path: '/menu', icon: <UtensilsCrossed size={20} /> },
+    { label: 'Carrito', path: '/cart', icon: <ShoppingBag size={20} /> },
+    { label: 'Perfil', path: '/profile', icon: <User size={20} /> },
+    { label: 'Mis Reservas', path: '/my-reservations', icon: <Calendar size={20} /> },
     { label: 'Sobre Nosotros', path: '/about', icon: <Info size={20} /> },
     { label: 'Eventos', path: '/events', icon: <Calendar size={20} /> },
     { label: 'Servicios', path: '/services', icon: <Briefcase size={20} /> },

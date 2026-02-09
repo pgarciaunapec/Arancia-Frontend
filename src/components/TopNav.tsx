@@ -7,7 +7,10 @@ import {
     Calendar,
     Briefcase,
     Image,
-    Phone
+    Phone,
+    ShoppingBag,
+    User,
+    CalendarCheck
 } from 'lucide-react';
 
 interface NavItem {
@@ -100,14 +103,33 @@ export const TopNav: React.FC = () => {
                         })}
                     </div>
 
-                    {/* CTA Button - Primary Style */}
-                    <Link
-                        to="/reservations"
-                        className="px-4 py-1.5 rounded-full font-bold text-xs transition-all hover:scale-105 active:scale-95"
-                        style={{ backgroundColor: COLORS.primary, color: COLORS.secondary, display: 'inline-block' }}
-                    >
-                        Reservar
-                    </Link>
+                    {/* Right Side Actions */}
+                    <div className="flex items-center gap-4">
+                        {/* My Reservations Icon */}
+                        <Link to="/my-reservations" className="p-2 rounded-full hover:bg-white/10 transition-colors group" title="Mis Reservas">
+                            <CalendarCheck size={20} className="text-white group-hover:text-[#f5b400] transition-colors" />
+                        </Link>
+
+                        {/* Cart Icon */}
+                        <Link to="/cart" className="p-2 rounded-full hover:bg-white/10 transition-colors relative group" title="Carrito">
+                            <ShoppingBag size={20} className="text-white group-hover:text-[#f5b400] transition-colors" />
+                            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#f5b400]" />
+                        </Link>
+
+                        {/* Profile Icon */}
+                        <Link to="/profile" className="p-2 rounded-full hover:bg-white/10 transition-colors group mr-2" title="Perfil">
+                            <User size={20} className="text-white group-hover:text-[#f5b400] transition-colors" />
+                        </Link>
+
+                        {/* CTA Button - Primary Style */}
+                        <Link
+                            to="/reservations"
+                            className="px-4 py-1.5 rounded-full font-bold text-xs transition-all hover:scale-105 active:scale-95"
+                            style={{ backgroundColor: COLORS.primary, color: COLORS.secondary, display: 'inline-block' }}
+                        >
+                            Reservar
+                        </Link>
+                    </div>
                 </div>
             </nav>
         </div>
