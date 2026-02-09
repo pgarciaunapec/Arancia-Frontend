@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, Plus, Filter } from 'lucide-react';
-import { menuData } from '../data/menuData';
-import type { MenuItem } from '../types';
+import { Search, Plus, Filter, Loader2 } from 'lucide-react';
+import { menuApi, type MenuItem, getImageUrl } from '../services/api';
+import { useCart } from '../contexts';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -13,13 +13,39 @@ interface MenuPageProps {
 }
 
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
+  const [menuData, setMenuData] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { addItem } = useCart();
 
-  const allCategories = useMemo(() => {
-    const cats = Array.from(new Set(menuData.map(item => item.category)));
-    return ['all', ...cats];
-  }, []);
+  // Fetch menu data from API
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        setIsLoading(true);
+        const [menuResponse, categoriesResponse] = await Promise.all([
+          menuApi.getAll(),
+          menuApi.getCategories()
+        ]);
+
+        if (menuResponse.data) {
+          setMenuData(menuResponse.data);
+        }
+        if (categoriesResponse.data) {
+          setCategories(['all', ...categoriesResponse.data]);
+        }
+      } catch (error) {
+        console.error('Error fetching menu:', error);
+        onShowModal('Error', 'No se pudo cargar el menú. Por favor intenta de nuevo.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMenu();
+  }, [onShowModal]);
 
   const filteredItems = useMemo(() => {
     let items = selectedCategory === 'all'
@@ -34,11 +60,28 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     }
 
     return items;
-  }, [selectedCategory, searchQuery]);
+  }, [menuData, selectedCategory, searchQuery]);
 
-  const handleAddItem = (item: MenuItem) => {
-    onShowModal('¡Agregado!', `${item.name} ha sido agregado a tu carrito`);
+  const handleAddItem = async (item: MenuItem) => {
+    try {
+      await addItem(item, 1);
+      onShowModal('¡Agregado!', `${item.name} ha sido agregado a tu carrito`);
+    } catch (error) {
+      console.error('Error adding item:', error);
+      onShowModal('Error', 'No se pudo agregar el item al carrito');
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Cargando menú...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-full">
@@ -46,9 +89,6 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
-            {/* <Badge className="mb-3 sm:mb-4 bg-primary/10 text-primary border-primary/20">
-              🍽️ Menú Online
-            </Badge> */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -96,7 +136,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
               {/* Category Filters */}
               <div className="flex flex-wrap gap-2">
-                {allCategories.map(cat => (
+                {categories.map(cat => (
                   <Button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
@@ -139,7 +179,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredItems.map((item, index) => (
                 <motion.div
-                  key={item.id}
+                  key={item._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
@@ -147,9 +187,12 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                   <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50 h-full flex flex-col">
                     <div className="relative h-48 sm:h-56 overflow-hidden">
                       <img
-                        src={item.image}
+                        src={getImageUrl(item.image)}
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=No+Image';
+                        }}
                       />
                       <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
                         <Badge className="bg-accent text-accent-foreground shadow-lg text-xs sm:text-sm">

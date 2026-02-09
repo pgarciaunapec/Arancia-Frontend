@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, Loader2 } from 'lucide-react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
+import { contactApi } from '../services/api';
 
 interface ContactProps {
   onShowModal: (title: string, message: string) => void;
@@ -18,11 +19,22 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
     phone: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onShowModal('¡Mensaje Enviado!', 'Gracias por contactarnos. Te responderemos pronto.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    setIsSubmitting(true);
+
+    try {
+      await contactApi.sendMessage(formData);
+      onShowModal('¡Mensaje Enviado!', 'Gracias por contactarnos. Te responderemos pronto.');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      onShowModal('Error', 'No se pudo enviar el mensaje. Por favor intenta de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [

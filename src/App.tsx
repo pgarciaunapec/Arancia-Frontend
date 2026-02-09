@@ -18,6 +18,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import MyReservations from './pages/MyReservations';
 import Profile from './pages/Profile';
+import Login from './pages/Login';
 
 type PopupInfo = { displayFlag: boolean; titleContent: string; bodyContent: string };
 type PopupAction =
@@ -75,6 +76,7 @@ const RestaurantApp: React.FC = () => {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
 

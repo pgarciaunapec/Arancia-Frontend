@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
+import { useCart, useAuth } from '../contexts';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { getImageUrl } from '../services/api';
 
 const COLORS = {
     primary: '#f5b400',
@@ -13,33 +15,26 @@ const COLORS = {
     border: 'rgba(245, 180, 0, 0.3)'
 };
 
-// Mock data
-const INITIAL_CART_ITEMS = [
-    { id: 1, name: 'Risotto de Setas', price: 24.00, quantity: 1, image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=200' },
-    { id: 2, name: 'Salmón a la Parrilla', price: 32.00, quantity: 2, image: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?auto=format&fit=crop&q=80&w=200' },
-    { id: 3, name: 'Tiramisú Clásico', price: 12.00, quantity: 1, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&q=80&w=200' },
-];
-
 const Cart: React.FC = () => {
-    const [items, setItems] = React.useState(INITIAL_CART_ITEMS);
+    const { items, subtotal, tax, total, isLoading, updateQuantity, removeItem } = useCart();
+    const { isAuthenticated } = useAuth();
 
-    const updateQuantity = (id: number, change: number) => {
-        setItems(items.map(item => {
-            if (item.id === id) {
-                const newQuantity = Math.max(1, item.quantity + change);
-                return { ...item, quantity: newQuantity };
-            }
-            return item;
-        }));
+    const handleUpdateQuantity = async (menuItemId: string, currentQuantity: number, change: number) => {
+        const newQuantity = Math.max(1, currentQuantity + change);
+        await updateQuantity(menuItemId, newQuantity);
     };
 
-    const removeItem = (id: number) => {
-        setItems(items.filter(item => item.id !== id));
+    const handleRemoveItem = async (menuItemId: string) => {
+        await removeItem(menuItemId);
     };
 
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const tax = subtotal * 0.18;
-    const total = subtotal + tax;
+    if (isLoading) {
+        return (
+            <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
@@ -69,25 +64,35 @@ const Cart: React.FC = () => {
                             </Card>
                         ) : (
                             items.map((item) => (
-                                <motion.div layout key={item.id}>
+                                <motion.div layout key={item.menuItem}>
                                     <Card className="p-4 flex gap-4 items-center" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                                        <img src={item.image} alt={item.name} className="w-24 h-24 rounded-lg object-cover" />
+                                        <div className="w-24 h-24 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden shrink-0">
+                                            {item.image ? (
+                                                <img
+                                                    src={getImageUrl(item.image)}
+                                                    alt={item.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <ShoppingBag className="w-8 h-8 opacity-30" style={{ color: COLORS.white }} />
+                                            )}
+                                        </div>
 
                                         <div className="flex-1">
                                             <h3 className="font-bold text-lg text-white mb-1">{item.name}</h3>
-                                            <p className="text-sm font-medium" style={{ color: COLORS.primary }}>${item.price.toFixed(2)}</p>
+                                            <p className="text-sm font-medium" style={{ color: COLORS.primary }}>RD${item.price.toFixed(2)}</p>
                                         </div>
 
                                         <div className="flex items-center gap-3 bg-black/20 rounded-lg p-1">
                                             <button
-                                                onClick={() => updateQuantity(item.id, -1)}
+                                                onClick={() => handleUpdateQuantity(item.menuItem, item.quantity, -1)}
                                                 className="p-2 hover:bg-white/10 rounded-md transition-colors text-white"
                                             >
                                                 <Minus size={14} />
                                             </button>
                                             <span className="font-bold text-white w-4 text-center">{item.quantity}</span>
                                             <button
-                                                onClick={() => updateQuantity(item.id, 1)}
+                                                onClick={() => handleUpdateQuantity(item.menuItem, item.quantity, 1)}
                                                 className="p-2 hover:bg-white/10 rounded-md transition-colors text-white"
                                             >
                                                 <Plus size={14} />
@@ -95,7 +100,7 @@ const Cart: React.FC = () => {
                                         </div>
 
                                         <button
-                                            onClick={() => removeItem(item.id)}
+                                            onClick={() => handleRemoveItem(item.menuItem)}
                                             className="p-3 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-colors ml-2"
                                             style={{ color: COLORS.muted }}
                                         >
@@ -115,21 +120,32 @@ const Cart: React.FC = () => {
                             <div className="space-y-3 mb-6 text-sm">
                                 <div className="flex justify-between text-white/80">
                                     <span>Subtotal</span>
-                                    <span>${subtotal.toFixed(2)}</span>
+                                    <span>RD${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-white/80">
                                     <span>Impuestos (18%)</span>
-                                    <span>${tax.toFixed(2)}</span>
+                                    <span>RD${tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-lg font-bold text-white pt-4 border-t border-white/10">
                                     <span>Total</span>
-                                    <span style={{ color: COLORS.primary }}>${total.toFixed(2)}</span>
+                                    <span style={{ color: COLORS.primary }}>RD${total.toFixed(2)}</span>
                                 </div>
                             </div>
 
-                            <Button size="lg" className="w-full text-base" asChild disabled={items.length === 0}>
-                                <Link to="/checkout">
-                                    Proceder al Pago
+                            {!isAuthenticated && items.length > 0 && (
+                                <p className="text-xs text-amber-400 mb-4 text-center">
+                                    Debes iniciar sesión para completar tu pedido
+                                </p>
+                            )}
+
+                            <Button
+                                size="lg"
+                                className="w-full text-base"
+                                asChild
+                                disabled={items.length === 0 || !isAuthenticated}
+                            >
+                                <Link to={isAuthenticated ? "/checkout" : "/login"}>
+                                    {isAuthenticated ? 'Proceder al Pago' : 'Iniciar Sesión'}
                                     <ArrowRight className="ml-2 w-4 h-4" />
                                 </Link>
                             </Button>

@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import RestaurantApp from './App.tsx'
+import { AuthProvider, CartProvider } from './contexts'
 
 const rootDomElement = document.getElementById('root');
 
@@ -9,7 +10,11 @@ if (rootDomElement) {
   const reactRootInstance = createRoot(rootDomElement);
   reactRootInstance.render(
     <StrictMode>
-      <RestaurantApp />
+      <AuthProvider>
+        <CartProvider>
+          <RestaurantApp />
+        </CartProvider>
+      </AuthProvider>
     </StrictMode>
   );
 }
