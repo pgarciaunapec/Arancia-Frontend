@@ -60,21 +60,27 @@ const Gallery: React.FC = () => {
   return (
     <div className="w-full min-h-full py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center"
-      >
-        <Badge className="mb-3 sm:mb-4 bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
+      <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
+        {/* <Badge className="mb-3 sm:mb-4 bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
           📸 Galería
-        </Badge>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 text-foreground">
+        </Badge> */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mt-18 mb-3 sm:mb-4 text-foreground"
+        >
           Nuestra Galería
-        </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4"
+        >
           Descubre la belleza de nuestro restaurante, platillos y momentos especiales
-        </p>
-      </motion.div>
+        </motion.p>
+      </div>
 
       {/* Gallery Grid */}
       <div className="max-w-7xl mx-auto">

@@ -98,7 +98,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
         </div>
 
         <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto w-full">
-          <motion.div
+          {/* <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -106,13 +106,13 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             <Badge className="mb-4 sm:mb-6 bg-white/20 backdrop-blur-sm border-white/30 text-white px-4 sm:px-6 py-2 text-xs sm:text-sm">
               🎉 Eventos Especiales
             </Badge>
-          </motion.div>
+          </motion.div> */}
 
           <motion.h1
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mt-12 mb-4 sm:mb-6"
           >
             Eventos Privados
           </motion.h1>
@@ -135,7 +135,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             <Button
               size="lg"
               onClick={onShowModal}
-              className="bg-white text-primary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
+              className="bg-white text-[#f5b400] hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
               Solicitar Cotización

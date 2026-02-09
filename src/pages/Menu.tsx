@@ -22,8 +22,8 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   }, []);
 
   const filteredItems = useMemo(() => {
-    let items = selectedCategory === 'all' 
-      ? [...menuData] 
+    let items = selectedCategory === 'all'
+      ? [...menuData]
       : menuData.filter(item => item.category === selectedCategory);
 
     if (searchQuery) {
@@ -43,73 +43,84 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   return (
     <div className="w-full min-h-full">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12"
-      >
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
-            <Badge className="mb-3 sm:mb-4 bg-primary/10 text-primary border-primary/20">
+            {/* <Badge className="mb-3 sm:mb-4 bg-primary/10 text-primary border-primary/20">
               🍽️ Menú Online
-            </Badge>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 text-foreground">
+            </Badge> */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mt-18 mb-3 sm:mb-4 text-foreground"
+            >
               Nuestro Menú
-            </h1>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4"
+            >
               Descubre nuestra selección de platillos preparados con ingredientes frescos y de la más alta calidad
-            </p>
+            </motion.p>
           </div>
 
           {/* Search and Filters */}
-          <Card className="p-4 sm:p-6 bg-card border-border/50">
-            <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
-                <Input
-                  type="text"
-                  placeholder="Buscar platillos o ingredientes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 sm:pl-10 py-5 sm:py-6 bg-input-background border-border rounded-lg text-sm sm:text-base"
-                />
-              </div>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 px-4 sm:px-6 py-5 sm:py-6 border-border rounded-lg"
-              >
-                <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Filtros</span>
-              </Button>
-            </div>
-
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {allCategories.map(cat => (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="p-4 sm:p-6 bg-card border-border/50">
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
+                  <Input
+                    type="text"
+                    placeholder="Buscar platillos o ingredientes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 sm:pl-10 py-5 sm:py-6 bg-input-background border-border rounded-lg text-sm sm:text-base"
+                  />
+                </div>
                 <Button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  variant={selectedCategory === cat ? 'default' : 'outline'}
-                  className={`rounded-full px-3 sm:px-4 lg:px-6 py-2 transition-all text-xs sm:text-sm ${
-                    selectedCategory === cat
+                  variant="outline"
+                  className="flex items-center gap-2 px-4 sm:px-6 py-5 sm:py-6 border-border rounded-lg"
+                >
+                  <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Filtros</span>
+                </Button>
+              </div>
+
+              {/* Category Filters */}
+              <div className="flex flex-wrap gap-2">
+                {allCategories.map(cat => (
+                  <Button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    variant={selectedCategory === cat ? 'default' : 'outline'}
+                    className={`rounded-full px-3 sm:px-4 lg:px-6 py-2 transition-all text-xs sm:text-sm ${selectedCategory === cat
                       ? 'bg-gradient-warm text-white shadow-md hover:shadow-lg'
                       : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  {cat === 'all' ? 'Todos' : cat}
-                </Button>
-              ))}
-            </div>
+                      }`}
+                  >
+                    {cat === 'all' ? 'Todos' : cat}
+                  </Button>
+                ))}
+              </div>
 
-            <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Mostrando <span className="font-semibold text-foreground">{filteredItems.length}</span> platillos
-                {selectedCategory !== 'all' && ` en ${selectedCategory}`}
-              </p>
-            </div>
-          </Card>
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Mostrando <span className="font-semibold text-foreground">{filteredItems.length}</span> platillos
+                  {selectedCategory !== 'all' && ` en ${selectedCategory}`}
+                </p>
+              </div>
+            </Card>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Menu Grid */}
       <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 sm:pb-10 lg:pb-12">
