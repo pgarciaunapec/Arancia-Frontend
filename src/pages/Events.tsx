@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 
 interface EventsPageProps {
-  onShowModal: () => void;
+  onShowModal: (title: string, message: string) => void;
 }
 
 const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
@@ -134,7 +134,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
           >
             <Button
               size="lg"
-              onClick={onShowModal}
+              onClick={() => onShowModal('Solicitud de Cotización', 'Nos pondremos en contacto pronto para discutir los detalles de tu evento.')}
               className="bg-white text-[#f5b400] hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
@@ -260,7 +260,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                   </div>
 
                   <Button
-                    onClick={onShowModal}
+                    onClick={() => onShowModal('Información del Paquete', `Te enviaremos más detalles sobre el paquete ${pkg.name}.`)}
                     className={`w-full ${pkg.featured
                         ? 'bg-white text-primary hover:bg-white/90'
                         : 'bg-gradient-warm text-white hover:shadow-lg'
@@ -294,7 +294,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             </p>
             <Button
               size="lg"
-              onClick={onShowModal}
+              onClick={() => onShowModal('¡Solicitud Recibida!', 'Te contactaremos pronto para planificar tu evento especial.')}
               className="bg-white text-secondary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Phone className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
