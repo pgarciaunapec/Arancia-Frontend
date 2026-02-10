@@ -295,7 +295,7 @@ La arquitectura está basada en una API REST bien estructurada con 8 módulos de
 | MongoDB Atlas / Local | Base de datos para almacenamiento de usuarios, menú, pedidos, reservaciones | Crítica | Disponible | Equipo de TI |
 | Hosting/Cloud | Ambiente de desarrollo, staging y producción para frontend (Vite) y backend (Express) | Crítica | Por definir | Equipo de TI |
 | Imágenes de Platillos | Fotografías profesionales de los platillos del menú | Alta | En proceso (usando Unsplash temporal) | Equipo de Marketing |
-| Diseño UX/UI | Diseño basado en Figma (Rediseño moderno de app) | Alta | Implementado | Design Team |
+| Diseño UX/UI | Diseño basado en Figma (Arancia) | Alta | Implementado | Design Team |
 | Dominio y SSL | Dominio web y certificado HTTPS | Alta | Pendiente | Equipo de TI |
 
 ### 4.3 Costo y Precio
