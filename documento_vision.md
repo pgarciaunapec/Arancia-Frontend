@@ -25,11 +25,11 @@
 
 - ✓ 1. Introducción
 - ✓ 2. Posicionamiento
-- ✓ 3. Stakeholders y Usuarios
-- ✓ 4. Descripción Global del Producto
-- ✓ 5. Características del Producto
+- ✓ 3. Interesados y Usuarios
+- ✓ 4. Descripción General del Producto
+- ✓ 5. Funcionalidades del Producto
 - ✓ 6. Restricciones
-- ✓ 7. Precedencia y Prioridad
+- ✓ 7. Prioridad y Fases
 - ✓ 8. Otros Requisitos
 - ✓ 9. Requisitos de Documentación
 
@@ -37,27 +37,26 @@
 
 ## 1. Introducción
 
-En el contexto de la transformación digital del sector gastronómico y la creciente demanda de experiencias de usuario omnicanal, el restaurante **Arancia** — con más de 40 años de tradición culinaria en Santa Fe — ha identificado la necesidad de desarrollar una plataforma web integral que modernice la interacción con sus clientes. Este proyecto surge como respuesta a las limitaciones de los procesos manuales tradicionales de toma de pedidos, gestión de reservaciones y organización de eventos privados, y a la demanda de una solución digital eficiente, escalable e integrada.
+**Arancia** es un restaurante de reciente creación ubicado en República Dominicana. Desde su concepción, incorpora una plataforma web como parte central de su operación, con el objetivo de diferenciarse de los demás restaurantes de la zona que no cuentan con herramientas digitales propias.
 
-El presente documento de visión establece las bases estratégicas del producto, definiendo el problema a resolver, los objetivos a alcanzar y las características principales que guiarán el desarrollo. Este documento servirá como punto de referencia común para todos los stakeholders involucrados, asegurando alineación en las expectativas y prioridades del proyecto.
+Este documento define el problema que se busca resolver, los objetivos del proyecto, el alcance de la solución y las funcionalidades que debe incluir la plataforma. Sirve como referencia para todas las partes involucradas en el desarrollo.
 
-La visión aquí presentada es el resultado de un análisis exhaustivo de las necesidades del negocio gastronómico, los requisitos de los comensales y el personal del restaurante, las oportunidades del mercado de delivery y reservaciones online, y las capacidades técnicas disponibles mediante un stack moderno de desarrollo web.
+El contenido se basa en un estudio del mercado gastronómico local, la identificación de carencias en los servicios digitales de restaurantes de la zona, y las capacidades del equipo de desarrollo.
 
 ### 1.1 Propósito
 
-Este documento establece la visión estratégica de la plataforma digital de Arancia y define los objetivos, alcance y características principales que guiarán su desarrollo e implementación. Su propósito es alinear a todos los stakeholders sobre el problema que se está resolviendo, la solución propuesta, los beneficios esperados y los criterios de éxito del proyecto.
+Este documento define qué se va a construir, por qué y para quién. Su función es que todas las partes involucradas tengan una comprensión común del proyecto antes y durante el desarrollo.
 
 **Audiencia principal:**
 
-- Product Owners y Product Managers
-- Equipos de desarrollo y arquitectura técnica (Frontend React / Backend Node.js)
-- Stakeholders de negocio: dueños y gerentes del restaurante Arancia
-- Equipos de QA, UX/UI y documentación
-- Gerentes de proyecto y Scrum Masters
+- Responsables del producto y gestión del proyecto
+- Equipo de desarrollo (interfaz de usuario y servidor)
+- Fundadores del restaurante Arancia
+- Equipo de pruebas, diseño y documentación
 
 ### 1.2 Alcance
 
-Este proyecto abarca el diseño, desarrollo e implementación de una plataforma web integral que digitaliza la experiencia gastronómica del restaurante Arancia, permitiendo a los comensales explorar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones para eventos privados.
+El proyecto comprende el diseño, desarrollo y puesta en marcha de una plataforma web para el restaurante Arancia. La plataforma permite a los clientes consultar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones para eventos privados.
 
 **Áreas Afectadas:**
 
@@ -69,90 +68,85 @@ Este proyecto abarca el diseño, desarrollo e implementación de una plataforma 
 
 **Problemas que Resuelve:**
 
-1. Proceso manual de toma de pedidos que genera demoras y errores, especialmente en horas pico
-2. Gestión de reservaciones vía telefónica sin visibilidad centralizada de disponibilidad y riesgo de sobreventa
-3. Ausencia de un catálogo digital del menú con precios, ingredientes e imágenes actualizadas
-4. Dificultad para coordinar solicitudes de eventos privados y cotizaciones de paquetes (Esencial, Premium, Elite)
-5. Falta de una herramienta de contacto directo entre clientes y el restaurante
+1. Los restaurantes de la zona no cuentan con sistemas de pedidos en línea y dependen de procesos manuales con errores frecuentes
+2. No existe disponibilidad visible de mesas para reservar en línea en los restaurantes locales
+3. Los restaurantes de la competencia no ofrecen un catálogo digital de su menú con precios, ingredientes e imágenes
+4. La coordinación de eventos privados y cotizaciones se realiza de forma desorganizada en el sector
+5. No hay un canal digital directo entre los restaurantes de la zona y sus clientes
 
 **✅ INCLUIDO en el Alcance:**
 
-- Página de inicio (Home) con hero section, servicios destacados e historia del restaurante
-- Menú digital interactivo con búsqueda por nombre/ingredientes y filtrado por categorías
+- Página de inicio con presentación del restaurante y servicios destacados
+- Menú digital con búsqueda por nombre o ingredientes y filtrado por categorías
 - Carrito de compras con cálculo automático de subtotal, impuestos (ITBIS 18%) y total
 - Sistema de pedidos en línea con dirección de envío
-- Sistema de reservaciones online (fecha, hora, número de comensales, notas)
-- Confirmación de reservaciones y gestión de reservaciones del usuario
+- Sistema de reservaciones en línea (fecha, hora, número de comensales, notas)
+- Confirmación y gestión de reservaciones por parte del usuario
 - Módulo de eventos privados con paquetes (Esencial RD$2,500 / Premium RD$5,000 / Elite RD$10,000)
 - Formulario de contacto y solicitud de cotización de eventos
 - Galería de imágenes del restaurante
-- Página "Acerca de" con historia y valores del restaurante
+- Página "Acerca de" con visión, misión y valores del restaurante
 - Página de servicios ofrecidos
-- Sistema de autenticación (registro, login) con JWT
+- Registro e inicio de sesión de usuarios
 - Perfil de usuario con edición de datos personales y cambio de contraseña
-- API REST completa (auth, users, menu, reservations, cart, orders, contact, images)
-- Interfaz responsive (desktop y móvil con sidebar mobile)
+- Servidor de datos con 8 módulos (autenticación, usuarios, menú, reservaciones, carrito, pedidos, contacto, imágenes)
+- Diseño adaptable a computadoras y dispositivos móviles
 
 **❌ NO INCLUIDO (Fuera del Alcance):**
 
-- Sistema de pagos en línea integrado (pasarela de pagos)
-- Panel de administración para personal del restaurante (back-office)
-- Aplicaciones móviles nativas (iOS/Android)
-- Sistema de delivery con rastreo en tiempo real
-- Programa de fidelización o puntos de recompensa
-- Integración con plataformas de terceros (Uber Eats, PedidosYa, etc.)
-- Módulos de analítica avanzada e inteligencia artificial
+- Pagos en línea con tarjeta
+- Panel de administración interno para el personal del restaurante
+- Aplicaciones móviles para iOS o Android
+- Rastreo de entregas en tiempo real
+- Programa de puntos o recompensas
+- Conexión con plataformas de delivery externas (Uber Eats, PedidosYa, etc.)
+- Módulos de análisis de datos avanzado
 
 ### 1.3 Objetivos
 
-Los objetivos del proyecto están definidos siguiendo el marco SMART para garantizar su claridad, medibilidad y alcance realista dentro de los plazos establecidos.
+Los objetivos del proyecto están definidos de forma clara y medible dentro de los plazos establecidos.
 
 **Objetivos de Negocio:**
 
 1. **Digitalización del Menú y Pedidos**
-   - Meta: Reducir el tiempo de toma de pedidos en un 40% mediante el sistema de menú digital y carrito de compras en línea
-   - Métrica: Tiempo promedio desde selección del platillo hasta confirmación del pedido
+   - Meta: Establecer el sistema de menú digital y carrito de compras en línea como canal principal de pedidos desde la apertura del restaurante
+   - Métrica: Porcentaje de pedidos realizados a través de la plataforma vs. pedidos manuales
    - Fecha límite: Q3 2026
 
 2. **Optimización de Reservaciones**
-   - Meta: Alcanzar que el 60% de las reservaciones se realicen a través de la plataforma web, reduciendo llamadas telefónicas
-   - Métrica: Porcentaje de reservaciones online vs. telefónicas
+   - Meta: Lograr que el 80% de las reservaciones se realicen a través de la plataforma web desde el lanzamiento, estableciendo el canal digital como vía principal
+   - Métrica: Porcentaje de reservaciones online vs. otros canales
    - Fecha límite: Q4 2026
 
-3. **Incremento en Solicitudes de Eventos**
-   - Meta: Aumentar las solicitudes de cotización de eventos privados en un 30% mediante la visibilidad de los paquetes (Esencial, Premium, Elite) en la plataforma
+3. **Captación de Eventos desde el Lanzamiento**
+   - Meta: Captar al menos 10 solicitudes de cotización de eventos privados mensuales mediante la visibilidad de los paquetes (Esencial, Premium, Elite) en la plataforma desde el primer mes de operación
    - Métrica: Número de solicitudes de eventos recibidas mensualmente a través del sistema
    - Fecha límite: Q3 2026
 
 **Objetivos Técnicos:**
 
-1. **Alta Disponibilidad del Sistema**
-   - Meta: Garantizar 99.5% de uptime del sistema
-   - Métrica: Monitoreo continuo de disponibilidad mediante herramientas de observabilidad
+1. **Disponibilidad del Sistema**
+   - Meta: Que la plataforma esté disponible el 99.5% del tiempo
+   - Métrica: Seguimiento continuo del estado del sistema
 
-2. **Performance y Velocidad**
-   - Meta: Tiempo de respuesta promedio inferior a 2 segundos para operaciones estándar de la API REST
-   - Métrica: Latencia del API medida en percentil 95
+2. **Velocidad de Respuesta**
+   - Meta: Que cualquier acción del usuario en la plataforma responda en menos de 2 segundos
+   - Métrica: Tiempo de respuesta promedio del servidor
 
 3. **Seguridad y Protección de Datos**
-   - Meta: Implementar autenticación segura con JWT y hash de contraseñas con bcrypt, cumpliendo mejores prácticas de la industria
-   - Métrica: Auditorías de seguridad trimestrales sin hallazgos críticos
+   - Meta: Proteger el acceso de usuarios y sus contraseñas con métodos seguros de la industria
+   - Métrica: Revisiones de seguridad cada tres meses sin problemas graves
 
-### 1.4 Definiciones, Acrónimos y Abreviaciones
+### 1.4 Definiciones y Abreviaciones
 
-| Término/Sigla | Definición                                                                       |
-| ------------- | -------------------------------------------------------------------------------- |
-| MVP           | Minimum Viable Product - Producto mínimo viable con funcionalidades esenciales   |
-| API           | Application Programming Interface - Interfaz de programación de aplicaciones     |
-| REST          | Representational State Transfer - Estilo de arquitectura de la API               |
-| JWT           | JSON Web Token - Estándar de autenticación basado en tokens                      |
-| ITBIS         | Impuesto a las Transferencias de Bienes Industrializados y Servicios (18% en RD) |
-| SPA           | Single Page Application - Aplicación de página única (React)                     |
-| CRUD          | Create, Read, Update, Delete - Operaciones básicas de datos                      |
-| SSO           | Single Sign-On - Autenticación única                                             |
-| UI/UX         | User Interface / User Experience - Interfaz y experiencia de usuario             |
-| NPS           | Net Promoter Score - Indicador de satisfacción y lealtad del cliente             |
-| ROI           | Return on Investment - Retorno de inversión                                      |
+| Término       | Definición                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| ITBIS         | Impuesto a las Transferencias de Bienes Industrializados y Servicios (18% en RD)         |
+| RD$           | Pesos Dominicanos, moneda oficial de República Dominicana                                |
+| Interfaz      | La parte del sistema que el usuario ve y con la que interactúa (las páginas web)          |
+| Servidor      | La parte del sistema que procesa los datos y la lógica del negocio (no visible al usuario)|
+| Base de datos | Donde se almacena toda la información del sistema (usuarios, menú, pedidos, etc.)        |
+| Sprint        | Período de trabajo de 2 semanas donde se desarrollan funcionalidades específicas          |
 
 ---
 
@@ -160,90 +154,88 @@ Los objetivos del proyecto están definidos siguiendo el marco SMART para garant
 
 ### 2.1 Oportunidad de Negocio
 
-El sector gastronómico dominicano experimenta una transformación digital acelerada, donde los restaurantes que adoptan plataformas de pedidos y reservaciones en línea obtienen ventajas competitivas significativas frente a competidores que operan únicamente de manera presencial o telefónica. Arancia, con más de 40 años de excelencia gastronómica en Santa Fe, enfrenta el desafío de modernizar sus procesos de atención al cliente que actualmente dependen de métodos manuales y llamadas telefónicas.
+La mayoría de los restaurantes en República Dominicana operan sin herramientas digitales propias. Los pedidos se toman de forma manual, las reservaciones se gestionan por teléfono y no existe un canal directo en línea entre el restaurante y sus clientes. Arancia se funda con una plataforma web propia desde el primer día de operación, lo que lo posiciona de forma distinta en el mercado local.
 
-Las plataformas genéricas de delivery e intermediarios (como Uber Eats o PedidosYa) cobran comisiones elevadas y no reflejan la identidad de marca premium del restaurante. Esta brecha representa una oportunidad estratégica para desarrollar una plataforma propia que no solo resuelva los problemas operativos actuales, sino que también posicione a Arancia como líder en innovación digital dentro del sector gastronómico de la región.
+Las plataformas de entrega de terceros cobran comisiones elevadas y no representan la imagen del restaurante. Con una plataforma propia, Arancia opera sin depender de intermediarios y controla directamente la relación con sus clientes.
 
-La inversión en este proyecto se justifica por el impacto directo en indicadores clave de negocio: eliminación de comisiones a intermediarios, aumento en la eficiencia de toma de pedidos, mejor gestión de reservaciones y mayor captación de eventos privados a través de los paquetes (Esencial, Premium, Elite).
+La inversión se justifica por los siguientes factores: independencia de comisiones a terceros, operación digital desde la apertura, gestión ordenada de reservaciones y captación de eventos privados mediante los paquetes ofrecidos (Esencial, Premium, Elite).
 
-**Beneficios Clave Esperados:**
+**Beneficios Esperados:**
 
-- **Eficiencia Operativa:** Reducción del 35% en tiempo de procesamiento de pedidos mediante el sistema de carrito digital con cálculo automático de impuestos (ITBIS 18%)
-- **Mejora en Experiencia del Comensal:** Menú digital interactivo con búsqueda por ingredientes, imágenes de platillos y filtrado por categorías
-- **Gestión de Reservaciones:** Sistema centralizado que elimina la sobredimensión y errores de las reservaciones telefónicas (soporte de 1-20 comensales por reserva)
-- **Captación de Eventos:** Visibilidad de paquetes de eventos privados (20-150 personas) con solicitud de cotización integrada
-- **Presencia Digital:** Sitio web moderno que refleja la identidad premium del restaurante con más de 40 años de tradición
+- **Operación eficiente:** Pedidos y cálculo de impuestos (ITBIS 18%) de forma automática desde el primer día, sin depender de procesos manuales
+- **Mejor experiencia para el cliente:** Menú con imágenes, búsqueda por ingredientes y filtrado por categorías disponible en línea
+- **Reservaciones ordenadas:** Sistema que muestra la disponibilidad real y evita errores de reservas duplicadas (1-20 comensales por reserva)
+- **Captación de eventos:** Paquetes de eventos privados (20-150 personas) visibles en la plataforma con solicitud de cotización incluida
+- **Presencia en línea:** Sitio web propio que presenta al restaurante y lo diferencia de la competencia local
 
-**ROI Proyectado:**
+**Retorno de Inversión Proyectado:**
 
-| Concepto               | Detalle                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------- |
-| Inversión Total        | Según alcance final y stack tecnológico (React + Node.js + MongoDB)                         |
-| Retorno Esperado       | Ahorro en comisiones a terceros + incremento en pedidos online + mayor captación de eventos |
-| Tiempo de Recuperación | 18-24 meses basado en proyecciones conservadoras                                            |
+| Concepto               | Detalle                                                                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Inversión Total        | Según alcance final del proyecto y herramientas seleccionadas                                                 |
+| Retorno Esperado       | Sin comisiones a terceros, captación directa de clientes en línea, posicionamiento diferenciado en la zona  |
+| Tiempo de Recuperación | 12-18 meses según proyecciones conservadoras                                                                 |
 
 ### 2.2 Sentencia del Problema
 
-| Aspecto              | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **El Problema**      | Los procesos actuales de Arancia para toma de pedidos, reservaciones y coordinación de eventos dependen de métodos manuales y comunicación telefónica, lo que genera ineficiencias operativas, errores en la gestión de reservaciones (sin visibilidad centralizada de disponibilidad), y pérdida de oportunidades de negocio en eventos privados por falta de visibilidad de los paquetes ofrecidos.                                                             |
-| **Afecta a**         | Comensales que desean reservar mesas o realizar pedidos de manera ágil, personal de servicio que gestiona reservaciones y pedidos manualmente, el equipo de eventos que recibe solicitudes de forma dispersa, y la gerencia que carece de datos consolidados sobre operaciones y preferencias de clientes.                                                                                                                                                        |
-| **Impacto Negativo** | Pérdida de clientes potenciales que prefieren plataformas digitales para ordenar y reservar, sobrecarga del personal telefónico en horas pico, errores en reservaciones (doble-booking) que afectan la experiencia del comensal, baja tasa de conversión en solicitudes de eventos privados, y dificultad para analizar patrones de consumo y optimizar el menú.                                                                                                  |
-| **Solución Exitosa** | Una plataforma web integrada que permita a los comensales explorar el menú digital con imágenes e ingredientes, agregar platillos al carrito con cálculo automático de ITBIS, realizar reservaciones online seleccionando fecha/hora/comensales, solicitar cotizaciones de eventos privados con paquetes definidos (Esencial/Premium/Elite), y contactar al restaurante directamente — todo con una experiencia de usuario premium acorde a la imagen de Arancia. |
+| Aspecto              | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **El Problema**      | Los restaurantes de la zona dependen de métodos manuales y llamadas telefónicas para tomar pedidos, gestionar reservaciones y coordinar eventos. Esto genera errores, pérdida de clientes y oportunidades desaprovechadas. Arancia necesita una plataforma digital desde su apertura para no caer en los mismos problemas. |
+| **Afecta a**         | Clientes de la zona que no tienen forma de reservar mesas o hacer pedidos en línea. El equipo de Arancia, que necesita herramientas digitales para operar de forma ordenada. Los fundadores, que requieren información sobre la operación y las preferencias de los clientes desde el inicio. |
+| **Impacto Negativo** | Sin la plataforma, Arancia operaría igual que los demás restaurantes de la zona: con procesos manuales, errores en reservaciones, baja captación de eventos y sin datos para tomar decisiones sobre el menú y la operación. |
+| **Solución Exitosa** | Una plataforma web que desde la apertura del restaurante permita a los clientes ver el menú con imágenes e ingredientes, agregar platillos al carrito con cálculo automático de ITBIS, reservar mesas seleccionando fecha, hora y comensales, solicitar cotizaciones de eventos privados (Esencial/Premium/Elite) y contactar al restaurante directamente. |
 
 ### 2.3 Sentencia de Posición del Producto
 
-| Elemento                           | Descripción                                                                                                                                                                                                       |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Para:**                          | Comensales, clientes frecuentes y organizadores de eventos del restaurante Arancia                                                                                                                                |
-| **Que tienen la necesidad de:**    | Explorar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones de eventos privados de manera digital, rápida y confiable                                                                    |
-| **La Plataforma Digital Arancia:** | Es una aplicación web moderna tipo SPA (Single Page Application)                                                                                                                                                  |
-| **Que ofrece:**                    | Menú digital interactivo, carrito de compras con cálculo automático de impuestos, reservaciones online, paquetes de eventos privados y comunicación directa con el restaurante                                    |
-| **A diferencia de:**               | Plataformas genéricas de delivery que cobran altas comisiones y no reflejan la identidad premium del restaurante, o la gestión telefónica manual actual                                                           |
-| **Nuestro producto:**              | Está diseñado específicamente para el modelo de negocio gastronómico de Arancia, refleja su identidad visual premium con más de 40 años de tradición, y evoluciona según las necesidades reales de sus comensales |
+| Elemento                           | Descripción                                                                                                                                                                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Para:**                          | Clientes y organizadores de eventos que buscan un restaurante con servicios digitales en República Dominicana                                                                           |
+| **Que tienen la necesidad de:**    | Consultar el menú, hacer pedidos en línea, reservar mesas y solicitar cotizaciones de eventos de forma rápida y confiable                                                               |
+| **La Plataforma Digital Arancia:** | Es una aplicación web de página única                                                                                                                                                    |
+| **Que ofrece:**                    | Menú digital, carrito de compras con cálculo automático de impuestos, reservaciones en línea, paquetes de eventos privados y contacto directo con el restaurante                         |
+| **A diferencia de:**               | Restaurantes que dependen de procesos manuales y telefónicos, y plataformas de entrega de terceros que cobran comisiones altas y no representan la imagen del restaurante                |
+| **Nuestro producto:**              | Fue construido desde el inicio para Arancia y se adapta a las necesidades reales de sus clientes                                                                                         |
 
 ---
 
-## 3. Descripción de Stakeholders y Usuarios
+## 3. Descripción de Interesados y Usuarios
 
-### 3.1 Resumen de Stakeholders (Interesados)
+### 3.1 Resumen de Interesados
 
-| Stakeholder                  | Rol                       | Interés                                                       | Influencia |
-| ---------------------------- | ------------------------- | ------------------------------------------------------------- | ---------- |
-| Propietarios del Restaurante | Sponsor Ejecutivo         | ROI del proyecto, alineación con imagen de marca              | Alta       |
-| Product Owner                | Dueño de producto         | Éxito del producto, satisfacción de comensales                | Alta       |
-| Tech Lead                    | Líder técnico             | Arquitectura (React + Node.js + MongoDB), calidad técnica     | Alta       |
-| Gerente del Restaurante      | Líder operativo           | Adopción por parte del personal, mejora en operaciones        | Media-Alta |
-| Chef Ejecutivo               | Responsable de menú       | Presentación correcta de platillos, ingredientes y categorías | Media      |
-| Coordinador de Eventos       | Líder de eventos          | Flujo de solicitudes de eventos y paquetes                    | Media      |
-| Equipo de TI                 | Infraestructura y soporte | Integración con sistemas, despliegue y mantenibilidad         | Media      |
-| Comensales / Clientes        | Usuarios finales          | Facilidad de uso, rapidez en pedidos y reservaciones          | Media      |
+| Interesado                 | Rol                       | Interés                                                               | Influencia |
+| -------------------------- | ------------------------- | --------------------------------------------------------------------- | ---------- |
+| Fundadores del Restaurante | Patrocinador               | Retorno de inversión, construcción de imagen del restaurante          | Alta       |
+| Responsable de Producto    | Dueño de producto          | Éxito del producto, satisfacción de los clientes                      | Alta       |
+| Líder Técnico              | Líder de desarrollo        | Calidad de la solución y decisiones de construcción                   | Alta       |
+| Gerente del Restaurante    | Líder operativo            | Que el personal use la plataforma, operación ordenada desde el inicio | Media-Alta |
+| Chef Ejecutivo             | Responsable de menú        | Que los platillos, ingredientes y categorías se muestren correctamente| Media      |
+| Coordinador de Eventos     | Líder de eventos           | Recepción ordenada de solicitudes de eventos y paquetes               | Media      |
+| Equipo Técnico             | Soporte e infraestructura  | Funcionamiento continuo del sistema                                   | Media      |
+| Clientes                   | Usuarios finales           | Facilidad de uso, rapidez en pedidos y reservaciones                  | Media      |
 
 ### 3.2 Resumen de Usuarios
 
-| Perfil de Usuario         | Descripción                                                                           | Necesidades                                                                           | Experiencia         |
-| ------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------- |
-| Comensal General          | Cliente que visita el sitio para explorar menú, hacer pedidos y reservar mesas        | Interfaz intuitiva, menú visual con imágenes e ingredientes, proceso de pedido rápido | Básica              |
-| Organizador de Eventos    | Persona que busca contratar servicios de eventos privados (bodas, corporativos, etc.) | Ver paquetes (Esencial/Premium/Elite), solicitar cotización, contactar al restaurante | Básica - Intermedia |
-| Usuario Registrado        | Cliente con cuenta en la plataforma                                                   | Gestión de perfil, historial de pedidos, mis reservaciones, carrito persistente       | Intermedia          |
-| Administrador del Sistema | Personal técnico que gestiona la plataforma                                           | Gestión de menú, usuarios, pedidos, reservaciones vía API                             | Avanzada            |
+| Perfil de Usuario         | Descripción                                                                       | Necesidades                                                                           | Experiencia         |
+| ------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------- |
+| Cliente General           | Persona que visita el sitio para ver el menú, hacer pedidos y reservar mesas      | Diseño fácil de usar, menú con imágenes e ingredientes, pedido rápido                 | Básica              |
+| Organizador de Eventos    | Persona que busca contratar servicios de eventos privados (bodas, corporativos)   | Ver paquetes (Esencial/Premium/Elite), solicitar cotización, contactar al restaurante | Básica - Intermedia |
+| Usuario con Cuenta        | Cliente registrado en la plataforma                                               | Perfil editable, historial de pedidos, ver sus reservaciones                          | Intermedia          |
+| Administrador del Sistema | Personal técnico que gestiona la plataforma                                       | Gestión de menú, usuarios, pedidos y reservaciones                                    | Avanzada            |
 
 ### 3.3 Entorno de Usuario
 
 ```
-Contexto de Trabajo:
-├─ Ubicación: Acceso desde cualquier lugar (clientes remotos y presenciales)
-├─ Dispositivos: Desktop/laptop y dispositivos móviles (diseño responsive)
-├─ Conectividad: Conexión estable a internet
+Contexto de Uso:
+├─ Ubicación: Acceso desde cualquier lugar con conexión a internet
+├─ Dispositivos: Computadoras y teléfonos móviles
 ├─ Disponibilidad: 24/7 para consulta de menú y reservaciones
 ├─ Navegadores: Chrome, Firefox, Edge (versiones recientes)
-├─ Frontend: React 18 SPA con React Router
 └─ Moneda: Pesos Dominicanos (RD$)
 ```
 
 ---
 
-## 4. Descripción Global del Producto
+## 4. Descripción General del Producto
 
 ### 4.1 Perspectiva del Producto
 
@@ -253,212 +245,215 @@ Contexto de Trabajo:
 
 **Descripción:**
 
-La plataforma digital de Arancia funciona como una aplicación web independiente con arquitectura moderna de dos capas: un frontend SPA construido con **React 18 + Vite + TailwindCSS** y un backend API REST construido con **Express.js + TypeScript + MongoDB (Mongoose)**. La aplicación está diseñada para operar de forma autónoma, sirviendo como canal digital principal del restaurante para interactuar con sus clientes.
+La plataforma de Arancia es una aplicación web que opera de forma independiente. Está compuesta por dos partes: la interfaz que ve el usuario (construida con React 18, Vite y TailwindCSS) y el servidor que procesa los datos (construido con Express.js, TypeScript y MongoDB). Es el canal digital principal del restaurante.
 
-La arquitectura está basada en una API REST bien estructurada con 8 módulos de rutas (auth, users, menu, reservations, cart, orders, contact, images), lo que facilita tanto las integraciones futuras como la expansión del ecosistema.
+El servidor está organizado en 8 módulos (autenticación, usuarios, menú, reservaciones, carrito, pedidos, contacto, imágenes), lo que permite agregar funcionalidades en el futuro sin afectar las existentes.
 
-**Integraciones Actuales/Requeridas:**
+**Funciones de Integración:**
 
-- Sistema de autenticación propio basado en JWT con hash bcrypt para contraseñas
-- Gestión de imágenes mediante almacenamiento binario en MongoDB (modelo Image) con endpoint `/api/images/:id`
-- API REST documentada para comunicación frontend-backend
-- Variables de entorno para configuración de URLs de API y base de datos
+- Sistema propio de registro e inicio de sesión con contraseñas protegidas
+- Almacenamiento de imágenes directamente en la base de datos
+- Comunicación documentada entre la interfaz y el servidor
+- Configuración separada por ambiente (desarrollo, pruebas, producción)
 
 **Componentes Técnicos del Sistema:**
 
-| Componente    | Tecnología                   | Descripción                               |
-| ------------- | ---------------------------- | ----------------------------------------- |
-| Frontend      | React 18 + TypeScript + Vite | SPA con 15 páginas y 60+ componentes UI   |
-| Estilos       | TailwindCSS 4 + Radix UI     | Componentes accesibles con diseño premium |
-| Animaciones   | Motion (Framer Motion)       | Transiciones y micro-animaciones fluidas  |
-| Backend       | Express.js + TypeScript      | API REST con 8 módulos de rutas           |
-| Base de Datos | MongoDB + Mongoose           | 7 modelos con esquemas validados          |
-| Autenticación | JWT + bcryptjs               | Tokens seguros y hash de contraseñas      |
-| Validación    | express-validator            | Validación de datos en el servidor        |
-| Gráficos      | Recharts                     | Visualización de datos y métricas         |
+| Componente      | Tecnología                   | Descripción                                          |
+| --------------- | ---------------------------- | ---------------------------------------------------- |
+| Interfaz        | React 18 + TypeScript + Vite | 15 páginas y más de 60 elementos de interfaz         |
+| Estilos         | TailwindCSS 4 + Radix UI     | Diseño visual accesible y profesional                |
+| Animaciones     | Motion (Framer Motion)       | Transiciones y movimientos en la interfaz             |
+| Servidor        | Express.js + TypeScript      | 8 módulos de datos y lógica de negocio                |
+| Base de Datos   | MongoDB + Mongoose           | 7 colecciones de datos con validaciones               |
+| Inicio de sesión| JWT + bcryptjs               | Acceso seguro y contraseñas protegidas                |
+| Validación      | express-validator            | Verificación de datos antes de guardarlos             |
+| Gráficos        | Recharts                     | Visualización de datos y métricas                     |
+
+**Diagrama Entidad-Relación (ER) del Sistema:**
+
+![Diagrama ER de la base de datos del restaurante — 9 entidades con relaciones, claves primarias/foráneas y tipos de datos](er_diagram.png)
 
 ### 4.2 Suposiciones y Dependencias
 
-**Supuestos Clave:**
+**Supuestos:**
 
-- Los comensales del restaurante tienen acceso a dispositivos con navegadores web modernos y conexión a internet
-- El restaurante cuenta con personal para gestionar los pedidos y reservaciones que ingresan a través de la plataforma
-- El menú del restaurante se mantiene actualizado en la base de datos mediante seeds o una interfaz administrativa futura
-- Los precios están definidos en Pesos Dominicanos (RD$) con impuesto ITBIS del 18%
-- Los stakeholders estarán disponibles para sesiones de revisión y feedback cada 2 semanas
-- La infraestructura de hosting soportará el volumen esperado de tráfico
+- Los clientes del restaurante tienen acceso a internet y a un navegador web actualizado
+- El restaurante cuenta con personal para atender los pedidos y reservaciones que llegan por la plataforma
+- El menú se carga en la base de datos desde el inicio y se mantendrá actualizado mediante un panel administrativo futuro
+- Los precios están en Pesos Dominicanos (RD$) con ITBIS del 18%
+- Los involucrados en el proyecto estarán disponibles para revisiones cada 2 semanas
+- El servidor contratado soportará la cantidad esperada de usuarios
 
 **Dependencias Externas:**
 
-| Dependencia           | Descripción                                                                           | Criticidad | Estado                                | Responsable         |
-| --------------------- | ------------------------------------------------------------------------------------- | ---------- | ------------------------------------- | ------------------- |
-| MongoDB Atlas / Local | Base de datos para almacenamiento de usuarios, menú, pedidos, reservaciones           | Crítica    | Disponible                            | Equipo de TI        |
-| Hosting/Cloud         | Ambiente de desarrollo, staging y producción para frontend (Vite) y backend (Express) | Crítica    | Por definir                           | Equipo de TI        |
-| Imágenes de Platillos | Fotografías profesionales de los platillos del menú                                   | Alta       | En proceso (usando Unsplash temporal) | Equipo de Marketing |
-| Diseño UX/UI          | Diseño basado en Figma (Rediseño moderno de app)                                      | Alta       | Implementado                          | Design Team         |
-| Dominio y SSL         | Dominio web y certificado HTTPS                                                       | Alta       | Pendiente                             | Equipo de TI        |
+| Dependencia            | Descripción                                                             | Criticidad | Estado                                        | Responsable         |
+| ---------------------- | ----------------------------------------------------------------------- | ---------- | --------------------------------------------- | ------------------- |
+| Base de datos          | Almacenamiento de usuarios, menú, pedidos y reservaciones (MongoDB)     | Crítica    | Disponible                                    | Equipo Técnico      |
+| Servidor de hospedaje  | Donde se ejecutan la interfaz y el servidor del sistema                 | Crítica    | Por definir                                   | Equipo Técnico      |
+| Imágenes de Platillos  | Fotografías profesionales de los platillos del menú                     | Alta       | En proceso (usando imágenes temporales)       | Equipo de Marketing |
+| Diseño de Interfaz     | Diseño visual de todas las pantallas de la plataforma                   | Alta       | Completado                                    | Equipo de Diseño    |
+| Dominio y Certificado  | Dirección web del restaurante y certificado de seguridad                | Alta       | Pendiente                                     | Equipo Técnico      |
 
 ### 4.3 Costo y Precio
 
-| Modelo de Negocio | Detalles                                                                                                          |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Inversión Inicial | Desarrollo del frontend React, backend Node.js, base de datos MongoDB, diseño UI/UX                               |
-| Costos Operativos | Hosting cloud (frontend + backend + MongoDB), mantenimiento y evolución continua                                  |
-| Ahorros Esperados | Eliminación de comisiones a plataformas de delivery de terceros, reducción de tiempo en reservaciones telefónicas |
-| ROI Esperado      | Retorno positivo proyectado en 18-24 meses post-implementación                                                    |
+| Concepto          | Detalles                                                                                                   |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| Inversión Inicial | Desarrollo de la interfaz, servidor, base de datos y diseño visual                                          |
+| Costos Operativos | Servidor de hospedaje, base de datos y mantenimiento continuo                                               |
+| Ahorros Esperados | Sin comisiones a plataformas de entrega de terceros, operación digital desde el inicio sin costos de cambio |
+| Retorno Esperado  | Retorno positivo proyectado en 12-18 meses después de la apertura del restaurante                           |
 
 ---
 
-## 5. Características del Producto
+## 5. Funcionalidades del Producto
 
 ### Funcionalidades Principales
 
-| #   | Característica            | Descripción                                                                                                                                                     | Beneficio                                  | Prioridad |
+| #   | Funcionalidad             | Descripción                                                                                                                                                     | Beneficio                                  | Prioridad |
 | --- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | --------- |
-| 1   | Menú Digital Interactivo  | Catálogo de platillos con imágenes, precios (RD$), ingredientes, búsqueda y filtrado por categorías                                                             | Experiencia de exploración visual del menú | Alta      |
-| 2   | Carrito de Compras        | Sistema de carrito con agregar/eliminar items, actualizar cantidades, cálculo automático de subtotal, ITBIS (18%) y total                                       | Proceso de pedido ágil y sin errores       | Alta      |
-| 3   | Sistema de Pedidos Online | Flujo completo de checkout con dirección de envío, confirmación de pedido y seguimiento de estados (cart → pending → confirmed → preparing → ready → delivered) | Ventas digitales y trazabilidad            | Alta      |
-| 4   | Autenticación y Perfiles  | Registro, login con JWT, perfil de usuario editable, cambio de contraseña, tokens seguros con bcrypt                                                            | Seguridad y personalización                | Alta      |
-| 5   | Reservaciones Online      | Formulario de reservación con fecha, hora, número de comensales (1-20), notas opcionales, ubicación y estados (pending/confirmed/cancelled/completed)           | Gestión eficiente de mesas                 | Alta      |
-| 6   | Mis Reservaciones         | Panel del usuario para ver historial, estado de reservaciones y cancelar reservaciones activas                                                                  | Autogestión del comensal                   | Alta      |
-| 7   | Eventos Privados          | Presentación de tipos de eventos (Social, Corporativo, Privado) y paquetes (Esencial RD$2,500 / Premium RD$5,000 / Elite RD$10,000) con solicitud de cotización | Captación de eventos y ventas              | Media     |
-| 8   | Formulario de Contacto    | Envío de mensajes con nombre, email, teléfono y mensaje; estados de lectura (unread/read/responded)                                                             | Comunicación directa con clientes          | Media     |
-| 9   | Galería del Restaurante   | Exhibición visual de imágenes del restaurante, ambientes y platillos                                                                                            | Atractivo visual y marketing               | Media     |
-| 10  | Gestión de Imágenes       | Almacenamiento y servicio de imágenes binarias en MongoDB con endpoint dedicado /api/images/:id                                                                 | Independencia de servicios externos        | Baja      |
+| 1   | Menú Digital              | Catálogo de platillos con imágenes, precios (RD$), ingredientes, búsqueda y filtrado por categorías                                                             | El cliente ve el menú completo en línea   | Alta      |
+| 2   | Carrito de Compras        | Agregar y quitar platillos, actualizar cantidades, cálculo automático de subtotal, ITBIS (18%) y total                                                         | Pedido rápido y sin errores de cálculo     | Alta      |
+| 3   | Pedidos en Línea         | Proceso completo de pedido con dirección de envío, confirmación y seguimiento de estados                                                                        | Ventas digitales con seguimiento           | Alta      |
+| 4   | Registro y Perfiles       | Registro, inicio de sesión, perfil editable y cambio de contraseña                                                                                             | Seguridad y datos personalizados           | Alta      |
+| 5   | Reservaciones en Línea   | Formulario con fecha, hora, número de comensales (1-20), notas opcionales y estados de la reservación                                                           | Gestión ordenada de mesas                  | Alta      |
+| 6   | Mis Reservaciones         | Sección del usuario para ver el historial, estado y cancelar reservaciones activas                                                                             | El cliente gestiona sus propias reservas   | Alta      |
+| 7   | Eventos Privados          | Tipos de eventos (Social, Corporativo, Privado) y paquetes (Esencial RD$2,500 / Premium RD$5,000 / Elite RD$10,000) con solicitud de cotización                 | Captación de eventos y ventas              | Media     |
+| 8   | Formulario de Contacto    | Envío de mensajes con nombre, correo, teléfono y mensaje                                                                                                       | Comunicación directa con los clientes      | Media     |
+| 9   | Galería del Restaurante   | Imágenes del restaurante, ambientes y platillos                                                                                                                 | Presentación visual del restaurante        | Media     |
+| 10  | Gestión de Imágenes       | Almacenamiento de imágenes directamente en la base de datos del sistema                                                                                          | Sin dependencia de servicios externos      | Baja      |
 
-### Features Checklist:
+### Lista de Funcionalidades:
 
-- ☐ Menú Digital con Búsqueda y Filtros por Categoría
-- ☐ Carrito de Compras con Cálculo de ITBIS
-- ☐ Sistema de Pedidos Online con Checkout
-- ☐ Autenticación JWT y Perfiles de Usuario
-- ☐ Reservaciones Online (1-20 comensales)
-- ☐ Gestión de Mis Reservaciones
-- ☐ Eventos Privados con Paquetes
-- ☐ Formulario de Contacto y Cotización de Eventos
-- ☐ Galería de Imágenes
-- ☐ Almacenamiento de Imágenes en MongoDB
+- ☐ Menú digital con búsqueda y filtros por categoría
+- ☐ Carrito de compras con cálculo de ITBIS
+- ☐ Pedidos en línea con proceso completo
+- ☐ Registro, inicio de sesión y perfiles de usuario
+- ☐ Reservaciones en línea (1-20 comensales)
+- ☐ Gestión de reservaciones del usuario
+- ☐ Eventos privados con paquetes
+- ☐ Formulario de contacto y cotización de eventos
+- ☐ Galería de imágenes
+- ☐ Almacenamiento de imágenes en la base de datos
 
 ---
 
 ## 6. Restricciones
 
-Las siguientes restricciones son consideraciones críticas y no negociables que deben respetarse durante todo el ciclo de vida del proyecto.
+Las siguientes restricciones deben respetarse durante todo el proyecto.
 
-### Limitaciones de Diseño y Desarrollo
+### Limitaciones del Proyecto
 
-| Tipo        | Restricción                                                | Impacto | Justificación                                              |
-| ----------- | ---------------------------------------------------------- | ------- | ---------------------------------------------------------- |
-| Tecnológica | Frontend: React 18 + TypeScript + Vite + TailwindCSS 4     | Alto    | Stack moderno con Figma design token, componentes Radix UI |
-| Tecnológica | Backend: Express.js + TypeScript + MongoDB/Mongoose        | Alto    | API REST escalable con validación de datos                 |
-| Tecnológica | Autenticación: JWT + bcryptjs (sin SSO externo por ahora)  | Alto    | Seguridad de acceso y protección de contraseñas            |
-| Normativa   | Manejo correcto del ITBIS (18%) en cálculos de pedidos     | Crítico | Cumplimiento fiscal dominicano                             |
-| Normativa   | Protección de datos personales de los comensales           | Crítico | Marco legal vigente de protección de datos                 |
-| Presupuesto | Inversión limitada según presupuesto aprobado              | Alto    | Restricción financiera de la organización                  |
-| Tiempo      | Lanzamiento del MVP en ventana de tiempo acordada          | Alto    | Alineación con objetivos estratégicos                      |
-| Recursos    | Equipo de desarrollo de tamaño limitado (3-5 personas)     | Medio   | Disponibilidad actual de talento técnico                   |
-| UX/UI       | Diseño responsive (desktop + móvil) basado en diseño Figma | Medio   | Accesibilidad desde cualquier dispositivo                  |
-| Moneda      | Todos los precios en Pesos Dominicanos (RD$)               | Alto    | Mercado objetivo: República Dominicana                     |
+| Tipo        | Restricción                                                          | Impacto | Justificación                                        |
+| ----------- | -------------------------------------------------------------------- | ------- | ---------------------------------------------------- |
+| Tecnológica | Interfaz: React 18 + TypeScript + Vite + TailwindCSS 4               | Alto    | Herramientas definidas por el equipo de desarrollo   |
+| Tecnológica | Servidor: Express.js + TypeScript + MongoDB/Mongoose                 | Alto    | Herramientas definidas por el equipo de desarrollo   |
+| Tecnológica | Inicio de sesión: JWT + bcryptjs                                     | Alto    | Seguridad del acceso de los usuarios                 |
+| Normativa   | Cálculo correcto del ITBIS (18%) en todos los pedidos               | Crítico | Cumplimiento fiscal de República Dominicana          |
+| Normativa   | Protección de datos personales de los clientes                       | Crítico | Cumplimiento de la ley de protección de datos        |
+| Presupuesto | Inversión limitada al presupuesto aprobado                          | Alto    | Restricción financiera del proyecto                   |
+| Tiempo      | Lanzamiento de la primera versión en el plazo acordado              | Alto    | Coordinación con la apertura del restaurante         |
+| Recursos    | Equipo de desarrollo de 3-5 personas                                 | Medio   | Disponibilidad actual del equipo                     |
+| Diseño      | Funcionar correctamente en computadoras y teléfonos móviles          | Medio   | Accesibilidad desde cualquier dispositivo            |
+| Moneda      | Todos los precios en Pesos Dominicanos (RD$)                         | Alto    | Mercado objetivo: República Dominicana               |
 
-### Checklist de Restricciones Identificadas
+### Restricciones Identificadas
 
-- ☐ Stack tecnológico obligatorio definido (React + Express + MongoDB)
-- ☐ Cumplimiento fiscal (ITBIS 18%) implementado
-- ☐ Limitaciones presupuestarias claras
-- ☐ Fechas límite establecidas
-- ☐ Restricciones de equipo documentadas
+- ☐ Herramientas de desarrollo definidas (React + Express + MongoDB)
+- ☐ Cálculo de ITBIS 18% implementado correctamente
+- ☐ Límites de presupuesto claros
+- ☐ Fechas de entrega establecidas
+- ☐ Tamaño del equipo documentado
 
 ---
 
-## 7. Precedencia y Prioridad
+## 7. Prioridad y Fases de Desarrollo
 
-### MVP (Producto Mínimo Viable)
+### Primera Versión del Producto
 
-#### Fase 1 — CRÍTICA (v1.0 - MVP)
+#### Fase 1 — CRÍTICA (v1.0 - Primera versión)
 
-| Feature                                             | Estado      | Responsable     | Fecha Estimada |
-| --------------------------------------------------- | ----------- | --------------- | -------------- |
-| ☐ Página Home con hero, servicios e historia        | Por iniciar | Frontend Team   | Sprint 1-2     |
-| ☐ Menú digital con búsqueda, filtros y categorías   | Por iniciar | Full Stack Team | Sprint 2-3     |
-| ☐ Sistema de autenticación (registro/login con JWT) | Por iniciar | Backend Team    | Sprint 1-2     |
-| ☐ Carrito de compras con cálculo de ITBIS           | Por iniciar | Full Stack Team | Sprint 3-4     |
-| ☐ Checkout y creación de pedidos                    | Por iniciar | Full Stack Team | Sprint 4-5     |
-| ☐ Reservaciones online                              | Por iniciar | Full Stack Team | Sprint 3-5     |
-| ☐ API REST completa (8 módulos de rutas)            | Por iniciar | Backend Team    | Sprint 1-5     |
+| Funcionalidad                                       | Estado      | Responsable          | Fecha Estimada |
+| --------------------------------------------------- | ----------- | -------------------- | -------------- |
+| ☐ Página de inicio con presentación y servicios     | Por iniciar | Equipo de Interfaz   | Sprint 1-2     |
+| ☐ Menú digital con búsqueda, filtros y categorías   | Por iniciar | Equipo Completo      | Sprint 2-3     |
+| ☐ Registro e inicio de sesión de usuarios           | Por iniciar | Equipo de Servidor   | Sprint 1-2     |
+| ☐ Carrito de compras con cálculo de ITBIS           | Por iniciar | Equipo Completo      | Sprint 3-4     |
+| ☐ Proceso de pedido completo                       | Por iniciar | Equipo Completo      | Sprint 4-5     |
+| ☐ Reservaciones en línea                            | Por iniciar | Equipo Completo      | Sprint 3-5     |
+| ☐ Servidor de datos completo (8 módulos)            | Por iniciar | Equipo de Servidor   | Sprint 1-5     |
 
 #### Fase 2 — IMPORTANTE (v1.1)
 
-- ☐ Módulo de eventos privados con paquetes (Esencial/Premium/Elite)
+- ☐ Eventos privados con paquetes (Esencial/Premium/Elite)
 - ☐ Formulario de contacto y solicitud de cotización de eventos
 - ☐ Galería del restaurante
-- ☐ Página "Acerca de" con historia de Arancia
+- ☐ Página "Acerca de" con visión y misión de Arancia
 - ☐ Página de servicios
 - ☐ Perfil de usuario con edición de datos y cambio de contraseña
 
 #### Fase 3 — DESEABLE (v1.2+)
 
-- ☐ Panel de administración (back-office) para gestión del restaurante
-- ☐ Integración con pasarela de pagos (tarjeta de crédito/débito)
-- ☐ Sistema de notificaciones por email (confirmación de pedidos y reservaciones)
-- ☐ Dashboard con métricas y KPIs para la gerencia
-- ☐ Aplicación móvil nativa (React Native)
-- ☐ Sistema de delivery con rastreo en tiempo real
-- ☐ Programa de fidelización y recompensas
-- ☐ Integración con herramientas de BI y analítica
+- ☐ Panel de administración para gestión del restaurante
+- ☐ Pagos en línea con tarjeta de crédito o débito
+- ☐ Notificaciones por correo electrónico (confirmación de pedidos y reservaciones)
+- ☐ Panel de datos y estadísticas para la gerencia
+- ☐ Aplicación móvil
+- ☐ Rastreo de entregas en tiempo real
+- ☐ Programa de puntos y recompensas
+- ☐ Conexión con herramientas de análisis de datos
 
 ### Matriz de Priorización
 
-| Feature                    | Valor | Esfuerzo | Prioridad |
-| -------------------------- | ----- | -------- | --------- |
-| Menú digital interactivo   | Alto  | Medio    | 1         |
-| Autenticación y perfiles   | Alto  | Medio    | 2         |
-| Carrito de compras + ITBIS | Alto  | Medio    | 3         |
-| Reservaciones online       | Alto  | Medio    | 4         |
-| Checkout y pedidos         | Alto  | Alto     | 5         |
-| API REST backend           | Alto  | Alto     | 6         |
-| Eventos y paquetes         | Medio | Medio    | 7         |
-| Contacto y cotizaciones    | Medio | Bajo     | 8         |
-| Galería                    | Medio | Bajo     | 9         |
-| Panel de administración    | Alto  | Alto     | 10        |
+| Funcionalidad                  | Valor | Esfuerzo | Prioridad |
+| ------------------------------ | ----- | -------- | --------- |
+| Menú digital                   | Alto  | Medio    | 1         |
+| Registro e inicio de sesión   | Alto  | Medio    | 2         |
+| Carrito de compras + ITBIS     | Alto  | Medio    | 3         |
+| Reservaciones en línea        | Alto  | Medio    | 4         |
+| Proceso de pedido completo     | Alto  | Alto     | 5         |
+| Servidor de datos              | Alto  | Alto     | 6         |
+| Eventos y paquetes             | Medio | Medio    | 7         |
+| Contacto y cotizaciones        | Medio | Bajo     | 8         |
+| Galería                       | Medio | Bajo     | 9         |
+| Panel de administración       | Alto  | Alto     | 10        |
 
 ---
 
 ## 8. Otros Requisitos del Producto
 
-### Requisitos No Funcionales
+### Requisitos Adicionales
 
-| Categoría      | Requisito                                           | Métrica                                     | Estado |
-| -------------- | --------------------------------------------------- | ------------------------------------------- | ------ |
-| Desempeño      | Tiempo de respuesta de API REST                     | < 2 segundos (P95)                          | ☐      |
-| Desempeño      | Tiempo de carga inicial del SPA (React + Vite)      | < 3 segundos                                | ☐      |
-| Seguridad      | Encriptación de datos en tránsito                   | HTTPS/TLS 1.3                               | ☐      |
-| Seguridad      | Hash de contraseñas                                 | bcrypt con salt rounds                      | ☐      |
-| Seguridad      | Autenticación y autorización                        | JWT + middleware de auth                    | ☐      |
-| Seguridad      | Protección de rutas sensibles del API               | Bearer Token + validación                   | ☐      |
-| Usabilidad     | Compatibilidad con navegadores                      | Chrome, Firefox, Edge (últimas 2 versiones) | ☐      |
-| Usabilidad     | Diseño responsive                                   | Desktop (1920x1080) + Mobile + Tablet       | ☐      |
-| Usabilidad     | Interfaz en idioma español                          | 100% de la UI en español                    | ☐      |
-| Disponibilidad | Uptime del sistema                                  | 99.5% mensual                               | ☐      |
-| Disponibilidad | Ventana de mantenimiento                            | < 4 horas mensuales                         | ☐      |
-| Escalabilidad  | Usuarios concurrentes                               | 100-500 usuarios simultáneos                | ☐      |
-| Escalabilidad  | Crecimiento de datos (menú, pedidos, reservaciones) | Soporte para 3 años de histórico            | ☐      |
-| Mantenibilidad | Cobertura de tests                                  | > 70% código crítico (backend)              | ☐      |
-| Mantenibilidad | Documentación técnica                               | API docs + esquema de base de datos         | ☐      |
+| Categoría      | Requisito                                  | Métrica                                                   | Estado |
+| -------------- | ------------------------------------------ | --------------------------------------------------------- | ------ |
+| Velocidad      | Tiempo de respuesta del servidor           | Menos de 2 segundos en el 95% de los casos               | ☐      |
+| Velocidad      | Tiempo de carga inicial de la página       | Menos de 3 segundos                                      | ☐      |
+| Seguridad      | Datos protegidos durante la transmisión    | Conexión segura HTTPS                                    | ☐      |
+| Seguridad      | Contraseñas protegidas                     | Método de protección bcrypt                               | ☐      |
+| Seguridad      | Control de acceso a funciones protegidas   | Verificación de identidad del usuario en cada solicitud   | ☐      |
+| Facilidad      | Funcionamiento en navegadores principales  | Chrome, Firefox, Edge (últimas 2 versiones)               | ☐      |
+| Facilidad      | Adaptable a distintos tamaños de pantalla  | Computadora (1920x1080), teléfono móvil y tableta          | ☐      |
+| Facilidad      | Idioma de la interfaz                      | 100% en español                                          | ☐      |
+| Disponibilidad | Tiempo en línea del sistema                | 99.5% mensual                                            | ☐      |
+| Disponibilidad | Tiempo fuera de servicio por mantenimiento | Menos de 4 horas al mes                                  | ☐      |
+| Crecimiento    | Usuarios al mismo tiempo                   | 100-500 usuarios simultáneos                             | ☐      |
+| Crecimiento    | Almacenamiento de datos a futuro           | Capacidad para 3 años de información                     | ☐      |
+| Mantenimiento  | Pruebas automáticas                       | Más del 70% del código principal cubierto con pruebas     | ☐      |
+| Mantenimiento  | Documentación                              | Documentación del servidor y de la base de datos          | ☐      |
 
-### Requisitos de Calidad
+### Requisitos de Calidad y Pruebas
 
 ```
 ┌─ Pruebas
-│  ├─ ☐ Unit Testing (>80% cobertura en modelos y controladores)
-│  ├─ ☐ Integration Testing (endpoints API)
-│  └─ ☐ Pruebas de Carga (100-500 usuarios concurrentes)
+│  ├─ ☐ Pruebas por componente (>80% de cobertura en lógica principal)
+│  ├─ ☐ Pruebas de funcionamiento completo (servidor de datos)
+│  └─ ☐ Pruebas de carga (100-500 usuarios al mismo tiempo)
 ├─ Documentación
-│  ├─ ☐ API Documentation (endpoints REST)
-│  ├─ ☐ Database Schema (Mermaid ER Diagram — disponible)
-│  └─ ☐ Código documentado (TypeScript con tipos explícitos)
+│  ├─ ☐ Documentación del servidor de datos
+│  ├─ ☐ Estructura de la base de datos (diagrama disponible)
+│  └─ ☐ Código documentado con tipos de datos explícitos
 └─ Soporte
-   ├─ ☐ SLA definido
-   └─ ☐ Centro de ayuda / FAQ
+   ├─ ☐ Acuerdo de nivel de servicio definido
+   └─ ☐ Sección de preguntas frecuentes
 ```
 
 ---
@@ -467,50 +462,50 @@ Las siguientes restricciones son consideraciones críticas y no negociables que 
 
 ### Documentos a Entregar
 
-| Documento               | Descripción                                                                                                                 | Responsable      | Status                 |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------- |
-| Manual de Usuario       | Guía paso a paso para comensales: cómo navegar el menú, hacer pedidos, reservar y solicitar eventos                         | Technical Writer | ☐                      |
-| Manual de Administrador | Guía para administradores: gestión de menú, pedidos, reservaciones y usuarios vía API                                       | Technical Writer | ☐                      |
-| Documentación Técnica   | Arquitectura React + Express + MongoDB, decisiones técnicas y stack                                                         | Tech Lead        | ☐                      |
-| API Reference           | Especificación completa de los 8 módulos de endpoints REST (auth, users, menu, reservations, cart, orders, contact, images) | Backend Team     | ☐                      |
-| Database Schema         | Diagrama ER de las 7 colecciones MongoDB con relaciones y enums                                                             | Backend Team     | ☑ (database_schema.md) |
-| Guía de Instalación     | Instrucciones de deployment: variables de entorno, `pnpm install`, seeds del menú                                           | DevOps Team      | ☐                      |
-| Guía de Integración     | Cómo integrar con sistemas externos mediante la API REST                                                                    | Backend Team     | ☐                      |
-| Plan de Capacitación    | Programa de training para personal del restaurante                                                                          | Product Owner    | ☐                      |
-| FAQ y Troubleshooting   | Preguntas frecuentes y solución de problemas comunes                                                                        | Support Team     | ☐                      |
+| Documento                         | Descripción                                                                                               | Responsable            | Estado                        |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------- | ----------------------------- |
+| Manual de Usuario                 | Guía para clientes: cómo usar el menú, hacer pedidos, reservar y solicitar eventos                        | Redactor Técnico       | ☐                             |
+| Manual de Administrador           | Guía para administradores: gestión de menú, pedidos, reservaciones y usuarios                              | Redactor Técnico       | ☐                             |
+| Documentación del Sistema         | Estructura del sistema, decisiones de diseño y herramientas utilizadas                                    | Líder Técnico          | ☐                             |
+| Referencia del Servidor de Datos  | Descripción completa de los 8 módulos del servidor                                                       | Equipo de Servidor     | ☐                             |
+| Estructura de Base de Datos       | Diagrama de las 7 colecciones de datos con sus relaciones                                                 | Equipo de Servidor     | ☑ (database_schema.md)        |
+| Guía de Instalación              | Instrucciones para poner en marcha el sistema en un servidor                                              | Equipo de Operaciones  | ☐                             |
+| Guía de Conexión con Otros Sistemas| Cómo conectar sistemas externos con el servidor de datos de Arancia                                       | Equipo de Servidor     | ☐                             |
+| Plan de Capacitación              | Programa de entrenamiento para el personal del restaurante                                                | Responsable de Producto| ☐                             |
+| Preguntas Frecuentes              | Preguntas comunes y solución de problemas                                                                 | Equipo de Soporte      | ☐                             |
 
 ### Checklist de Documentación
 
-- ☐ Guías de usuario (comensales y administradores)
-- ☐ Material de capacitación para personal del restaurante
-- ☑ Documentación de esquema de base de datos (database_schema.md)
-- ☐ Documentación de API REST
+- ☐ Guías de usuario (clientes y administradores)
+- ☐ Material de capacitación para el personal del restaurante
+- ☑ Estructura de la base de datos (database_schema.md)
+- ☐ Documentación del servidor de datos
 - ☐ Procedimientos de soporte
-- ☐ Release notes
+- ☐ Notas de cada versión publicada
 - ☐ Políticas de privacidad y términos de uso
 
 ---
 
 ## Aprobaciones
 
-| Rol                              | Nombre      | Firma    | Fecha     |
-| -------------------------------- | ----------- | -------- | --------- |
-| Product Owner                    | Por asignar | \_\_\_\_ | Pendiente |
-| Sponsor Ejecutivo (Propietarios) | Por asignar | \_\_\_\_ | Pendiente |
-| Tech Lead                        | Por asignar | \_\_\_\_ | Pendiente |
-| Gerente del Restaurante          | Por asignar | \_\_\_\_ | Pendiente |
+| Rol                            | Nombre      | Firma    | Fecha     |
+| ------------------------------ | ----------- | -------- | --------- |
+| Responsable de Producto        | Por asignar | \_\_\_\_ | Pendiente |
+| Fundadores del Restaurante     | Por asignar | \_\_\_\_ | Pendiente |
+| Líder Técnico                  | Por asignar | \_\_\_\_ | Pendiente |
+| Gerente del Restaurante        | Por asignar | \_\_\_\_ | Pendiente |
 
 ---
 
 ## Información de Contacto
 
-- **Product Owner:** productowner@bobtoronja.com
-- **Tech Lead:** techlead@bobtoronja.com
-- **Project Manager:** pm@bobtoronja.com
-- **Restaurante:** Arancia — Santa Fe
+- **Responsable de Producto:** productowner@bobtoronja.com
+- **Líder Técnico:** techlead@bobtoronja.com
+- **Gerente de Proyecto:** pm@bobtoronja.com
+- **Restaurante:** Arancia — República Dominicana
 
 ---
 
-> **Documento Confidencial:** Este documento contiene información propietaria y confidencial. Su distribución está restringida al equipo del proyecto y stakeholders autorizados. Prohibida su reproducción total o parcial sin autorización expresa.
+> **Documento Confidencial:** Este documento contiene información privada del proyecto. Su distribución está restringida al equipo del proyecto y personas autorizadas. Prohibida su reproducción total o parcial sin autorización.
 
 > © 2026 Arancia — Todos los derechos reservados

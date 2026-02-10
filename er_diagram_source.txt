@@ -1,0 +1,122 @@
+[DIAGRAM_CONFIGURATION]
+
+STYLE REQUIREMENTS:
+- White/light background
+- Entity boxes with colored top header bars (teal/cyan color #2AABB3 for borders and headers)
+- Primary Key fields shown with an orange/gold key icon (🔑) on the left
+- Foreign Key fields shown with an orange/red key icon
+- Regular columns shown with small colored square icons (green ■ for strings, blue ■ for numbers, purple ■ for dates, etc.)
+- Nullable indicator shown as orange "N" on the right side of each nullable column
+- Relationship lines: dashed teal lines with arrows/diamonds showing cardinality (1:N, 1:1, N:M)
+- Clean, professional typography, monospace for data types
+- Each entity shows: field name, data type, and nullable indicator
+
+ENTITIES AND THEIR FIELDS (Restaurant Database - MongoDB):
+
+**User** (teal header)
+🔑 _id          ObjectId    
+■ name         string(100)    NN
+■ email        string         NN, UK
+■ password     string         NN
+■ phone        string         N
+■ address      string         N
+■ createdAt    Date           
+■ updatedAt    Date           
+
+**MenuItem** (teal header)
+🔑 _id          ObjectId
+■ name         string         NN
+■ category     string         NN
+■ price        number         NN
+■ ingredients  string[]       N
+■ image        string(URL)    NN
+■ available    boolean        
+■ createdAt    Date
+■ updatedAt    Date
+
+**Order** (teal header)
+🔑 _id              ObjectId
+🔗 user             ObjectId(FK→User) NN
+■ items            OrderItem[]       NN
+■ subtotal         number            
+■ tax              number(18%)       
+■ total            number            
+■ status           enum              
+■ shippingAddress  ShippingAddress   
+■ paymentStatus    enum              
+■ createdAt        Date
+■ updatedAt        Date
+
+**OrderItem** (embedded, orange header)
+🔗 menuItem    ObjectId(FK→MenuItem)  NN
+■ name        string                  NN
+■ quantity    number                  NN
+■ price       number                  NN
+
+**ShippingAddress** (embedded, orange header)
+■ name        string    NN
+■ address     string    NN
+■ city        string    NN
+■ zip         string    NN
+
+**Reservation** (teal header)
+🔑 _id          ObjectId
+🔗 user         ObjectId(FK→User)  N
+■ date         Date               NN
+■ time         string             NN
+■ guests       number(1-20)       NN
+■ name         string             NN
+■ email        string             NN
+■ phone        string             NN
+■ notes        string(500)        N
+■ status       enum               
+■ location     string             
+■ createdAt    Date
+■ updatedAt    Date
+
+**Contact** (independent, green header)
+🔑 _id          ObjectId
+■ name         string             NN
+■ email        string             NN
+■ phone        string             N
+■ message      string(2000)       NN
+■ status       enum               
+■ createdAt    Date
+■ updatedAt    Date
+
+**EventRequest** (independent, green header)
+🔑 _id             ObjectId
+■ name            string          NN
+■ email           string          NN
+■ phone           string          NN
+■ eventType       enum            NN
+■ packageName     enum            N
+■ guests          number          NN
+■ preferredDate   Date            N
+■ notes           string(1000)    N
+■ status          enum            
+■ createdAt       Date
+■ updatedAt       Date
+
+**Image** (independent, purple header)
+🔑 _id           ObjectId
+■ filename      string     NN
+■ contentType   string     NN
+■ data          Buffer     NN
+■ createdAt     Date
+
+RELATIONSHIPS (shown with dashed teal lines):
+- User ──||──o{ Order : "places" (one-to-many)
+- User ──|o──o{ Reservation : "makes (optional)" (one-to-many, optional)
+- Order ──||──|{ OrderItem : "contains (embedded)" 
+- OrderItem }o──|| MenuItem : "references"
+- Order ──|o──|| ShippingAddress : "has (embedded)"
+- MenuItem ──||──o| Image : "image URL references"
+
+Layout instructions:
+- Place User entity at top center
+- Place Order, Reservation, MenuItem around or below User (main relationships)
+- Place embedded types (OrderItem, ShippingAddress) immediately next to Order
+- Place independent entities (Contact, EventRequest, Image) where fitting or at bottom
+
+[END_CONFIGURATION]
