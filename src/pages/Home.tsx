@@ -21,7 +21,7 @@ const COLORS = {
   white: "#ffffff",
 };
 
-interface HomeProps {}
+interface HomeProps { }
 
 const Home: React.FC<HomeProps> = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -330,16 +330,16 @@ const Home: React.FC<HomeProps> = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center"
+            className="flex flex-col items-center text-center"
           >
             <h2
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
+              className="w-full text-center text-3xl sm:text-4xl md:text-5xl font-bold mb-6 sm:mb-8"
               style={{ color: COLORS.white }}
             >
               Nuestra Historia
             </h2>
             <p
-              className="text-base sm:text-lg leading-relaxed mb-6 sm:mb-8 px-4"
+              className="max-w-3xl mx-auto text-center text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 px-4"
               style={{ color: "rgba(255,255,255,0.8)" }}
             >
               Durante más de cuatro décadas, Arancia ha sido sinónimo de
@@ -350,10 +350,10 @@ const Home: React.FC<HomeProps> = () => {
               para nuestros comensales.
             </p>
             {/* Outline Button */}
-            <Button variant="outline" asChild>
-              <Link to="/about">
+            <Button variant="outline" className="mx-auto" asChild>
+              <Link to="/about" className="flex items-center gap-2">
                 Conoce Más Sobre Nosotros
-                <ArrowRight className="ml-2 w-4 h-4" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </motion.div>
