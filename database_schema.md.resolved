@@ -1,0 +1,104 @@
+# Database Schema (Mermaid)
+
+This document defines the database structure for the `Restaurant01` project using a [Mermaid](https://mermaid.js.org/syntax/entityRelationshipDiagram.html) ER Diagram.
+
+```mermaid
+erDiagram
+    User ||--o{ Order : places
+    User ||--o{ Reservation : makes
+    Order ||--|{ OrderItem : contains
+    MenuItem ||--o{ OrderItem : "referenced in"
+
+    User {
+        ObjectId _id PK
+        string name
+        string email
+        string password
+        string phone
+        string address
+        date createdAt
+        date updatedAt
+    }
+
+    MenuItem {
+        ObjectId _id PK
+        string name
+        string category
+        number price
+        string_array ingredients
+        string image
+        boolean available
+        date createdAt
+        date updatedAt
+    }
+
+    Reservation {
+        ObjectId _id PK
+        ObjectId user FK
+        date date
+        string time
+        number guests
+        string name
+        string email
+        string phone
+        string notes
+        string status "pending, confirmed, cancelled, completed"
+        string location
+        date createdAt
+        date updatedAt
+    }
+
+    Order {
+        ObjectId _id PK
+        ObjectId user FK
+        number subtotal
+        number tax
+        number total
+        string status "cart, pending, confirmed, preparing, ready, delivered, cancelled"
+        json shippingAddress
+        string paymentStatus "pending, paid, refunded"
+        date createdAt
+        date updatedAt
+    }
+
+    OrderItem {
+        ObjectId menuItem FK
+        string name
+        number quantity
+        number price
+    }
+
+    Contact {
+        ObjectId _id PK
+        string name
+        string email
+        string phone
+        string message
+        string status "unread, read, responded"
+        date createdAt
+        date updatedAt
+    }
+
+    EventRequest {
+        ObjectId _id PK
+        string name
+        string email
+        string phone
+        string eventType "social, corporativo, privado, otro"
+        string packageName "Esencial, Premium, Elite"
+        number guests
+        date preferredDate
+        string notes
+        string status "pending, contacted, confirmed, cancelled"
+        date createdAt
+        date updatedAt
+    }
+
+    Image {
+        ObjectId _id PK
+        string filename
+        string contentType
+        buffer data
+        date createdAt
+    }
+```
