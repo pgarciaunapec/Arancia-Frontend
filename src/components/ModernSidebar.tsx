@@ -1,21 +1,21 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Home, 
-  Menu as MenuIcon, 
-  Info, 
-  Calendar, 
-  Briefcase, 
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  Home,
+  Menu as MenuIcon,
+  Info,
+  Calendar,
+  Briefcase,
   X,
   Phone,
   Mail,
   MapPin,
   Instagram,
   Facebook,
-  Twitter
-} from 'lucide-react';
-import { Button } from './ui/button';
+  Twitter,
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 interface ModernSidebarProps {
   isOpen: boolean;
@@ -23,7 +23,11 @@ interface ModernSidebarProps {
   onShowModal: () => void;
 }
 
-const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowModal }) => {
+const ModernSidebar: React.FC<ModernSidebarProps> = ({
+  isOpen,
+  onClose,
+  onShowModal,
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,11 +37,11 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowMo
   };
 
   const navItems = [
-    { icon: Home, label: 'Inicio', path: '/' },
-    { icon: MenuIcon, label: 'Menú', path: '/menu' },
-    { icon: Info, label: 'Sobre Nosotros', path: '/about' },
-    { icon: Calendar, label: 'Eventos', path: '/events' },
-    { icon: Briefcase, label: 'Servicios', path: '/services' },
+    { icon: Home, label: "Inicio", path: "/" },
+    { icon: MenuIcon, label: "Menú", path: "/menu" },
+    { icon: Info, label: "Sobre Nosotros", path: "/about" },
+    { icon: Calendar, label: "Eventos", path: "/events" },
+    { icon: Briefcase, label: "Servicios", path: "/services" },
   ];
 
   return (
@@ -60,18 +64,22 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowMo
       <AnimatePresence>
         {isOpen && (
           <motion.aside
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed top-0 right-0 h-full w-80 bg-sidebar shadow-2xl z-50 flex flex-col"
           >
             {/* Header */}
             <div className="p-6 border-b border-sidebar-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-sidebar-foreground">BOB TORONJA</h2>
-                  <p className="text-sm text-sidebar-foreground/60">Menú de navegación</p>
+                  <h2 className="text-xl font-bold text-sidebar-foreground">
+                    Arancia
+                  </h2>
+                  <p className="text-sm text-sidebar-foreground/60">
+                    Menú de navegación
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -90,7 +98,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowMo
                 {navItems.map((item, index) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
-                  
+
                   return (
                     <motion.button
                       key={item.path}
@@ -102,8 +110,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowMo
                       onClick={() => handleNavigation(item.path)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                         isActive
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-lg'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -175,7 +183,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ isOpen, onClose, onShowMo
             <div className="p-4 border-t border-sidebar-border">
               <Button
                 onClick={() => {
-                  handleNavigation('/menu');
+                  handleNavigation("/menu");
                 }}
                 className="w-full bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground shadow-lg"
               >

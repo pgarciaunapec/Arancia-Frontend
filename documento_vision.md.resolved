@@ -1,6 +1,6 @@
 # Documento de Visión del Proyecto
 
-## BOB TORONJA — Plataforma Digital de Restaurante
+## Arancia — Plataforma Digital de Restaurante
 
 ---
 
@@ -37,7 +37,7 @@
 
 ## 1. Introducción
 
-En el contexto de la transformación digital del sector gastronómico y la creciente demanda de experiencias de usuario omnicanal, el restaurante **BOB TORONJA** — con más de 40 años de tradición culinaria en Santa Fe — ha identificado la necesidad de desarrollar una plataforma web integral que modernice la interacción con sus clientes. Este proyecto surge como respuesta a las limitaciones de los procesos manuales tradicionales de toma de pedidos, gestión de reservaciones y organización de eventos privados, y a la demanda de una solución digital eficiente, escalable e integrada.
+En el contexto de la transformación digital del sector gastronómico y la creciente demanda de experiencias de usuario omnicanal, el restaurante **Arancia** — con más de 40 años de tradición culinaria en Santa Fe — ha identificado la necesidad de desarrollar una plataforma web integral que modernice la interacción con sus clientes. Este proyecto surge como respuesta a las limitaciones de los procesos manuales tradicionales de toma de pedidos, gestión de reservaciones y organización de eventos privados, y a la demanda de una solución digital eficiente, escalable e integrada.
 
 El presente documento de visión establece las bases estratégicas del producto, definiendo el problema a resolver, los objetivos a alcanzar y las características principales que guiarán el desarrollo. Este documento servirá como punto de referencia común para todos los stakeholders involucrados, asegurando alineación en las expectativas y prioridades del proyecto.
 
@@ -45,19 +45,19 @@ La visión aquí presentada es el resultado de un análisis exhaustivo de las ne
 
 ### 1.1 Propósito
 
-Este documento establece la visión estratégica de la plataforma digital de BOB TORONJA y define los objetivos, alcance y características principales que guiarán su desarrollo e implementación. Su propósito es alinear a todos los stakeholders sobre el problema que se está resolviendo, la solución propuesta, los beneficios esperados y los criterios de éxito del proyecto.
+Este documento establece la visión estratégica de la plataforma digital de Arancia y define los objetivos, alcance y características principales que guiarán su desarrollo e implementación. Su propósito es alinear a todos los stakeholders sobre el problema que se está resolviendo, la solución propuesta, los beneficios esperados y los criterios de éxito del proyecto.
 
 **Audiencia principal:**
 
 - Product Owners y Product Managers
 - Equipos de desarrollo y arquitectura técnica (Frontend React / Backend Node.js)
-- Stakeholders de negocio: dueños y gerentes del restaurante BOB TORONJA
+- Stakeholders de negocio: dueños y gerentes del restaurante Arancia
 - Equipos de QA, UX/UI y documentación
 - Gerentes de proyecto y Scrum Masters
 
 ### 1.2 Alcance
 
-Este proyecto abarca el diseño, desarrollo e implementación de una plataforma web integral que digitaliza la experiencia gastronómica del restaurante BOB TORONJA, permitiendo a los comensales explorar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones para eventos privados.
+Este proyecto abarca el diseño, desarrollo e implementación de una plataforma web integral que digitaliza la experiencia gastronómica del restaurante Arancia, permitiendo a los comensales explorar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones para eventos privados.
 
 **Áreas Afectadas:**
 
@@ -160,9 +160,9 @@ Los objetivos del proyecto están definidos siguiendo el marco SMART para garant
 
 ### 2.1 Oportunidad de Negocio
 
-El sector gastronómico dominicano experimenta una transformación digital acelerada, donde los restaurantes que adoptan plataformas de pedidos y reservaciones en línea obtienen ventajas competitivas significativas frente a competidores que operan únicamente de manera presencial o telefónica. BOB TORONJA, con más de 40 años de excelencia gastronómica en Santa Fe, enfrenta el desafío de modernizar sus procesos de atención al cliente que actualmente dependen de métodos manuales y llamadas telefónicas.
+El sector gastronómico dominicano experimenta una transformación digital acelerada, donde los restaurantes que adoptan plataformas de pedidos y reservaciones en línea obtienen ventajas competitivas significativas frente a competidores que operan únicamente de manera presencial o telefónica. Arancia, con más de 40 años de excelencia gastronómica en Santa Fe, enfrenta el desafío de modernizar sus procesos de atención al cliente que actualmente dependen de métodos manuales y llamadas telefónicas.
 
-Las plataformas genéricas de delivery e intermediarios (como Uber Eats o PedidosYa) cobran comisiones elevadas y no reflejan la identidad de marca premium del restaurante. Esta brecha representa una oportunidad estratégica para desarrollar una plataforma propia que no solo resuelva los problemas operativos actuales, sino que también posicione a BOB TORONJA como líder en innovación digital dentro del sector gastronómico de la región.
+Las plataformas genéricas de delivery e intermediarios (como Uber Eats o PedidosYa) cobran comisiones elevadas y no reflejan la identidad de marca premium del restaurante. Esta brecha representa una oportunidad estratégica para desarrollar una plataforma propia que no solo resuelva los problemas operativos actuales, sino que también posicione a Arancia como líder en innovación digital dentro del sector gastronómico de la región.
 
 La inversión en este proyecto se justifica por el impacto directo en indicadores clave de negocio: eliminación de comisiones a intermediarios, aumento en la eficiencia de toma de pedidos, mejor gestión de reservaciones y mayor captación de eventos privados a través de los paquetes (Esencial, Premium, Elite).
 
@@ -186,21 +186,21 @@ La inversión en este proyecto se justifica por el impacto directo en indicadore
 
 | Aspecto | Descripción |
 |---|---|
-| **El Problema** | Los procesos actuales de BOB TORONJA para toma de pedidos, reservaciones y coordinación de eventos dependen de métodos manuales y comunicación telefónica, lo que genera ineficiencias operativas, errores en la gestión de reservaciones (sin visibilidad centralizada de disponibilidad), y pérdida de oportunidades de negocio en eventos privados por falta de visibilidad de los paquetes ofrecidos. |
+| **El Problema** | Los procesos actuales de Arancia para toma de pedidos, reservaciones y coordinación de eventos dependen de métodos manuales y comunicación telefónica, lo que genera ineficiencias operativas, errores en la gestión de reservaciones (sin visibilidad centralizada de disponibilidad), y pérdida de oportunidades de negocio en eventos privados por falta de visibilidad de los paquetes ofrecidos. |
 | **Afecta a** | Comensales que desean reservar mesas o realizar pedidos de manera ágil, personal de servicio que gestiona reservaciones y pedidos manualmente, el equipo de eventos que recibe solicitudes de forma dispersa, y la gerencia que carece de datos consolidados sobre operaciones y preferencias de clientes. |
 | **Impacto Negativo** | Pérdida de clientes potenciales que prefieren plataformas digitales para ordenar y reservar, sobrecarga del personal telefónico en horas pico, errores en reservaciones (doble-booking) que afectan la experiencia del comensal, baja tasa de conversión en solicitudes de eventos privados, y dificultad para analizar patrones de consumo y optimizar el menú. |
-| **Solución Exitosa** | Una plataforma web integrada que permita a los comensales explorar el menú digital con imágenes e ingredientes, agregar platillos al carrito con cálculo automático de ITBIS, realizar reservaciones online seleccionando fecha/hora/comensales, solicitar cotizaciones de eventos privados con paquetes definidos (Esencial/Premium/Elite), y contactar al restaurante directamente — todo con una experiencia de usuario premium acorde a la imagen de BOB TORONJA. |
+| **Solución Exitosa** | Una plataforma web integrada que permita a los comensales explorar el menú digital con imágenes e ingredientes, agregar platillos al carrito con cálculo automático de ITBIS, realizar reservaciones online seleccionando fecha/hora/comensales, solicitar cotizaciones de eventos privados con paquetes definidos (Esencial/Premium/Elite), y contactar al restaurante directamente — todo con una experiencia de usuario premium acorde a la imagen de Arancia. |
 
 ### 2.3 Sentencia de Posición del Producto
 
 | Elemento | Descripción |
 |---|---|
-| **Para:** | Comensales, clientes frecuentes y organizadores de eventos del restaurante BOB TORONJA |
+| **Para:** | Comensales, clientes frecuentes y organizadores de eventos del restaurante Arancia |
 | **Que tienen la necesidad de:** | Explorar el menú, realizar pedidos en línea, reservar mesas y solicitar cotizaciones de eventos privados de manera digital, rápida y confiable |
-| **La Plataforma Digital BOB TORONJA:** | Es una aplicación web moderna tipo SPA (Single Page Application) |
+| **La Plataforma Digital Arancia:** | Es una aplicación web moderna tipo SPA (Single Page Application) |
 | **Que ofrece:** | Menú digital interactivo, carrito de compras con cálculo automático de impuestos, reservaciones online, paquetes de eventos privados y comunicación directa con el restaurante |
 | **A diferencia de:** | Plataformas genéricas de delivery que cobran altas comisiones y no reflejan la identidad premium del restaurante, o la gestión telefónica manual actual |
-| **Nuestro producto:** | Está diseñado específicamente para el modelo de negocio gastronómico de BOB TORONJA, refleja su identidad visual premium con más de 40 años de tradición, y evoluciona según las necesidades reales de sus comensales |
+| **Nuestro producto:** | Está diseñado específicamente para el modelo de negocio gastronómico de Arancia, refleja su identidad visual premium con más de 40 años de tradición, y evoluciona según las necesidades reales de sus comensales |
 
 ---
 
@@ -253,7 +253,7 @@ Contexto de Trabajo:
 
 **Descripción:**
 
-La plataforma digital de BOB TORONJA funciona como una aplicación web independiente con arquitectura moderna de dos capas: un frontend SPA construido con **React 18 + Vite + TailwindCSS** y un backend API REST construido con **Express.js + TypeScript + MongoDB (Mongoose)**. La aplicación está diseñada para operar de forma autónoma, sirviendo como canal digital principal del restaurante para interactuar con sus clientes.
+La plataforma digital de Arancia funciona como una aplicación web independiente con arquitectura moderna de dos capas: un frontend SPA construido con **React 18 + Vite + TailwindCSS** y un backend API REST construido con **Express.js + TypeScript + MongoDB (Mongoose)**. La aplicación está diseñada para operar de forma autónoma, sirviendo como canal digital principal del restaurante para interactuar con sus clientes.
 
 La arquitectura está basada en una API REST bien estructurada con 8 módulos de rutas (auth, users, menu, reservations, cart, orders, contact, images), lo que facilita tanto las integraciones futuras como la expansión del ecosistema.
 
@@ -391,7 +391,7 @@ Las siguientes restricciones son consideraciones críticas y no negociables que 
 - ☐ Módulo de eventos privados con paquetes (Esencial/Premium/Elite)
 - ☐ Formulario de contacto y solicitud de cotización de eventos
 - ☐ Galería del restaurante
-- ☐ Página "Acerca de" con historia de BOB TORONJA
+- ☐ Página "Acerca de" con historia de Arancia
 - ☐ Página de servicios
 - ☐ Perfil de usuario con edición de datos y cambio de contraseña
 
@@ -507,10 +507,10 @@ Las siguientes restricciones son consideraciones críticas y no negociables que 
 - **Product Owner:** productowner@bobtoronja.com
 - **Tech Lead:** techlead@bobtoronja.com
 - **Project Manager:** pm@bobtoronja.com
-- **Restaurante:** BOB TORONJA — Santa Fe
+- **Restaurante:** Arancia — Santa Fe
 
 ---
 
 > **Documento Confidencial:** Este documento contiene información propietaria y confidencial. Su distribución está restringida al equipo del proyecto y stakeholders autorizados. Prohibida su reproducción total o parcial sin autorización expresa.
 
-> © 2026 BOB TORONJA — Todos los derechos reservados
+> © 2026 Arancia — Todos los derechos reservados

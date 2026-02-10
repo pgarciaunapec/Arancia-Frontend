@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Phone, Mail, MapPin, Clock, Send, Loader2 } from 'lucide-react';
-import { Card } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
-import { contactApi } from '../services/api';
+import React, { useState } from "react";
+import { motion } from "motion/react";
+import { Phone, Mail, MapPin, Clock, Send, Loader2 } from "lucide-react";
+import { Card } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Badge } from "../components/ui/badge";
+import { contactApi } from "../services/api";
 
 interface ContactProps {
   onShowModal: (title: string, message: string) => void;
@@ -14,10 +14,10 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,11 +27,17 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
 
     try {
       await contactApi.sendMessage(formData);
-      onShowModal('¡Mensaje Enviado!', 'Gracias por contactarnos. Te responderemos pronto.');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      onShowModal(
+        "¡Mensaje Enviado!",
+        "Gracias por contactarnos. Te responderemos pronto.",
+      );
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
-      console.error('Error sending message:', error);
-      onShowModal('Error', 'No se pudo enviar el mensaje. Por favor intenta de nuevo.');
+      console.error("Error sending message:", error);
+      onShowModal(
+        "Error",
+        "No se pudo enviar el mensaje. Por favor intenta de nuevo.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -40,28 +46,28 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
   const contactInfo = [
     {
       icon: <Phone className="w-5 h-5 sm:w-6 sm:h-6" />,
-      title: 'Teléfono',
-      content: '(809) 555-0123',
-      link: 'tel:+18095550123'
+      title: "Teléfono",
+      content: "(809) 555-0123",
+      link: "tel:+18095550123",
     },
     {
       icon: <Mail className="w-5 h-5 sm:w-6 sm:h-6" />,
-      title: 'Email',
-      content: 'info@bobtoronja.com',
-      link: 'mailto:info@bobtoronja.com'
+      title: "Email",
+      content: "info@bobtoronja.com",
+      link: "mailto:info@bobtoronja.com",
     },
     {
       icon: <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />,
-      title: 'Dirección',
-      content: 'Calle Principal #123, Santa Fe',
-      link: 'https://maps.google.com'
+      title: "Dirección",
+      content: "Calle Principal #123, Santa Fe",
+      link: "https://maps.google.com",
     },
     {
       icon: <Clock className="w-5 h-5 sm:w-6 sm:h-6" />,
-      title: 'Horario',
-      content: 'Lun-Dom: 12:00 PM - 10:00 PM',
-      link: null
-    }
+      title: "Horario",
+      content: "Lun-Dom: 12:00 PM - 10:00 PM",
+      link: null,
+    },
   ];
 
   return (
@@ -107,7 +113,8 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
             transition={{ delay: 0.4 }}
             className="text-base sm:text-lg md:text-xl text-white/90 px-4"
           >
-            Estamos aquí para atenderte. Contáctanos para reservaciones o consultas
+            Estamos aquí para atenderte. Contáctanos para reservaciones o
+            consultas
           </motion.p>
         </div>
       </motion.section>
@@ -128,18 +135,28 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                   <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-warm mx-auto mb-3 sm:mb-4 flex items-center justify-center text-white">
                     {info.icon}
                   </div>
-                  <h3 className="font-bold text-base sm:text-lg mb-2 text-foreground">{info.title}</h3>
+                  <h3 className="font-bold text-base sm:text-lg mb-2 text-foreground">
+                    {info.title}
+                  </h3>
                   {info.link ? (
                     <a
                       href={info.link}
-                      target={info.link.startsWith('http') ? '_blank' : undefined}
-                      rel={info.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      target={
+                        info.link.startsWith("http") ? "_blank" : undefined
+                      }
+                      rel={
+                        info.link.startsWith("http")
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
                       className="text-sm sm:text-base text-muted-foreground hover:text-primary transition-colors"
                     >
                       {info.content}
                     </a>
                   ) : (
-                    <p className="text-sm sm:text-base text-muted-foreground">{info.content}</p>
+                    <p className="text-sm sm:text-base text-muted-foreground">
+                      {info.content}
+                    </p>
                   )}
                 </Card>
               </motion.div>
@@ -155,10 +172,18 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
               viewport={{ once: true }}
             >
               <Card className="p-6 sm:p-8 border-border/50 bg-card h-full">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Envíanos un Mensaje</h2>
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
+                  Envíanos un Mensaje
+                </h2>
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 sm:space-y-6"
+                >
                   <div>
-                    <label htmlFor="name" className="block mb-2 font-medium text-sm sm:text-base text-foreground">
+                    <label
+                      htmlFor="name"
+                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    >
                       Nombre Completo
                     </label>
                     <Input
@@ -166,14 +191,19 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       placeholder="Tu nombre"
                       className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block mb-2 font-medium text-sm sm:text-base text-foreground">
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    >
                       Email
                     </label>
                     <Input
@@ -181,35 +211,47 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                       type="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       placeholder="tu@email.com"
                       className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="phone" className="block mb-2 font-medium text-sm sm:text-base text-foreground">
+                    <label
+                      htmlFor="phone"
+                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    >
                       Teléfono
                     </label>
                     <Input
                       id="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
                       placeholder="(809) 555-0123"
                       className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block mb-2 font-medium text-sm sm:text-base text-foreground">
+                    <label
+                      htmlFor="message"
+                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    >
                       Mensaje
                     </label>
                     <Textarea
                       id="message"
                       required
                       value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                       placeholder="Escribe tu mensaje aquí..."
                       rows={5}
                       className="bg-input-background border-border resize-none text-sm sm:text-base"
@@ -234,7 +276,9 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
               viewport={{ once: true }}
             >
               <Card className="p-6 sm:p-8 h-full border-border/50 bg-card">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">Encuéntranos</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
+                  Encuéntranos
+                </h2>
 
                 {/* Map Placeholder */}
                 <div className="aspect-video bg-muted rounded-xl mb-4 sm:mb-6 overflow-hidden">
@@ -247,15 +291,20 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
 
                 <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <h3 className="font-bold text-base sm:text-lg mb-2 text-foreground">BOB TORONJA</h3>
+                    <h3 className="font-bold text-base sm:text-lg mb-2 text-foreground">
+                      Arancia
+                    </h3>
                     <p className="text-sm sm:text-base text-muted-foreground">
-                      Calle Principal #123<br />
+                      Calle Principal #123
+                      <br />
                       Santa Fe, República Dominicana
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm sm:text-base text-foreground">Horarios de Atención:</h4>
+                    <h4 className="font-semibold mb-2 text-sm sm:text-base text-foreground">
+                      Horarios de Atención:
+                    </h4>
                     <ul className="text-sm sm:text-base text-muted-foreground space-y-1">
                       <li>Lunes - Jueves: 12:00 PM - 10:00 PM</li>
                       <li>Viernes - Sábado: 12:00 PM - 11:30 PM</li>
@@ -268,7 +317,11 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                     className="w-full border-border hover:border-primary/50 text-sm sm:text-base py-5 sm:py-6"
                     asChild
                   >
-                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="https://maps.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <MapPin className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
                       Ver en Google Maps
                     </a>

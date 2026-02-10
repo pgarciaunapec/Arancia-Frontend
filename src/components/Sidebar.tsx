@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Home,
   UtensilsCrossed,
@@ -11,8 +11,8 @@ import {
   Phone,
   ChevronRight,
   Menu,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -21,13 +21,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Inicio', path: '/', icon: <Home size={20} /> },
-  { label: 'Menú', path: '/menu', icon: <UtensilsCrossed size={20} /> },
-  { label: 'Sobre Nosotros', path: '/about', icon: <Info size={20} /> },
-  { label: 'Eventos', path: '/events', icon: <Calendar size={20} /> },
-  { label: 'Servicios', path: '/services', icon: <Briefcase size={20} /> },
-  { label: 'Galería', path: '/gallery', icon: <Image size={20} /> },
-  { label: 'Contacto', path: '/contact', icon: <Phone size={20} /> },
+  { label: "Inicio", path: "/", icon: <Home size={20} /> },
+  { label: "Menú", path: "/menu", icon: <UtensilsCrossed size={20} /> },
+  { label: "Sobre Nosotros", path: "/about", icon: <Info size={20} /> },
+  { label: "Eventos", path: "/events", icon: <Calendar size={20} /> },
+  { label: "Servicios", path: "/services", icon: <Briefcase size={20} /> },
+  { label: "Galería", path: "/gallery", icon: <Image size={20} /> },
+  { label: "Contacto", path: "/contact", icon: <Phone size={20} /> },
 ];
 
 interface SidebarProps {
@@ -63,18 +63,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:relative top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 overflow-y-auto flex-shrink-0 shadow-xl lg:shadow-none transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-          }`}
+        className={`fixed lg:relative top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 overflow-y-auto flex-shrink-0 shadow-xl lg:shadow-none transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo and Close Button */}
           <div className="flex items-center justify-between p-6 border-b border-sidebar-border flex-shrink-0">
-            <Link to="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
+            <Link
+              to="/"
+              className="flex items-center gap-3"
+              onClick={() => setIsOpen(false)}
+            >
               <div className="w-10 h-10 rounded-full bg-gradient-warm flex items-center justify-center">
                 <UtensilsCrossed size={20} className="text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-sidebar-foreground">BOB</h2>
+                <h2 className="text-xl font-bold text-sidebar-foreground">
+                  BOB
+                </h2>
                 <p className="text-xs text-sidebar-foreground/60">TORONJA</p>
               </div>
             </Link>
@@ -95,24 +102,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group relative overflow-hidden ${isActive
-                    ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group relative overflow-hidden ${
+                    isActive
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 bg-sidebar-primary rounded-lg"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
                     />
                   )}
                   <span className="relative z-10">{item.icon}</span>
-                  <span className="relative z-10 font-medium">{item.label}</span>
+                  <span className="relative z-10 font-medium">
+                    {item.label}
+                  </span>
                   <ChevronRight
                     size={16}
-                    className={`ml-auto relative z-10 transition-transform ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'
-                      }`}
+                    className={`ml-auto relative z-10 transition-transform ${
+                      isActive ? "translate-x-1" : "group-hover:translate-x-1"
+                    }`}
                   />
                 </Link>
               );
@@ -131,13 +146,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
               Reservar Mesa
             </button>
             <p className="text-xs text-center text-sidebar-foreground/50 mt-3">
-              © 2026 Bob Toronja. Todos los derechos reservados.
+              © 2026 Arancia. Todos los derechos reservados.
             </p>
           </div>
         </div>
       </aside>
-
-
     </>
   );
 };

@@ -1,9 +1,17 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { PartyPopper, Briefcase, UtensilsCrossed, Music, Calendar, ArrowRight, Phone } from 'lucide-react';
-import { Card } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
+import React from "react";
+import { motion } from "motion/react";
+import {
+  PartyPopper,
+  Briefcase,
+  UtensilsCrossed,
+  Music,
+  Calendar,
+  ArrowRight,
+  Phone,
+} from "lucide-react";
+import { Card } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 
 interface EventsPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -13,71 +21,92 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
   const eventTypes = [
     {
       icon: <PartyPopper className="w-8 h-8" />,
-      title: 'Eventos Sociales',
-      description: 'Bodas, aniversarios, cumpleaños y celebraciones familiares',
-      features: ['Menús personalizados', 'Decoración incluida', 'Hasta 150 personas', 'Servicio de bar']
+      title: "Eventos Sociales",
+      description: "Bodas, aniversarios, cumpleaños y celebraciones familiares",
+      features: [
+        "Menús personalizados",
+        "Decoración incluida",
+        "Hasta 150 personas",
+        "Servicio de bar",
+      ],
     },
     {
       icon: <Briefcase className="w-8 h-8" />,
-      title: 'Eventos Corporativos',
-      description: 'Reuniones de negocios, conferencias y cenas empresariales',
-      features: ['Equipos audiovisuales', 'Wi-Fi de alta velocidad', 'Catering ejecutivo', 'Espacios privados']
+      title: "Eventos Corporativos",
+      description: "Reuniones de negocios, conferencias y cenas empresariales",
+      features: [
+        "Equipos audiovisuales",
+        "Wi-Fi de alta velocidad",
+        "Catering ejecutivo",
+        "Espacios privados",
+      ],
     },
     {
       icon: <UtensilsCrossed className="w-8 h-8" />,
-      title: 'Menús Personalizados',
-      description: 'Diseñamos menús especiales adaptados a tus necesidades',
-      features: ['Opciones veganas', 'Sin gluten disponible', 'Chef a la vista', 'Degustación previa']
+      title: "Menús Personalizados",
+      description: "Diseñamos menús especiales adaptados a tus necesidades",
+      features: [
+        "Opciones veganas",
+        "Sin gluten disponible",
+        "Chef a la vista",
+        "Degustación previa",
+      ],
     },
     {
       icon: <Music className="w-8 h-8" />,
-      title: 'Ambiente Especial',
-      description: 'Decoración, música y servicio para crear la atmósfera perfecta',
-      features: ['Música en vivo', 'Iluminación ambiental', 'Decoración temática', 'Fotografía profesional']
-    }
+      title: "Ambiente Especial",
+      description:
+        "Decoración, música y servicio para crear la atmósfera perfecta",
+      features: [
+        "Música en vivo",
+        "Iluminación ambiental",
+        "Decoración temática",
+        "Fotografía profesional",
+      ],
+    },
   ];
 
   const packages = [
     {
-      name: 'Esencial',
-      price: 'RD$2,500',
-      description: 'Perfecto para reuniones íntimas',
+      name: "Esencial",
+      price: "RD$2,500",
+      description: "Perfecto para reuniones íntimas",
       features: [
-        '20-40 personas',
-        'Menú de 3 tiempos',
-        'Decoración básica',
-        'Servicio de meseros',
-        '4 horas de evento'
-      ]
-    },
-    {
-      name: 'Premium',
-      price: 'RD$5,000',
-      description: 'Ideal para celebraciones especiales',
-      features: [
-        '40-80 personas',
-        'Menú de 4 tiempos',
-        'Decoración personalizada',
-        'Servicio de bar',
-        'Música en vivo',
-        '6 horas de evento'
+        "20-40 personas",
+        "Menú de 3 tiempos",
+        "Decoración básica",
+        "Servicio de meseros",
+        "4 horas de evento",
       ],
-      featured: true
     },
     {
-      name: 'Elite',
-      price: 'RD$10,000',
-      description: 'La experiencia completa',
+      name: "Premium",
+      price: "RD$5,000",
+      description: "Ideal para celebraciones especiales",
       features: [
-        '80-150 personas',
-        'Menú gourmet 5 tiempos',
-        'Decoración exclusiva',
-        'Bar premium',
-        'Banda en vivo',
-        'Fotografía profesional',
-        '8 horas de evento'
-      ]
-    }
+        "40-80 personas",
+        "Menú de 4 tiempos",
+        "Decoración personalizada",
+        "Servicio de bar",
+        "Música en vivo",
+        "6 horas de evento",
+      ],
+      featured: true,
+    },
+    {
+      name: "Elite",
+      price: "RD$10,000",
+      description: "La experiencia completa",
+      features: [
+        "80-150 personas",
+        "Menú gourmet 5 tiempos",
+        "Decoración exclusiva",
+        "Bar premium",
+        "Banda en vivo",
+        "Fotografía profesional",
+        "8 horas de evento",
+      ],
+    },
   ];
 
   return (
@@ -123,8 +152,8 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             transition={{ delay: 0.4 }}
             className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed px-4"
           >
-            Celebra momentos especiales en BOB TORONJA con espacios privados,
-            menús personalizados y un servicio excepcional
+            Celebra momentos especiales en Arancia con espacios privados, menús
+            personalizados y un servicio excepcional
           </motion.p>
 
           <motion.div
@@ -134,7 +163,12 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
           >
             <Button
               size="lg"
-              onClick={() => onShowModal('Solicitud de Cotización', 'Nos pondremos en contacto pronto para discutir los detalles de tu evento.')}
+              onClick={() =>
+                onShowModal(
+                  "Solicitud de Cotización",
+                  "Nos pondremos en contacto pronto para discutir los detalles de tu evento.",
+                )
+              }
               className="bg-white text-[#f5b400] hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
@@ -174,11 +208,18 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-warm mb-3 sm:mb-4 flex items-center justify-center text-white">
                     {type.icon}
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold mb-2 text-foreground">{type.title}</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">{type.description}</p>
+                  <h3 className="text-xl sm:text-2xl font-bold mb-2 text-foreground">
+                    {type.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
+                    {type.description}
+                  </p>
                   <ul className="space-y-2">
                     {type.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-sm sm:text-base">
+                      <li
+                        key={idx}
+                        className="flex items-center gap-2 text-sm sm:text-base"
+                      >
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                         <span className="text-muted-foreground">{feature}</span>
                       </li>
@@ -223,21 +264,33 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                     ⭐ Más Popular
                   </Badge>
                 )}
-                <Card className={`p-6 sm:p-8 h-full flex flex-col border-border/50 ${pkg.featured
-                    ? 'bg-gradient-warm text-white shadow-2xl scale-100 lg:scale-105'
-                    : 'bg-card hover:shadow-xl'
-                  } transition-all`}>
+                <Card
+                  className={`p-6 sm:p-8 h-full flex flex-col border-border/50 ${
+                    pkg.featured
+                      ? "bg-gradient-warm text-white shadow-2xl scale-100 lg:scale-105"
+                      : "bg-card hover:shadow-xl"
+                  } transition-all`}
+                >
                   <div className="text-center mb-4 sm:mb-6">
-                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${pkg.featured ? 'text-white' : 'text-foreground'
-                      }`}>
+                    <h3
+                      className={`text-xl sm:text-2xl font-bold mb-2 ${
+                        pkg.featured ? "text-white" : "text-foreground"
+                      }`}
+                    >
                       {pkg.name}
                     </h3>
-                    <div className={`text-3xl sm:text-4xl font-bold mb-2 ${pkg.featured ? 'text-white' : 'text-primary'
-                      }`}>
+                    <div
+                      className={`text-3xl sm:text-4xl font-bold mb-2 ${
+                        pkg.featured ? "text-white" : "text-primary"
+                      }`}
+                    >
                       {pkg.price}
                     </div>
-                    <p className={`text-xs sm:text-sm ${pkg.featured ? 'text-white/80' : 'text-muted-foreground'
-                      }`}>
+                    <p
+                      className={`text-xs sm:text-sm ${
+                        pkg.featured ? "text-white/80" : "text-muted-foreground"
+                      }`}
+                    >
                       {pkg.description}
                     </p>
                   </div>
@@ -246,12 +299,28 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                     <ul className="space-y-2 sm:space-y-3">
                       {pkg.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${pkg.featured ? 'bg-white/20' : 'bg-primary/10'
-                            }`}>
-                            <span className={pkg.featured ? 'text-white text-xs' : 'text-primary text-xs'}>✓</span>
+                          <div
+                            className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                              pkg.featured ? "bg-white/20" : "bg-primary/10"
+                            }`}
+                          >
+                            <span
+                              className={
+                                pkg.featured
+                                  ? "text-white text-xs"
+                                  : "text-primary text-xs"
+                              }
+                            >
+                              ✓
+                            </span>
                           </div>
-                          <span className={`text-sm sm:text-base ${pkg.featured ? 'text-white/90' : 'text-muted-foreground'
-                            }`}>
+                          <span
+                            className={`text-sm sm:text-base ${
+                              pkg.featured
+                                ? "text-white/90"
+                                : "text-muted-foreground"
+                            }`}
+                          >
                             {feature}
                           </span>
                         </li>
@@ -260,11 +329,17 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                   </div>
 
                   <Button
-                    onClick={() => onShowModal('Información del Paquete', `Te enviaremos más detalles sobre el paquete ${pkg.name}.`)}
-                    className={`w-full ${pkg.featured
-                        ? 'bg-white text-primary hover:bg-white/90'
-                        : 'bg-gradient-warm text-white hover:shadow-lg'
-                      } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base`}
+                    onClick={() =>
+                      onShowModal(
+                        "Información del Paquete",
+                        `Te enviaremos más detalles sobre el paquete ${pkg.name}.`,
+                      )
+                    }
+                    className={`w-full ${
+                      pkg.featured
+                        ? "bg-white text-primary hover:bg-white/90"
+                        : "bg-gradient-warm text-white hover:shadow-lg"
+                    } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base`}
                   >
                     Solicitar Información
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -294,7 +369,12 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             </p>
             <Button
               size="lg"
-              onClick={() => onShowModal('¡Solicitud Recibida!', 'Te contactaremos pronto para planificar tu evento especial.')}
+              onClick={() =>
+                onShowModal(
+                  "¡Solicitud Recibida!",
+                  "Te contactaremos pronto para planificar tu evento especial.",
+                )
+              }
               className="bg-white text-secondary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Phone className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />

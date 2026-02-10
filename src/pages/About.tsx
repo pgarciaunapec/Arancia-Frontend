@@ -1,54 +1,61 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { Award, Heart, Users, Target } from 'lucide-react';
-import { Card } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+import React from "react";
+import { motion } from "motion/react";
+import { Award, Heart, Users, Target } from "lucide-react";
+import { Card } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 
 const About: React.FC = () => {
   const values = [
     {
       icon: <Award className="w-6 h-6 sm:w-8 sm:h-8" />,
-      title: 'Excelencia',
-      description: 'Compromiso constante con la calidad en cada detalle de nuestro servicio'
+      title: "Excelencia",
+      description:
+        "Compromiso constante con la calidad en cada detalle de nuestro servicio",
     },
     {
       icon: <Heart className="w-6 h-6 sm:w-8 sm:h-8" />,
-      title: 'Pasión',
-      description: 'Amor por la gastronomía y dedicación en cada platillo que servimos'
+      title: "Pasión",
+      description:
+        "Amor por la gastronomía y dedicación en cada platillo que servimos",
     },
     {
       icon: <Users className="w-6 h-6 sm:w-8 sm:h-8" />,
-      title: 'Comunidad',
-      description: 'Parte integral de la familia gastronómica de Santa Fe'
+      title: "Comunidad",
+      description: "Parte integral de la familia gastronómica de Santa Fe",
     },
     {
       icon: <Target className="w-6 h-6 sm:w-8 sm:h-8" />,
-      title: 'Innovación',
-      description: 'Equilibrio perfecto entre tradición y técnicas contemporáneas'
-    }
+      title: "Innovación",
+      description:
+        "Equilibrio perfecto entre tradición y técnicas contemporáneas",
+    },
   ];
 
   const timeline = [
     {
-      year: '1984',
-      title: 'Los Inicios',
-      description: 'BOB TORONJA abre sus puertas con la visión de crear un espacio donde la buena mesa y la hospitalidad se encuentren'
+      year: "1984",
+      title: "Los Inicios",
+      description:
+        "Arancia abre sus puertas con la visión de crear un espacio donde la buena mesa y la hospitalidad se encuentren",
     },
     {
-      year: '1995',
-      title: 'Expansión',
-      description: 'Renovamos nuestras instalaciones manteniendo la esencia que nos caracteriza'
+      year: "1995",
+      title: "Expansión",
+      description:
+        "Renovamos nuestras instalaciones manteniendo la esencia que nos caracteriza",
     },
     {
-      year: '2010',
-      title: 'Reconocimiento',
-      description: 'Nos consolidamos como referente de la gastronomía regional en Santa Fe'
+      year: "2010",
+      title: "Reconocimiento",
+      description:
+        "Nos consolidamos como referente de la gastronomía regional en Santa Fe",
     },
     {
-      year: '2026',
-      title: 'Hoy',
-      description: 'Más de 40 años siendo parte de las historias y celebraciones de nuestra comunidad'
-    }
+      year: "2026",
+      title: "Hoy",
+      description:
+        "Más de 40 años siendo parte de las historias y celebraciones de nuestra comunidad",
+    },
   ];
 
   return (
@@ -112,13 +119,13 @@ const About: React.FC = () => {
               Nuestra Historia
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed px-4">
-              Durante más de cuatro décadas, BOB TORONJA ha sido sinónimo de
+              Durante más de cuatro décadas, Arancia ha sido sinónimo de
               excelencia gastronómica en Rabo Duro. Nuestra pasión por la
-              hospitalidad y la tradición se refleja en cada plato que
-              servimos. Combinamos técnicas culinarias contemporáneas con
-              ingredientes locales de la más alta calidad, creando
-              experiencias memorables para nuestros comensales que buscan
-              algo más que una comida: buscan un momento para recordar.
+              hospitalidad y la tradición se refleja en cada plato que servimos.
+              Combinamos técnicas culinarias contemporáneas con ingredientes
+              locales de la más alta calidad, creando experiencias memorables
+              para nuestros comensales que buscan algo más que una comida:
+              buscan un momento para recordar.
             </p>
           </motion.div>
 
@@ -138,8 +145,12 @@ const About: React.FC = () => {
                       {item.year}
                     </Badge>
                     <div className="flex-1">
-                      <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-foreground">{item.title}</h3>
-                      <p className="text-sm sm:text-base text-muted-foreground">{item.description}</p>
+                      <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-muted-foreground">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -179,8 +190,12 @@ const About: React.FC = () => {
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-warm mb-3 sm:mb-4 flex items-center justify-center text-white">
                     {value.icon}
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-foreground">{value.title}</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground">{value.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-foreground">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    {value.description}
+                  </p>
                 </Card>
               </motion.div>
             ))}
@@ -199,13 +214,14 @@ const About: React.FC = () => {
             >
               <Card className="p-6 sm:p-8 h-full bg-gradient-warm text-white border-none">
                 <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">🍽️</div>
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Nuestra Misión</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                  Nuestra Misión
+                </h3>
                 <p className="text-sm sm:text-base text-white/90 leading-relaxed">
-                  Brindar una experiencia gastronómica excepcional que
-                  combine la riqueza de la cocina tradicional dominicana con
-                  toques contemporáneos, ofreciendo servicios de alta
-                  calidad en un ambiente acogedor que celebre nuestra
-                  cultura y hospitalidad.
+                  Brindar una experiencia gastronómica excepcional que combine
+                  la riqueza de la cocina tradicional dominicana con toques
+                  contemporáneos, ofreciendo servicios de alta calidad en un
+                  ambiente acogedor que celebre nuestra cultura y hospitalidad.
                 </p>
               </Card>
             </motion.div>
@@ -217,12 +233,14 @@ const About: React.FC = () => {
             >
               <Card className="p-6 sm:p-8 h-full bg-secondary text-secondary-foreground border-none">
                 <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">⭐</div>
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Nuestra Visión</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                  Nuestra Visión
+                </h3>
                 <p className="text-sm sm:text-base text-secondary-foreground/90 leading-relaxed">
-                  Ser reconocidos como el referente de la gastronomía
-                  dominicana en Santa Fe, preservando nuestras raíces
-                  culturales mientras continuamos innovando y superando las
-                  expectativas de nuestros clientes con cada visita.
+                  Ser reconocidos como el referente de la gastronomía dominicana
+                  en Santa Fe, preservando nuestras raíces culturales mientras
+                  continuamos innovando y superando las expectativas de nuestros
+                  clientes con cada visita.
                 </p>
               </Card>
             </motion.div>
@@ -243,15 +261,16 @@ const About: React.FC = () => {
               Nuestro Espacio
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4">
-              Un ambiente elegante y acogedor diseñado para experiencias memorables
+              Un ambiente elegante y acogedor diseñado para experiencias
+              memorables
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {[
-              'https://images.unsplash.com/photo-1755811248279-1ab13b7d4384?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb3VybWV0JTIwZm9vZCUyMHBsYXRpbmclMjBmaW5lJTIwZGluaW5nfGVufDF8fHx8MTc3MDM1ODQyOXww&ixlib=rb-4.1.0&q=80&w=1080',
-              'https://images.unsplash.com/photo-1758977404304-30ff5f68753c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwdGFibGUlMjBzZXR0aW5nJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzAzMzA4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080',
-              'https://images.unsplash.com/photo-1710983165044-0cc32d1aab4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwcGhvdG9ncmFwaHklMjBjb2xvcmZ1bCUyMGRpc2hlc3xlbnwxfHx8fDE3NzA0MjAxMjV8MA&ixlib=rb-4.1.0&q=80&w=1080'
+              "https://images.unsplash.com/photo-1755811248279-1ab13b7d4384?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb3VybWV0JTIwZm9vZCUyMHBsYXRpbmclMjBmaW5lJTIwZGluaW5nfGVufDF8fHx8MTc3MDM1ODQyOXww&ixlib=rb-4.1.0&q=80&w=1080",
+              "https://images.unsplash.com/photo-1758977404304-30ff5f68753c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwdGFibGUlMjBzZXR0aW5nJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzAzMzA4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+              "https://images.unsplash.com/photo-1710983165044-0cc32d1aab4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwcGhvdG9ncmFwaHklMjBjb2xvcmZ1bCUyMGRpc2hlc3xlbnwxfHx8fDE3NzA0MjAxMjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
             ].map((img, index) => (
               <motion.div
                 key={index}

@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChefHat, Phone, ShoppingBag } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Button } from './ui/button';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, ChefHat, Phone, ShoppingBag } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Button } from "./ui/button";
 
 interface ModernHeaderProps {
   onShowModal: () => void;
   onToggleSidebar: () => void;
 }
 
-const ModernHeader: React.FC<ModernHeaderProps> = ({ onShowModal, onToggleSidebar }) => {
+const ModernHeader: React.FC<ModernHeaderProps> = ({
+  onShowModal,
+  onToggleSidebar,
+}) => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -18,19 +21,19 @@ const ModernHeader: React.FC<ModernHeaderProps> = ({ onShowModal, onToggleSideba
       setScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-border' 
-          : 'bg-white/80 backdrop-blur-md'
+        scrolled
+          ? "bg-white/95 backdrop-blur-xl shadow-lg border-b border-border"
+          : "bg-white/80 backdrop-blur-md"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,19 +49,31 @@ const ModernHeader: React.FC<ModernHeaderProps> = ({ onShowModal, onToggleSideba
             </motion.div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-[#ff8c6b] bg-clip-text text-transparent">
-                BOB TORONJA
+                Arancia
               </span>
-              <span className="text-xs text-muted-foreground -mt-1">Gastronomía Excepcional</span>
+              <span className="text-xs text-muted-foreground -mt-1">
+                Gastronomía Excepcional
+              </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            <NavLink to="/" active={location.pathname === '/'}>Inicio</NavLink>
-            <NavLink to="/menu" active={location.pathname === '/menu'}>Menú</NavLink>
-            <NavLink to="/about" active={location.pathname === '/about'}>Nosotros</NavLink>
-            <NavLink to="/events" active={location.pathname === '/events'}>Eventos</NavLink>
-            <NavLink to="/services" active={location.pathname === '/services'}>Servicios</NavLink>
+            <NavLink to="/" active={location.pathname === "/"}>
+              Inicio
+            </NavLink>
+            <NavLink to="/menu" active={location.pathname === "/menu"}>
+              Menú
+            </NavLink>
+            <NavLink to="/about" active={location.pathname === "/about"}>
+              Nosotros
+            </NavLink>
+            <NavLink to="/events" active={location.pathname === "/events"}>
+              Eventos
+            </NavLink>
+            <NavLink to="/services" active={location.pathname === "/services"}>
+              Servicios
+            </NavLink>
           </nav>
 
           {/* Actions */}
@@ -71,7 +86,7 @@ const ModernHeader: React.FC<ModernHeaderProps> = ({ onShowModal, onToggleSideba
             >
               <Phone className="w-5 h-5" />
             </Button>
-            
+
             <Link to="/menu">
               <Button className="hidden md:flex gap-2 bg-gradient-to-r from-primary to-[#ff8c6b] hover:shadow-lg transition-all">
                 <ShoppingBag className="w-4 h-4" />
@@ -94,19 +109,19 @@ const ModernHeader: React.FC<ModernHeaderProps> = ({ onShowModal, onToggleSideba
   );
 };
 
-const NavLink: React.FC<{ to: string; active: boolean; children: React.ReactNode }> = ({ 
-  to, 
-  active, 
-  children 
-}) => (
+const NavLink: React.FC<{
+  to: string;
+  active: boolean;
+  children: React.ReactNode;
+}> = ({ to, active, children }) => (
   <Link to={to}>
     <motion.div
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className={`px-4 py-2 rounded-lg transition-all ${
-        active 
-          ? 'bg-accent text-primary font-medium' 
-          : 'text-foreground hover:bg-muted'
+        active
+          ? "bg-accent text-primary font-medium"
+          : "text-foreground hover:bg-muted"
       }`}
     >
       {children}
