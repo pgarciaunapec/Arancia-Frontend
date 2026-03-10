@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1500">
+<title>Restaurant01 - Module Architecture Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: #F5F5F5;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #1a1a1a;
+  }
+
+  .canvas {
+    width: 1400px;
+    background: #FAFAFA;
+    border-radius: 20px;
+    padding: 48px 40px 56px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+    border: 1px solid #E0E0E0;
+  }
+
+  /* ── Title ── */
+  .diagram-title {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #1A237E;
+    letter-spacing: -0.5px;
+  }
+  .diagram-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #757575;
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+
+  /* ── Layer containers ── */
+  .layer {
+    border-radius: 14px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+  .layer-header {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .layer-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.2px;
+  }
+  .layer-header .layer-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .layer-header .layer-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .layer-body {
+    padding: 20px 24px;
+  }
+
+  /* ── Item rows ── */
+  .items-grid {
+    display: grid;
+    gap: 8px;
+  }
+  .items-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .items-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .items-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .items-grid.cols-1 { grid-template-columns: 1fr; }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: box-shadow 0.15s;
+    font-size: 13px;
+  }
+  .item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .item .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .item .icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .item .label {
+    font-weight: 600;
+    color: #212121;
+    font-size: 12.5px;
+    line-height: 1.2;
+  }
+  .item .desc {
+    font-weight: 400;
+    color: #9E9E9E;
+    font-size: 11px;
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── Sub-group ── */
+  .subgroup {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .subgroup-header {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.2px;
+  }
+  .subgroup-body {
+    padding: 12px;
+    display: grid;
+    gap: 6px;
+  }
+
+  /* ── Icon colors ── */
+  .icon-slate  { background: #ECEFF1; color: #37474F; }
+  .icon-blue   { background: #E3F2FD; color: #0D47A1; }
+  .icon-orange { background: #FFF3E0; color: #E65100; }
+  .icon-green  { background: #E8F5E9; color: #1B5E20; }
+  .icon-purple { background: #F3E5F5; color: #4A148C; }
+  .icon-teal   { background: #E0F2F1; color: #00695C; }
+  .icon-red    { background: #FBE9E7; color: #BF360C; }
+  .icon-navy   { background: #E8EAF6; color: #1A237E; }
+  .icon-char   { background: #CFD8DC; color: #263238; }
+
+  /* ── Divider ── */
+  .network-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0;
+    padding: 0 8px;
+  }
+  .network-divider .line {
+    flex: 1;
+    height: 0;
+    border-top: 2.5px dashed #90A4AE;
+  }
+  .network-divider .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #546E7A;
+    background: #ECEFF1;
+    padding: 6px 20px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Flow arrows ── */
+  .flow-connector {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0;
+  }
+  .flow-connector .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .flow-connector .arrow .shaft {
+    width: 2px;
+    height: 18px;
+    background: #B0BEC5;
+  }
+  .flow-connector .arrow .head {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #B0BEC5;
+  }
+
+  /* ── Flows legend ── */
+  .flows-section {
+    margin-top: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .flows-section .flows-header {
+    padding: 12px 24px;
+    background: #37474F;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .flows-section .flows-body {
+    padding: 20px 24px;
+    background: #FAFAFA;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .flow-card {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid;
+  }
+  .flow-card .flow-title {
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-card .flow-steps {
+    padding: 12px 14px;
+    font-size: 11.5px;
+    line-height: 2;
+    color: #424242;
+    background: #fff;
+  }
+  .flow-card .flow-steps .step-arrow {
+    color: #BDBDBD;
+    font-weight: 700;
+    margin: 0 4px;
+  }
+
+  /* ── Specific flow colors ── */
+  .flow-auth   { border-color: #E65100; }
+  .flow-auth .flow-title { background: #E65100; }
+  .flow-order  { border-color: #2E7D32; }
+  .flow-order .flow-title { background: #2E7D32; }
+  .flow-reserv { border-color: #0277BD; }
+  .flow-reserv .flow-title { background: #0277BD; }
+
+  /* ── Responsive sub-groups side by side ── */
+  .row { display: flex; gap: 14px; }
+  .row > * { flex: 1; min-width: 0; }
+  .row.r-3-1-1 > *:first-child { flex: 3; }
+  .row.r-3-1-1 > *:nth-child(2) { flex: 1; }
+  .row.r-3-1-1 > *:nth-child(3) { flex: 1; }
+  .row.r-2-1 > *:first-child { flex: 2; }
+  .row.r-2-1 > *:nth-child(2) { flex: 1; }
+
+  /* ── Backend 4-col ── */
+  .backend-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr;
+    gap: 14px;
+  }
+  .backend-grid .subgroup { height: fit-content; }
+
+  /* SVG icons inline */
+  .svg-icon { display: inline-flex; }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- Title -->
+  <div class="diagram-title">Restaurant01 &mdash; Module Architecture</div>
+  <div class="diagram-subtitle">Full-stack application architecture &bull; React + Express.js + MongoDB</div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 1: CORE & ROUTING -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer" style="border-color:#37474F22;">
+    <div class="layer-header" style="background:#37474F;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <h2>Core & Routing</h2>
+      <span class="layer-badge">Layer 1</span>
+      <span class="layer-sub">Application entry point and navigation setup</span>
+    </div>
+    <div class="layer-body" style="background:#ECEFF1;">
+      <div class="items-grid cols-3">
+        <div class="item">
+          <div class="icon icon-slate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div><span class="label">main.tsx</span></div>
+          <span class="desc">React DOM root</span>
+        </div>
+        <div class="item">
+          <div class="icon icon-slate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <div><span class="label">App.tsx</span></div>
+          <span class="desc">Root component & layout</span>
+        </div>
+        <div class="item">
+          <div class="icon icon-slate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg>
+          </div>
+          <div><span class="label">React Router</span></div>
+          <span class="desc">BrowserRouter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-connector"><div class="arrow"><div class="shaft"></div><div class="head"></div></div></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 2: PRESENTATION LAYER -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#0D47A1;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <h2>Presentation Layer &mdash; Pages</h2>
+      <span class="layer-badge">Layer 2</span>
+      <span class="layer-sub">15 page-level views</span>
+    </div>
+    <div class="layer-body" style="background:#F5F7FA;">
+      <div class="row r-3-1-1">
+        <!-- Public Pages -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#01579B;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            Public Pages
+          </div>
+          <div class="subgroup-body" style="background:#E8F0FE;">
+            <div class="items-grid cols-2" style="gap:6px;">
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="label">Home</span><span class="desc">Landing</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="label">Menu</span><span class="desc">Full menu</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span class="label">About</span><span class="desc">Story & team</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="label">Events</span><span class="desc">Private events</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3l-4 4-4-4"/></svg></div><span class="label">Services</span><span class="desc">Catering & more</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><span class="label">Gallery</span><span class="desc">Photo grid</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div><span class="label">Contact</span><span class="desc">Form & map</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg></div><span class="label">Reservations</span><span class="desc">Table booking</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="label">BookingConfirmation</span><span class="desc">Success</span></div>
+              <div class="item"><div class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><span class="label">NotFound</span><span class="desc">404</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Pages -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#E65100;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            User Pages
+          </div>
+          <div class="subgroup-body" style="background:#FFF3E0;">
+            <div class="item"><div class="icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="label">Login</span></div>
+            <div class="item"><div class="icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="label">Profile</span></div>
+            <div class="item"><div class="icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="label">MyReservations</span></div>
+          </div>
+        </div>
+
+        <!-- E-commerce Pages -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#1B5E20;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+            E-commerce
+          </div>
+          <div class="subgroup-body" style="background:#E8F5E9;">
+            <div class="item"><div class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div><span class="label">Cart</span></div>
+            <div class="item"><div class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="label">Checkout</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-connector"><div class="arrow"><div class="shaft"></div><div class="head"></div></div></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 3: COMPONENT LAYER -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#4A148C;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <h2>Component Layer</h2>
+      <span class="layer-badge">Layer 3</span>
+      <span class="layer-sub">Reusable UI building blocks</span>
+    </div>
+    <div class="layer-body" style="background:#F8F4FC;">
+      <div class="row">
+        <!-- Layout Components -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#6A1B9A;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Layout Components
+          </div>
+          <div class="subgroup-body" style="background:#F3E5F5;">
+            <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div><span class="label">TopNav / ModernHeader</span><span class="desc">Navigation bar</span></div>
+            <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="18" x2="21" y2="18"/><line x1="3" y1="14" x2="21" y2="14"/><rect x="3" y="10" width="18" height="0.5" rx="0.25"/></svg></div><span class="label">Footer / ModernFooter</span><span class="desc">Site footer</span></div>
+            <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><line x1="14" y1="8" x2="21" y2="8"/><line x1="14" y1="12" x2="21" y2="12"/><line x1="14" y1="16" x2="21" y2="16"/></svg></div><span class="label">MobileSidebar / ModernSidebar</span><span class="desc">Off-canvas nav</span></div>
+            <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label">BottomNav</span><span class="desc">Mobile tabs</span></div>
+          </div>
+        </div>
+
+        <!-- UI Library -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#7B1FA2;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            UI Library (shadcn/ui)
+            <span style="margin-left:auto;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;font-size:10px;">48 components</span>
+          </div>
+          <div class="subgroup-body" style="background:#F3E5F5;">
+            <div class="items-grid cols-2" style="gap:6px;">
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/></svg></div><span class="label">Button, Input, Textarea</span><span class="desc">Form</span></div>
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><span class="label">Card, Badge, Avatar</span><span class="desc">Display</span></div>
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1" fill="none"/></svg></div><span class="label">Dialog, Sheet, Drawer</span><span class="desc">Overlays</span></div>
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div><span class="label">Table, Tabs, Accordion</span><span class="desc">Data</span></div>
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><span class="label">Select, Checkbox, Radio</span><span class="desc">Selection</span></div>
+              <div class="item"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="label">Calendar, Carousel, Chart</span><span class="desc">Special</span></div>
+              <div class="item" style="grid-column: span 2;"><div class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></div><span class="label">Modal / ModernModal</span><span class="desc">Global popup & alert dialogs</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-connector"><div class="arrow"><div class="shaft"></div><div class="head"></div></div></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 4: STATE MANAGEMENT -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#BF360C;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      <h2>State Management</h2>
+      <span class="layer-badge">Layer 4</span>
+      <span class="layer-sub">Global application state via React Context</span>
+    </div>
+    <div class="layer-body" style="background:#FBE9E7;">
+      <div class="items-grid cols-3">
+        <div class="item">
+          <div class="icon icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div>
+            <span class="label">AuthContext</span>
+            <div style="font-size:10px;color:#9E9E9E;margin-top:2px;">User session, JWT token, login/logout</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="icon icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          </div>
+          <div>
+            <span class="label">CartContext</span>
+            <div style="font-size:10px;color:#9E9E9E;margin-top:2px;">Cart items, quantities, totals</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="icon icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </div>
+          <div>
+            <span class="label">useReducer</span>
+            <div style="font-size:10px;color:#9E9E9E;margin-top:2px;">Popup state (App-level)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-connector"><div class="arrow"><div class="shaft"></div><div class="head"></div></div></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 5: SERVICES LAYER -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#00695C;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <h2>Services Layer</h2>
+      <span class="layer-badge">Layer 5</span>
+      <span class="layer-sub">API integration &mdash; src/services/api.ts</span>
+    </div>
+    <div class="layer-body" style="background:#E0F2F1;">
+      <div class="items-grid cols-4">
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div><span class="label">authApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/auth/register, login, me</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><span class="label">userApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/users/profile, password</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><span class="label">menuApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/menu, categories</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><span class="label">reservationApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/reservations, cancel</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div><div><span class="label">cartApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">GET/POST/PUT/DELETE /cart</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div><span class="label">orderApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/orders, create, getById</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div><div><span class="label">contactApi</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">/contact, event-quote</div></div></div>
+        <div class="item"><div class="icon icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><span class="label">fetchApi()</span><div style="font-size:9.5px;color:#9E9E9E;margin-top:1px;">Generic wrapper + JWT</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ NETWORK BOUNDARY ═══════ -->
+  <div class="network-divider">
+    <div class="line"></div>
+    <div class="label">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      Network Boundary &mdash; HTTP / REST (JSON)
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 6: BACKEND API -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#263238;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      <h2>Backend API &mdash; Express.js + TypeScript</h2>
+      <span class="layer-badge">Layer 6</span>
+      <span class="layer-sub">RESTful API server &bull; Port 5000</span>
+    </div>
+    <div class="layer-body" style="background:#CFD8DC;">
+      <div class="backend-grid">
+        <!-- Routes -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#37474F;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg>
+            Routes
+          </div>
+          <div class="subgroup-body" style="background:#ECEFF1;">
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">auth.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">user.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">menu.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">reservation.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">cart.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">order.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">contact.routes</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 6.3-6.4 2.1 2-6.3z"/></svg></div><span class="label" style="font-size:11px;">image.routes</span></div>
+          </div>
+        </div>
+
+        <!-- Middleware -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#455A64;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Middleware
+          </div>
+          <div class="subgroup-body" style="background:#ECEFF1;">
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><span class="label" style="font-size:11px;">auth.middleware</span><div style="font-size:9px;color:#9E9E9E;margin-top:1px;">JWT verification</div></div></div>
+          </div>
+        </div>
+
+        <!-- Controllers -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#455A64;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            Controllers
+          </div>
+          <div class="subgroup-body" style="background:#ECEFF1;">
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg></div><div><span class="label" style="font-size:11px;">image.controller</span><div style="font-size:9px;color:#9E9E9E;margin-top:1px;">Upload & retrieval</div></div></div>
+          </div>
+        </div>
+
+        <!-- Models -->
+        <div class="subgroup">
+          <div class="subgroup-header" style="background:#37474F;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Models (Mongoose)
+          </div>
+          <div class="subgroup-body" style="background:#ECEFF1;">
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">User</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">MenuItem</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">Order</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">Reservation</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">Contact</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">EventRequest</span></div>
+            <div class="item" style="padding:6px 10px;"><div class="icon icon-char" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><span class="label" style="font-size:11px;">Image</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seeds row -->
+      <div style="margin-top:12px;">
+        <div class="item" style="max-width:280px;">
+          <div class="icon icon-char">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c4-4 8-7.5 8-12a8 8 0 10-16 0c0 4.5 4 8 8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <span class="label">Seeds</span>
+            <div style="font-size:10px;color:#9E9E9E;">Initial menu items & test data</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="flow-connector"><div class="arrow"><div class="shaft"></div><div class="head"></div></div></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- LAYER 7: DATABASE -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="layer">
+    <div class="layer-header" style="background:#1A237E;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <h2>Database &mdash; MongoDB</h2>
+      <span class="layer-badge">Layer 7</span>
+      <span class="layer-sub">NoSQL document database</span>
+    </div>
+    <div class="layer-body" style="background:#E8EAF6;">
+      <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+        <!-- Database cylinder icon -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <svg width="64" height="80" viewBox="0 0 64 80" fill="none">
+            <ellipse cx="32" cy="14" rx="28" ry="12" fill="#C5CAE9" stroke="#1A237E" stroke-width="2"/>
+            <path d="M4 14v52c0 6.63 12.54 12 28 12s28-5.37 28-12V14" fill="#E8EAF6" stroke="#1A237E" stroke-width="2"/>
+            <ellipse cx="32" cy="14" rx="28" ry="12" fill="#C5CAE9" stroke="#1A237E" stroke-width="2"/>
+            <path d="M4 34c0 6.63 12.54 12 28 12s28-5.37 28-12" stroke="#1A237E" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+            <path d="M4 54c0 6.63 12.54 12 28 12s28-5.37 28-12" stroke="#1A237E" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+          </svg>
+          <span style="font-size:13px;font-weight:700;color:#1A237E;">MongoDB</span>
+        </div>
+        <!-- Collections -->
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:600;color:#3949AB;margin-bottom:8px;">Collections:</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">users</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">menuitems</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">orders</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">reservations</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">contacts</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">eventrequests</span>
+            <span style="background:#fff;border:1px solid #C5CAE9;padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:500;color:#283593;">images</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- DATA FLOWS -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="flows-section">
+    <div class="flows-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Key Data Flows
+    </div>
+    <div class="flows-body">
+      <!-- Auth Flow -->
+      <div class="flow-card flow-auth">
+        <div class="flow-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Authentication Flow
+        </div>
+        <div class="flow-steps">
+          Login <span class="step-arrow">&rarr;</span> AuthContext <span class="step-arrow">&rarr;</span> authApi<br>
+          <span class="step-arrow">&rarr;</span> /api/auth/* <span class="step-arrow">&rarr;</span> User model<br>
+          <span class="step-arrow">&rarr;</span> MongoDB
+        </div>
+      </div>
+
+      <!-- Order Flow -->
+      <div class="flow-card flow-order">
+        <div class="flow-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          Order Flow
+        </div>
+        <div class="flow-steps">
+          Menu <span class="step-arrow">&rarr;</span> CartContext <span class="step-arrow">&rarr;</span> Cart<br>
+          <span class="step-arrow">&rarr;</span> Checkout <span class="step-arrow">&rarr;</span> orderApi<br>
+          <span class="step-arrow">&rarr;</span> /api/orders <span class="step-arrow">&rarr;</span> MongoDB
+        </div>
+      </div>
+
+      <!-- Reservation Flow -->
+      <div class="flow-card flow-reserv">
+        <div class="flow-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Reservation Flow
+        </div>
+        <div class="flow-steps">
+          Reservations <span class="step-arrow">&rarr;</span> reservationApi<br>
+          <span class="step-arrow">&rarr;</span> /api/reservations<br>
+          <span class="step-arrow">&rarr;</span> Reservation model <span class="step-arrow">&rarr;</span> MongoDB
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center;margin-top:28px;font-size:11px;color:#9E9E9E;">
+    Restaurant01 &bull; Full-Stack Architecture Diagram &bull; React + Express.js + MongoDB &bull; Feb 2026
+  </div>
+
+</div>
+</body>
+</html>

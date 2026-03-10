@@ -1,0 +1,227 @@
+[DIAGRAM_CONFIGURATION]
+
+STYLE REQUIREMENTS:
+- White/light background (#FAFAFA or pure white)
+- Professional, clean visual hierarchy with clear module grouping
+- Module boxes with colored top header bars (matching color per layer)
+- Icons next to each item (NO emojis, use simple geometric/vector icons described below)
+- Rounded rectangle containers for each architectural layer
+- Subtle drop shadows on containers for depth
+- Dashed connector lines with arrows showing data/dependency flow
+- Clean sans-serif typography (Inter, Segoe UI, or similar)
+- Left-aligned text inside module boxes
+
+COLOR SCHEME PER LAYER:
+- Core & Routing:          Header #37474F (dark slate), body #ECEFF1
+- Pages (Public):          Header #01579B (dark blue), body #E1F5FE
+- Pages (User):            Header #E65100 (orange), body #FFF3E0
+- Pages (E-commerce):      Header #1B5E20 (dark green), body #E8F5E9
+- Components (Layout):     Header #4A148C (purple), body #F3E5F5
+- Components (UI Library): Header #6A1B9A (lighter purple), body #F3E5F5
+- State Management:        Header #BF360C (deep orange), body #FBE9E7
+- Services Layer:          Header #00695C (teal), body #E0F2F1
+- Backend API:             Header #263238 (charcoal), body #CFD8DC
+- Database:                Header #1A237E (navy), body #E8EAF6
+
+ICON LEGEND (use simple vector/SVG-style icons, NOT emojis):
+- [APP]       = Gear/cog icon (small, filled)
+- [ENTRY]     = Play/triangle icon (entry point)
+- [ROUTE]     = Branching path / fork icon
+- [PAGE]      = Document/page icon (small rectangle with folded corner)
+- [LOCK]      = Padlock icon (for auth-related pages)
+- [CART-ICON] = Shopping cart icon
+- [CHECK]     = Checkmark in circle
+- [HEADER]    = Horizontal lines icon (layout bar)
+- [FOOTER]    = Horizontal lines at bottom
+- [SIDEBAR]   = Vertical panel icon
+- [NAV]       = Compass / navigation arrows icon
+- [MODAL]     = Overlapping rectangles (dialog)
+- [UI]        = Grid of small squares (component library)
+- [STATE]     = Circular arrows (state cycle)
+- [API]       = Lightning bolt (service call)
+- [SERVER]    = Server rack icon
+- [DATABASE]  = Cylinder icon
+- [SHIELD]    = Shield icon (middleware/auth)
+- [SEED]      = Plant/sprout icon (seed data)
+- [MODEL]     = Cube/box icon (data model)
+- [CTRL]      = Sliders/control panel icon
+
+==========================================================
+ARCHITECTURE LAYERS (Top to bottom flow)
+==========================================================
+
+--- LAYER 1: CORE & ROUTING (Dark Slate header) ---
+Container title: "Core & Routing"
+Subtitle: "Application entry point and navigation setup"
+
+Items:
+[ENTRY]  main.tsx              -- React DOM root, providers wrapper
+[APP]    App.tsx               -- Root component, layout shell, popup reducer
+[ROUTE]  React Router (BrowserRouter)  -- Client-side route definitions
+
+--- LAYER 2: PRESENTATION - PAGES (3 sub-groups) ---
+Container title: "Presentation Layer - Pages"
+
+  Sub-group A: "Public Pages" (Blue header)
+  [PAGE]  Home                 -- Landing page, hero, featured sections
+  [PAGE]  Menu                 -- Full menu display with categories & cart
+  [PAGE]  About                -- Restaurant story, team, values
+  [PAGE]  Events               -- Private events & event packages
+  [PAGE]  Services             -- Catering, delivery, takeout info
+  [PAGE]  Gallery              -- Photo gallery grid
+  [PAGE]  Contact              -- Contact form, map, info
+  [PAGE]  Reservations         -- Table reservation form
+  [PAGE]  BookingConfirmation  -- Reservation success confirmation
+  [PAGE]  NotFound             -- 404 error page
+
+  Sub-group B: "User Pages" (Orange header)
+  [LOCK]  Login                -- Email/password authentication form
+  [PAGE]  Profile              -- User profile view & edit
+  [PAGE]  MyReservations       -- User's reservation history
+
+  Sub-group C: "E-commerce Pages" (Green header)
+  [CART-ICON]  Cart            -- Shopping cart review
+  [CHECK]      Checkout        -- Order placement & shipping form
+
+--- LAYER 3: COMPONENT LAYER (2 sub-groups) ---
+Container title: "Component Layer"
+Subtitle: "Reusable UI building blocks"
+
+  Sub-group A: "Layout Components" (Purple header)
+  [HEADER]   TopNav / ModernHeader   -- Main navigation bar (desktop & mobile)
+  [FOOTER]   Footer / ModernFooter   -- Site footer with links & info
+  [SIDEBAR]  MobileSidebar / ModernSidebar  -- Off-canvas mobile navigation
+  [NAV]      BottomNav               -- Mobile bottom tab navigation
+
+  Sub-group B: "UI Library (shadcn/ui)" (Lighter Purple header)
+  [UI]  Button, Input, Textarea      -- Form controls
+  [UI]  Card, Badge, Avatar          -- Display elements
+  [UI]  Dialog, Sheet, Drawer        -- Overlay components
+  [UI]  Table, Tabs, Accordion       -- Data presentation
+  [UI]  Select, Checkbox, Radio      -- Selection controls
+  [UI]  Calendar, Carousel, Chart    -- Specialized widgets
+  [MODAL]  Modal / ModernModal       -- Global popup/alert dialogs
+  [UI]  48 components total          -- Full design system
+
+--- LAYER 4: STATE MANAGEMENT (Deep Orange header) ---
+Container title: "State Management"
+Subtitle: "Global application state via React Context"
+
+Items:
+[STATE]  AuthContext       -- User session, login/logout, JWT token management
+[STATE]  CartContext       -- Cart items, quantities, totals, add/remove actions
+[APP]    useReducer        -- Popup state (App-level local state)
+
+--- LAYER 5: SERVICES LAYER (Teal header) ---
+Container title: "Services Layer"
+Subtitle: "API integration & HTTP client (src/services/api.ts)"
+
+Items:
+[API]  authApi          -- POST /auth/register, POST /auth/login, GET /auth/me
+[API]  userApi          -- GET/PUT /users/profile, PUT /users/password
+[API]  menuApi          -- GET /menu, GET /menu/:id, GET /menu/categories
+[API]  reservationApi   -- POST /reservations, GET /reservations/my, PUT cancel
+[API]  cartApi          -- GET/POST/PUT/DELETE /cart
+[API]  orderApi         -- POST /orders, GET /orders, GET /orders/:id
+[API]  contactApi       -- POST /contact, POST /contact/event-quote
+[APP]  fetchApi()       -- Generic fetch wrapper with token injection
+
+==========================================================
+BACKEND (Server side - separated by a horizontal dashed line)
+==========================================================
+
+--- LAYER 6: BACKEND API SERVER (Charcoal header) ---
+Container title: "Backend API (Express.js + TypeScript)"
+Subtitle: "RESTful API server on port 5000"
+
+  Sub-group A: "Routes" (left column)
+  [ROUTE]  auth.routes.ts         -- /api/auth/*
+  [ROUTE]  user.routes.ts         -- /api/users/*
+  [ROUTE]  menu.routes.ts         -- /api/menu/*
+  [ROUTE]  reservation.routes.ts  -- /api/reservations/*
+  [ROUTE]  cart.routes.ts         -- /api/cart/*
+  [ROUTE]  order.routes.ts        -- /api/orders/*
+  [ROUTE]  contact.routes.ts      -- /api/contact/*
+  [ROUTE]  image.routes.ts        -- /api/images/*
+
+  Sub-group B: "Middleware" (center)
+  [SHIELD]  auth.middleware.ts    -- JWT verification, route protection
+
+  Sub-group C: "Controllers" (right-center)
+  [CTRL]  image.controller.ts    -- Image upload & retrieval logic
+
+  Sub-group D: "Models (Mongoose)" (right column)
+  [MODEL]  User.ts               -- User schema & model
+  [MODEL]  MenuItem.ts           -- Menu item schema & model
+  [MODEL]  Order.ts              -- Order schema (with embedded items)
+  [MODEL]  Reservation.ts        -- Reservation schema & model
+  [MODEL]  Contact.ts            -- Contact message schema
+  [MODEL]  EventRequest.ts       -- Event quote request schema
+  [MODEL]  Image.ts              -- Binary image storage schema
+
+  Sub-group E: "Seeds"
+  [SEED]  Seed data              -- Initial menu items & test data
+
+--- LAYER 7: DATABASE (Navy header) ---
+Container title: "Database"
+
+[DATABASE]  MongoDB              -- NoSQL document database
+            Collections: users, menuitems, orders, reservations,
+                         contacts, eventrequests, images
+
+==========================================================
+DEPENDENCY / DATA FLOW ARROWS
+==========================================================
+
+VERTICAL FLOW (top-to-bottom, main architecture):
+main.tsx  -->  App.tsx  -->  React Router  -->  Pages
+
+PAGES depend on:
+Pages ---------> Layout Components (wrapped in header/footer/nav)
+Pages ---------> UI Library (use buttons, cards, forms, etc.)
+Pages ---------> State Management (read/write AuthContext, CartContext)
+Pages ---------> Services Layer (fetch data via API calls)
+
+STATE MANAGEMENT depends on:
+AuthContext ----> authApi (login, register, token)
+CartContext ----> cartApi (sync cart with server)
+
+SERVICES LAYER connects to BACKEND:
+Services Layer <====> Backend API  (HTTP REST, dashed bidirectional arrow)
+                      Label: "HTTP/REST (JSON)"
+                      Label: "Authorization: Bearer <JWT>"
+
+BACKEND internal flow:
+Routes --> Middleware (auth check) --> Controllers --> Models --> Database
+
+SPECIFIC HIGHLIGHTED FLOWS (show as colored paths):
+1. [Auth Flow - orange path]:
+   Login page --> AuthContext --> authApi --> /api/auth/* --> User model --> MongoDB
+
+2. [Order Flow - green path]:
+   Menu --> CartContext --> Cart --> Checkout --> orderApi --> /api/orders --> Order model --> MongoDB
+
+3. [Reservation Flow - blue path]:
+   Reservations --> reservationApi --> /api/reservations --> Reservation model --> MongoDB
+
+==========================================================
+LAYOUT INSTRUCTIONS
+==========================================================
+
+- Overall layout: Vertical stack (top to bottom), representing the layered architecture
+- Each layer is a full-width rounded rectangle with its header color
+- Inside each layer, items are arranged in a grid or columns
+- The "BACKEND" section is visually separated by a horizontal dashed line labeled "Network Boundary (HTTP)"
+- Pages sub-groups should be displayed side-by-side (3 columns: Public | User | E-commerce)
+- Component sub-groups side-by-side (2 columns: Layout | UI Library)
+- Backend sub-groups in a 4-column layout (Routes | Middleware | Controllers | Models)
+- Database at the very bottom, centered, with cylinder icon
+- Flow arrows on the left side or between layers, using dashed lines with arrowheads
+- The 3 highlighted flows can be shown as subtle colored side annotations
+
+DIMENSIONS:
+- Suggested canvas: 1400px wide x 2000px tall (or similar ratio for high-res export)
+- Generous padding between layers (40-60px)
+- Font sizes: Layer titles 18-20pt bold, item names 12-14pt regular
+
+[END_CONFIGURATION]
