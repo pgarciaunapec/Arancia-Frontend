@@ -24,6 +24,7 @@ const MAPPING_FILE = path.resolve(__dirname, '..', 'uploads', 'image-mapping.jso
 
 const FRONTEND_MENU = path.resolve(__dirname, '..', '..', 'src', 'data', 'menuData.ts');
 const FRONTEND_IMAGES = path.resolve(__dirname, '..', '..', 'src', 'data', 'imageUrls.ts');
+const FRONTEND_DIR = path.resolve(__dirname, '..', '..', 'src');
 
 const argv = require('minimist')(process.argv.slice(2));
 const APPLY = !!argv.apply;
@@ -54,7 +55,24 @@ async function downloadBuffer(url) {
 
 async function main() {
     console.log('🔎 Collecting image URLs from frontend files...');
-    const files = [FRONTEND_MENU, FRONTEND_IMAGES];
+    // collect frontend files (data files + all src pages/components)
+    const allowedExt = new Set(['.ts', '.tsx', '.js', '.jsx', '.json']);
+    async function walk(dir) {
+        const found = [];
+        const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+        for (const e of entries) {
+            const full = path.join(dir, e.name);
+            if (e.isDirectory()) {
+                found.push(...await walk(full));
+            } else {
+                if (allowedExt.has(path.extname(e.name))) found.push(full);
+            }
+        }
+        return found;
+    }
+
+    const filesFromSrc = fs.existsSync(FRONTEND_DIR) ? await walk(FRONTEND_DIR) : [];
+    const files = Array.from(new Set([FRONTEND_MENU, FRONTEND_IMAGES, ...filesFromSrc]));
     const urls = new Set();
 
     for (const file of files) {
@@ -73,20 +91,43 @@ async function main() {
     console.log('🔌 Connecting to MongoDB:', mongoUri);
     await mongoose.connect(mongoUri);
 
-    const ImageSchema = new mongoose.Schema({
-        filename: { type: String, required: true },
-        contentType: { type: String, required: true },
-        data: { type: Buffer, required: true },
-        createdAt: { type: Date, default: Date.now }
-    });
-    const Image = mongoose.model('ImageForSync', ImageSchema, 'images');
-
     const mapping = fs.existsSync(MAPPING_FILE) ? JSON.parse(await fs.promises.readFile(MAPPING_FILE, 'utf8')) : {};
 
+    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'images' });
+
+    const FORCE = !!argv.force;
+    const MIGRATE = !!argv.migrate; // migrate from existing `images` collection docs
+
+    async function uploadToGridFS(filename, buffer, contentType) {
+        return new Promise((resolve, reject) => {
+            const uploadStream = bucket.openUploadStream(filename, { contentType });
+            uploadStream.on('error', (err) => reject(err));
+            uploadStream.on('finish', () => resolve(uploadStream.id.toString()));
+            uploadStream.end(buffer);
+        });
+    }
+
     for (const url of urlList) {
-        if (mapping[url]) {
+        if (mapping[url] && !FORCE && !MIGRATE) {
             console.log('↩️  Already mapped:', url, '->', mapping[url]);
             continue;
+        }
+
+        // If migrate is requested and mapping exists, try to copy from old images collection
+        if (MIGRATE && mapping[url]) {
+            try {
+                const oldId = mapping[url];
+                const oldDoc = await mongoose.connection.db.collection('images').findOne({ _id: new mongoose.Types.ObjectId(oldId) });
+                if (oldDoc && oldDoc.data) {
+                    const buffer = oldDoc.data.buffer ? Buffer.from(oldDoc.data.buffer) : Buffer.from(oldDoc.data);
+                    const newId = await uploadToGridFS(oldDoc.filename || `${Date.now()}.bin`, buffer, oldDoc.contentType || 'application/octet-stream');
+                    mapping[url] = newId;
+                    console.log('🔁 Migrated', url, 'to GridFS id', newId);
+                    continue;
+                }
+            } catch (err) {
+                console.warn('⚠️  Migration failed for', url, err.message || err);
+            }
         }
 
         console.log('⬇️  Downloading', url);
@@ -105,11 +146,11 @@ async function main() {
         console.log('💾 Saved local copy:', path.relative(process.cwd(), localPath));
 
         try {
-            const doc = await Image.create({ filename: safeName, contentType, data: buffer });
-            mapping[url] = doc._id.toString();
-            console.log('🗄️  Stored in MongoDB with id', mapping[url]);
+            const newId = await uploadToGridFS(safeName, buffer, contentType);
+            mapping[url] = newId;
+            console.log('🗄️  Stored in GridFS with id', newId);
         } catch (err) {
-            console.error('❌ Failed to store in MongoDB for', url, err.message);
+            console.error('❌ Failed to store in GridFS for', url, err.message || err);
         }
     }
 
@@ -121,19 +162,24 @@ async function main() {
             console.warn('--apply requested but no --backendUrl provided and BACKEND_URL env not set. Skipping file updates.');
         } else {
             console.log('♻️  Updating frontend files to point to backend image endpoints...');
-            // update menuData.ts and imageUrls.ts
+            // update all collected frontend files
             for (const file of files) {
                 if (!fs.existsSync(file)) continue;
                 let text = await fs.promises.readFile(file, 'utf8');
+                let changed = false;
                 for (const [orig, id] of Object.entries(mapping)) {
                     const target = `${BACKEND_URL.replace(/\/$/, '')}/api/images/${id}`;
-                    // replace all occurrences of the exact orig string (may be wrapped in quotes)
                     const escaped = orig.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
                     const re = new RegExp(escaped, 'g');
-                    text = text.replace(re, target);
+                    if (re.test(text)) {
+                        text = text.replace(re, target);
+                        changed = true;
+                    }
                 }
-                await fs.promises.writeFile(file, text, 'utf8');
-                console.log('🔁 Updated', path.relative(process.cwd(), file));
+                if (changed) {
+                    await fs.promises.writeFile(file, text, 'utf8');
+                    console.log('🔁 Updated', path.relative(process.cwd(), file));
+                }
             }
         }
     }

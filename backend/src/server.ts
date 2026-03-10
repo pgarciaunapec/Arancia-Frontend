@@ -28,7 +28,9 @@ import adminDeliveryRoutes from "./routes/admin/delivery.routes";
 const app: Application = express();
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin image loading
+}));
 app.use(mongoSanitize());
 app.use(
   cors({
