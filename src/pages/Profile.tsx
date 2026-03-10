@@ -52,11 +52,8 @@ const Profile: React.FC = () => {
     };
 
     const initials = user?.name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2) || 'U';
+        ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+        : 'U';
 
     return (
         <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">

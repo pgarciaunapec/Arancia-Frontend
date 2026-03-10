@@ -183,7 +183,10 @@ const AdminInventory: React.FC = () => {
                                 <div key={field.key} className="space-y-1">
                                     <label className="text-xs text-white/60">{field.label}</label>
                                     <input type={field.type} value={(editItem as Record<string, unknown>)[field.key] as string | number}
-                                        onChange={e => setEditItem({ ...editItem, [field.key]: field.type === 'number' ? parseFloat(e.target.value) : e.target.value })}
+                                        onChange={e => {
+                                            const val = field.type === 'number' ? (e.target.value === '' ? 0 : parseFloat(e.target.value) || 0) : e.target.value;
+                                            setEditItem({ ...editItem, [field.key]: val });
+                                        }}
                                         className="w-full bg-black/20 p-2.5 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                                         style={{ borderColor: COLORS.border }} />
                                 </div>
@@ -232,19 +235,19 @@ const AdminInventory: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs text-white/60">Cantidad Inicial</label>
-                                <input type="number" value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) })}
+                                <input type="number" value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
                                     className="w-full bg-black/20 p-2.5 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                                     style={{ borderColor: COLORS.border }} />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs text-white/60">Stock Mínimo</label>
-                                <input type="number" value={newItem.minStock} onChange={e => setNewItem({ ...newItem, minStock: parseFloat(e.target.value) })}
+                                <input type="number" value={newItem.minStock} onChange={e => setNewItem({ ...newItem, minStock: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
                                     className="w-full bg-black/20 p-2.5 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                                     style={{ borderColor: COLORS.border }} />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs text-white/60">Costo por Unidad (RD$)</label>
-                                <input type="number" value={newItem.costPerUnit} onChange={e => setNewItem({ ...newItem, costPerUnit: parseFloat(e.target.value) })}
+                                <input type="number" value={newItem.costPerUnit} onChange={e => setNewItem({ ...newItem, costPerUnit: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
                                     className="w-full bg-black/20 p-2.5 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                                     style={{ borderColor: COLORS.border }} />
                             </div>

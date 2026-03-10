@@ -67,7 +67,7 @@ const MyReservations: React.FC = () => {
                                             <div className="flex flex-wrap gap-4 text-sm">
                                                 <span className="flex items-center gap-1.5 text-white">
                                                     <Calendar size={14} style={{ color: COLORS.primary }} />
-                                                    {new Date(res.date + 'T00:00:00').toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                                    {new Date(`${res.date}T12:00:00`).toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                                 </span>
                                                 <span className="flex items-center gap-1.5 text-white">
                                                     <Clock size={14} style={{ color: COLORS.primary }} /> {res.time}

@@ -51,7 +51,7 @@ const seedInventory = (): InventoryItem[] => [
   { id: 'inv-010', name: 'Harina de maíz', category: 'Harinas', quantity: 30, unit: 'kg', minStock: 15, costPerUnit: 40, supplier: 'Granos y Más', lastUpdated: new Date().toISOString(), status: 'ok' },
 ];
 
-const getStored = <T,>(key: string, seed: () => T): T => {
+const initializeFromStorage = <T,>(key: string, seed: () => T): T => {
   try {
     const stored = localStorage.getItem(key);
     if (stored) return JSON.parse(stored);
@@ -64,8 +64,8 @@ const getStored = <T,>(key: string, seed: () => T): T => {
 const AdminContext = createContext<AdminContextValue | null>(null);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tables, setTables] = useState<RestaurantTable[]>(() => getStored(TABLES_KEY, seedTables));
-  const [inventory, setInventory] = useState<InventoryItem[]>(() => getStored(INVENTORY_KEY, seedInventory));
+  const [tables, setTables] = useState<RestaurantTable[]>(() => initializeFromStorage(TABLES_KEY, seedTables));
+  const [inventory, setInventory] = useState<InventoryItem[]>(() => initializeFromStorage(INVENTORY_KEY, seedInventory));
   const [cashSession, setCashSession] = useState<CashSession | null>(() => {
     try {
       const stored = localStorage.getItem(CASH_KEY);
