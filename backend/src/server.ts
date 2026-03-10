@@ -1,65 +1,93 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import { env } from './config/env';
-import { connectDatabase } from './config/database';
+import express, { Application, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import { env } from "./config/env";
+import { connectDatabase } from "./config/database";
 
 // Import routes
-import authRoutes from './routes/auth.routes';
-import userRoutes from './routes/user.routes';
-import menuRoutes from './routes/menu.routes';
-import reservationRoutes from './routes/reservation.routes';
-import cartRoutes from './routes/cart.routes';
-import orderRoutes from './routes/order.routes';
-import contactRoutes from './routes/contact.routes';
-import imageRoutes from './routes/image.routes';
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
+import menuRoutes from "./routes/menu.routes";
+import reservationRoutes from "./routes/reservation.routes";
+import cartRoutes from "./routes/cart.routes";
+import orderRoutes from "./routes/order.routes";
+import contactRoutes from "./routes/contact.routes";
+import imageRoutes from "./routes/image.routes";
+import paymentRoutes from "./routes/payment.routes";
+import deliveryRoutes from "./routes/delivery.routes";
+import adminUserRoutes from "./routes/admin/user.routes";
+import adminTableRoutes from "./routes/admin/table.routes";
+import adminTableBillRoutes from "./routes/admin/tableBill.routes";
+import adminCashRegisterRoutes from "./routes/admin/cashRegister.routes";
+import adminInventoryRoutes from "./routes/admin/inventory.routes";
+import adminDashboardRoutes from "./routes/admin/dashboard.routes";
+import adminOrderRoutes from "./routes/admin/order.routes";
+import adminDeliveryRoutes from "./routes/admin/delivery.routes";
 
 const app: Application = express();
 
-// Middleware
-app.use(cors({
+// Security Middleware
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(
+  cors({
     origin: env.frontendUrl,
     credentials: true,
-}));
-app.use(express.json());
+  }),
+);
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/api/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get("/api/health", (_req: Request, res: Response) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/reservations', reservationRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/images', imageRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/reservations", reservationRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/images", imageRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/delivery", deliveryRoutes);
+
+// Admin routes
+app.use("/api/admin/users", adminUserRoutes);
+app.use("/api/admin/tables", adminTableRoutes);
+app.use("/api/admin/table-bills", adminTableBillRoutes);
+app.use("/api/admin/cash-register", adminCashRegisterRoutes);
+app.use("/api/admin/inventory", adminInventoryRoutes);
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/delivery", adminDeliveryRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
-    res.status(404).json({ error: 'Ruta no encontrada' });
+  res.status(404).json({ error: "Ruta no encontrada" });
 });
 
 // Error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Error:', err);
-    res.status(500).json({
-        error: 'Error interno del servidor',
-        message: env.nodeEnv === 'development' ? err.message : undefined
-    });
+  console.error("Error:", err);
+  res.status(500).json({
+    error: "Error interno del servidor",
+    message: env.nodeEnv === "development" ? err.message : undefined,
+  });
 });
 
 // Start server
 const startServer = async () => {
-    await connectDatabase();
+  await connectDatabase();
 
-    app.listen(env.port, () => {
-        console.log(`🚀 Servidor corriendo en http://localhost:${env.port}`);
-        console.log(`📝 Ambiente: ${env.nodeEnv}`);
-    });
+  app.listen(env.port, () => {
+    console.log(`🚀 Servidor corriendo en http://localhost:${env.port}`);
+    console.log(`📝 Ambiente: ${env.nodeEnv}`);
+  });
 };
 
 startServer();
