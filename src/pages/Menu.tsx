@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus, Filter, ShoppingBag } from 'lucide-react';
 import { menuData } from '../data/menuData';
 import type { MenuItem } from '../types';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
+import { useCart } from '../context/CartContext';
 
 interface MenuPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -15,6 +16,7 @@ interface MenuPageProps {
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { addItem, items: cartItems } = useCart();
 
   const allCategories = useMemo(() => {
     const cats = Array.from(new Set(menuData.map(item => item.category)));
@@ -36,7 +38,13 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     return items;
   }, [selectedCategory, searchQuery]);
 
+  const getCartQty = (itemId: number) => {
+    const found = cartItems.find(i => i.id === itemId);
+    return found ? found.quantity : 0;
+  };
+
   const handleAddItem = (item: MenuItem) => {
+    addItem(item);
     onShowModal('¡Agregado!', `${item.name} ha sido agregado a tu carrito`);
   };
 
@@ -190,10 +198,19 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
                       <Button
                         onClick={() => handleAddItem(item)}
-                        className="w-full bg-gradient-warm text-white hover:shadow-lg transition-all group-hover:scale-105 text-sm sm:text-base py-5"
+                        className="w-full bg-gradient-warm text-white hover:shadow-lg transition-all group-hover:scale-105 text-sm sm:text-base py-5 flex items-center justify-center gap-2"
                       >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Agregar al Carrito
+                        {getCartQty(item.id) > 0 ? (
+                          <>
+                            <ShoppingBag className="w-4 h-4" />
+                            En carrito ({getCartQty(item.id)}) · Agregar
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4" />
+                            Agregar al Carrito
+                          </>
+                        )}
                       </Button>
                     </div>
                   </Card>

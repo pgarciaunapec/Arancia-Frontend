@@ -4,6 +4,8 @@ import { motion } from 'motion/react';
 import { Calendar, Clock, Users, User, Mail, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { useAuth } from '../context/AuthContext';
+import { useReservations } from '../context/ReservationsContext';
 
 const COLORS = {
     primary: '#f5b400',
@@ -15,14 +17,16 @@ const COLORS = {
 
 const Reservations: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const { createReservation } = useReservations();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         date: '',
         time: '',
         guests: '2',
-        name: '',
-        email: '',
-        phone: '',
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
         notes: ''
     });
 
@@ -33,10 +37,18 @@ const Reservations: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate API call
-        setTimeout(() => {
-            navigate('/booking-confirmation', { state: { booking: formData } });
-        }, 1000);
+        const reservation = createReservation({
+            userId: user?.id || 'guest',
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            date: formData.date,
+            time: formData.time,
+            guests: parseInt(formData.guests),
+            notes: formData.notes,
+            location: 'Restaurante Principal',
+        });
+        navigate('/booking-confirmation', { state: { booking: { ...formData, reservationId: reservation.id } } });
     };
 
     const nextStep = () => setStep(prev => prev + 1);

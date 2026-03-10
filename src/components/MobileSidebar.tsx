@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import {
     Home,
@@ -13,8 +13,16 @@ import {
     Menu,
     X,
     ShoppingBag,
-    User
+    User,
+    Package,
+    LogOut,
+    LogIn,
+    ShieldCheck,
+    CalendarCheck,
+    UserPlus
 } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 interface NavItem {
     label: string;
@@ -26,8 +34,7 @@ const navItems: NavItem[] = [
     { label: 'Inicio', path: '/', icon: <Home size={20} /> },
     { label: 'Menú', path: '/menu', icon: <UtensilsCrossed size={20} /> },
     { label: 'Carrito', path: '/cart', icon: <ShoppingBag size={20} /> },
-    { label: 'Perfil', path: '/profile', icon: <User size={20} /> },
-    { label: 'Mis Reservas', path: '/my-reservations', icon: <Calendar size={20} /> },
+    { label: 'Mis Reservas', path: '/my-reservations', icon: <CalendarCheck size={20} /> },
     { label: 'Sobre Nosotros', path: '/about', icon: <Info size={20} /> },
     { label: 'Eventos', path: '/events', icon: <Calendar size={20} /> },
     { label: 'Servicios', path: '/services', icon: <Briefcase size={20} /> },
@@ -46,6 +53,21 @@ const COLORS = {
 export const MobileSidebar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+    const { count } = useCart();
+    const { user, isAuthenticated, isAdmin, logout } = useAuth();
+
+    // Hide on admin pages
+    if (location.pathname.startsWith('/admin')) return null;
+
+    const handleLogout = () => {
+        logout();
+        setIsOpen(false);
+        navigate('/');
+    };
+
+    const initials = user?.name
+        .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
     return (
         <>
@@ -96,9 +118,25 @@ export const MobileSidebar: React.FC = () => {
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 p-4 space-y-2">
+                    <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                        {/* User section when logged in */}
+                        {isAuthenticated && (
+                            <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl"
+                                style={{ backgroundColor: 'rgba(245,180,0,0.1)', border: '1px solid rgba(245,180,0,0.2)' }}>
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
+                                    style={{ backgroundColor: COLORS.primary, color: COLORS.secondary }}>
+                                    {initials}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-white text-sm truncate">{user?.name}</p>
+                                    <p className="text-xs truncate" style={{ color: 'rgba(245,180,0,0.7)' }}>{user?.email}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {navItems.map((item) => {
                             const isActive = location.pathname === item.path;
+                            const isCart = item.path === '/cart';
                             return (
                                 <Link
                                     key={item.path}
@@ -111,12 +149,72 @@ export const MobileSidebar: React.FC = () => {
                                         border: isActive ? `2px solid ${COLORS.primary}` : '2px solid transparent',
                                     }}
                                 >
-                                    <span style={{ color: isActive ? COLORS.primary : 'inherit' }}>{item.icon}</span>
+                                    <span style={{ color: isActive ? COLORS.primary : 'inherit' }} className="relative">
+                                        {item.icon}
+                                        {isCart && count > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold"
+                                                style={{ backgroundColor: COLORS.primary, color: COLORS.secondary }}>
+                                                {count > 9 ? '9+' : count}
+                                            </span>
+                                        )}
+                                    </span>
                                     <span className="font-medium">{item.label}</span>
                                     <ChevronRight size={16} className="ml-auto transition-transform group-hover:translate-x-1" style={{ color: isActive ? COLORS.primary : 'inherit' }} />
                                 </Link>
                             );
                         })}
+
+                        {/* Auth-specific links */}
+                        {isAuthenticated ? (
+                            <>
+                                <Link to="/profile" onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group"
+                                    style={{ color: COLORS.white, border: '2px solid transparent' }}>
+                                    <User size={20} />
+                                    <span className="font-medium">Mi Perfil</span>
+                                    <ChevronRight size={16} className="ml-auto" />
+                                </Link>
+                                <Link to="/my-orders" onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group"
+                                    style={{ color: COLORS.white, border: '2px solid transparent' }}>
+                                    <Package size={20} />
+                                    <span className="font-medium">Mis Pedidos</span>
+                                    <ChevronRight size={16} className="ml-auto" />
+                                </Link>
+                                {isAdmin && (
+                                    <Link to="/admin" onClick={() => setIsOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all"
+                                        style={{ backgroundColor: 'rgba(245,180,0,0.1)', color: COLORS.primary, border: '2px solid transparent' }}>
+                                        <ShieldCheck size={20} />
+                                        <span className="font-medium">Panel Admin</span>
+                                        <ChevronRight size={16} className="ml-auto" />
+                                    </Link>
+                                )}
+                                <button onClick={handleLogout}
+                                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left"
+                                    style={{ color: 'rgba(239,68,68,0.8)', border: '2px solid transparent' }}>
+                                    <LogOut size={20} />
+                                    <span className="font-medium">Cerrar Sesión</span>
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login" onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group"
+                                    style={{ color: COLORS.white, border: '2px solid transparent' }}>
+                                    <LogIn size={20} />
+                                    <span className="font-medium">Iniciar Sesión</span>
+                                    <ChevronRight size={16} className="ml-auto" />
+                                </Link>
+                                <Link to="/register" onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group"
+                                    style={{ color: COLORS.white, border: '2px solid transparent' }}>
+                                    <UserPlus size={20} />
+                                    <span className="font-medium">Registrarse</span>
+                                    <ChevronRight size={16} className="ml-auto" />
+                                </Link>
+                            </>
+                        )}
                     </nav>
 
                     {/* CTA Button */}
