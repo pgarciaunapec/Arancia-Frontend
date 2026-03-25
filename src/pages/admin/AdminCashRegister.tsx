@@ -5,7 +5,6 @@ import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { useAdmin } from '../../context/AdminContext';
 import { useOrders } from '../../context/OrdersContext';
-import { useAuth } from '../../context/AuthContext';
 
 const COLORS = {
     primary: '#f5b400',
@@ -17,7 +16,6 @@ const COLORS = {
 const AdminCashRegister: React.FC = () => {
     const { cashSession, openCashSession, closeCashSession } = useAdmin();
     const { getAllOrders } = useOrders();
-    const { user } = useAuth();
 
     const [openAmount, setOpenAmount] = useState('');
     const [closeAmount, setCloseAmount] = useState('');
@@ -73,7 +71,7 @@ const AdminCashRegister: React.FC = () => {
                                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                                 style={{ borderColor: COLORS.border }} />
                         </div>
-                        <Button onClick={() => { if (openAmount) openCashSession(parseFloat(openAmount), user?.name || 'Admin'); setOpenAmount(''); }}
+                        <Button onClick={() => { if (!openAmount) return; const amount = parseFloat(openAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de apertura válido.'); return; } openCashSession(amount); setOpenAmount(''); }}
                             className="flex items-center gap-2">
                             <Unlock size={16} /> Abrir Caja
                         </Button>
@@ -87,7 +85,7 @@ const AdminCashRegister: React.FC = () => {
                                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                                 style={{ borderColor: COLORS.border }} />
                         </div>
-                        <Button variant="outline" onClick={() => { if (closeAmount) closeCashSession(parseFloat(closeAmount)); setCloseAmount(''); }}
+                        <Button variant="outline" onClick={() => { if (!closeAmount) return; const amount = parseFloat(closeAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de cierre válido.'); return; } closeCashSession(); setCloseAmount(''); }}
                             className="flex items-center gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10">
                             <Lock size={16} /> Cerrar Caja
                         </Button>

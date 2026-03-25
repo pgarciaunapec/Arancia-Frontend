@@ -1,13 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { Reservation, ReservationStatus } from '../types';
+import { apiRequest } from '../lib/api';
+import type { ApiEnvelope } from '../lib/api';
+import { mapBackendReservation } from '../lib/mappers';
+import { useAuth } from './AuthContext';
 
 interface ReservationsContextValue {
   reservations: Reservation[];
-  createReservation: (data: CreateReservationData) => Reservation;
-  cancelReservation: (id: string) => void;
+  createReservation: (data: CreateReservationData) => Promise<Reservation>;
+  cancelReservation: (id: string) => Promise<void>;
   getReservationsByUser: (userId: string) => Reservation[];
   getAllReservations: () => Reservation[];
-  updateReservationStatus: (id: string, status: ReservationStatus, tableNumber?: number) => void;
+  updateReservationStatus: (id: string, status: ReservationStatus) => void;
+  refreshReservations: () => Promise<void>;
 }
 
 interface CreateReservationData {
@@ -19,109 +24,68 @@ interface CreateReservationData {
   time: string;
   guests: number;
   notes: string;
-  location?: string;
 }
-
-const RESERVATIONS_KEY = 'restaurant_reservations';
-
-const seedReservations = (): Reservation[] => [
-  {
-    id: 'RES-2026-001',
-    userId: 'user-001',
-    name: 'Juan Pérez',
-    email: 'juan@demo.com',
-    phone: '+1 (809) 555-0123',
-    date: '2026-03-15',
-    time: '19:00',
-    guests: 2,
-    notes: '',
-    status: 'confirmed',
-    tableNumber: 5,
-    location: 'Restaurante Principal',
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'RES-2026-002',
-    userId: 'user-001',
-    name: 'Juan Pérez',
-    email: 'juan@demo.com',
-    phone: '+1 (809) 555-0123',
-    date: '2026-02-14',
-    time: '20:30',
-    guests: 4,
-    notes: 'Cena romántica',
-    status: 'completed',
-    tableNumber: 12,
-    location: 'Terraza',
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
-const getStoredReservations = (): Reservation[] => {
-  try {
-    const stored = localStorage.getItem(RESERVATIONS_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  const initial = seedReservations();
-  localStorage.setItem(RESERVATIONS_KEY, JSON.stringify(initial));
-  return initial;
-};
-
-const generateId = () => `RES-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
 const ReservationsContext = createContext<ReservationsContextValue | null>(null);
 
 export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [reservations, setReservations] = useState<Reservation[]>(() => getStoredReservations());
+  const { user, isAuthenticated } = useAuth();
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+
+  const refreshReservations = useCallback(async () => {
+    if (!isAuthenticated) {
+      setReservations([]);
+      return;
+    }
+
+    const response = await apiRequest<ApiEnvelope<any[]>>('/reservations/my', { auth: true });
+    const mapped = (response.data || []).map((raw) => mapBackendReservation(raw, user?.id));
+    setReservations(mapped);
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
-    localStorage.setItem(RESERVATIONS_KEY, JSON.stringify(reservations));
-  }, [reservations]);
+    refreshReservations().catch(() => setReservations([]));
+  }, [refreshReservations]);
 
-  const createReservation = useCallback((data: CreateReservationData): Reservation => {
-    const newRes: Reservation = {
-      id: generateId(),
-      userId: data.userId,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      date: data.date,
-      time: data.time,
-      guests: data.guests,
-      notes: data.notes,
-      status: 'confirmed',
-      location: data.location || 'Restaurante Principal',
-      createdAt: new Date().toISOString(),
-    };
-    setReservations(prev => [newRes, ...prev]);
-    return newRes;
+  const createReservation = useCallback(async (data: CreateReservationData) => {
+    const response = await apiRequest<ApiEnvelope<any>>('/reservations', {
+      method: 'POST',
+      auth: isAuthenticated,
+      body: JSON.stringify({
+        date: data.date,
+        time: data.time,
+        guests: data.guests,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        notes: data.notes,
+      }),
+    });
+
+    const mapped = mapBackendReservation(response.data, data.userId);
+    setReservations((prev) => [mapped, ...prev]);
+    return mapped;
+  }, [isAuthenticated]);
+
+  const cancelReservation = useCallback(async (id: string) => {
+    await apiRequest(`/reservations/${id}/cancel`, {
+      method: 'PUT',
+      auth: true,
+    });
+
+    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status: 'cancelled' } : item)));
   }, []);
 
-  const cancelReservation = useCallback((id: string) => {
-    setReservations(prev => prev.map(r => r.id === id ? { ...r, status: 'cancelled' } : r));
-  }, []);
-
-  const getReservationsByUser = useCallback((userId: string) => {
-    return reservations.filter(r => r.userId === userId);
-  }, [reservations]);
+  const getReservationsByUser = useCallback((userId: string) => reservations.filter((item) => item.userId === userId || !item.userId), [reservations]);
 
   const getAllReservations = useCallback(() => reservations, [reservations]);
 
-  const updateReservationStatus = useCallback((id: string, status: ReservationStatus, tableNumber?: number) => {
-    setReservations(prev => prev.map(r =>
-      r.id === id ? { ...r, status, ...(tableNumber !== undefined ? { tableNumber } : {}) } : r
-    ));
+  const updateReservationStatus = useCallback((id: string, status: ReservationStatus) => {
+    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
   }, []);
 
   return (
-    <ReservationsContext.Provider value={{
-      reservations,
-      createReservation,
-      cancelReservation,
-      getReservationsByUser,
-      getAllReservations,
-      updateReservationStatus,
-    }}>
+    <ReservationsContext.Provider value={{ reservations, createReservation, cancelReservation, getReservationsByUser, getAllReservations, updateReservationStatus, refreshReservations }}>
       {children}
     </ReservationsContext.Provider>
   );

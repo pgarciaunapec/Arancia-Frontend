@@ -1,135 +1,160 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { RestaurantTable, InventoryItem, CashSession, TableStatus, StockStatus } from '../types';
+import type { RestaurantTable, InventoryItem, CashSession, TableStatus } from '../types';
+import { apiRequest } from '../lib/api';
+import type { ApiEnvelope } from '../lib/api';
+import { mapBackendInventoryItem, mapBackendTable } from '../lib/mappers';
+import { useAuth } from './AuthContext';
 
 interface AdminContextValue {
   tables: RestaurantTable[];
   inventory: InventoryItem[];
   cashSession: CashSession | null;
-  updateTableStatus: (tableId: number, status: TableStatus, orderId?: string) => void;
-  updateInventoryItem: (itemId: string, data: Partial<InventoryItem>) => void;
-  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'lastUpdated' | 'status'>) => void;
-  removeInventoryItem: (itemId: string) => void;
-  openCashSession: (openingBalance: number, openedBy: string) => void;
-  closeCashSession: (closingBalance: number) => void;
+  updateTableStatus: (tableId: string, status: TableStatus) => Promise<void>;
+  updateInventoryItem: (itemId: string, data: Partial<InventoryItem>) => Promise<void>;
+  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'lastUpdated' | 'status'>) => Promise<void>;
+  removeInventoryItem: (itemId: string) => Promise<void>;
+  openCashSession: (openingBalance: number, openedBy: string) => Promise<void>;
+  closeCashSession: () => Promise<void>;
+  refreshAdminData: () => Promise<void>;
 }
-
-const TABLES_KEY = 'restaurant_tables';
-const INVENTORY_KEY = 'restaurant_inventory';
-const CASH_KEY = 'restaurant_cash_session';
-
-const seedTables = (): RestaurantTable[] => [
-  { id: 1, number: 1, capacity: 2, status: 'available', section: 'Interior' },
-  { id: 2, number: 2, capacity: 4, status: 'occupied', section: 'Interior' },
-  { id: 3, number: 3, capacity: 4, status: 'reserved', section: 'Interior' },
-  { id: 4, number: 4, capacity: 6, status: 'available', section: 'Interior' },
-  { id: 5, number: 5, capacity: 2, status: 'available', section: 'Interior' },
-  { id: 6, number: 6, capacity: 8, status: 'cleaning', section: 'Salón Privado' },
-  { id: 7, number: 7, capacity: 4, status: 'available', section: 'Terraza' },
-  { id: 8, number: 8, capacity: 4, status: 'occupied', section: 'Terraza' },
-  { id: 9, number: 9, capacity: 6, status: 'available', section: 'Terraza' },
-  { id: 10, number: 10, capacity: 2, status: 'reserved', section: 'Barra' },
-  { id: 11, number: 11, capacity: 2, status: 'available', section: 'Barra' },
-  { id: 12, number: 12, capacity: 4, status: 'available', section: 'Terraza' },
-];
-
-const computeStockStatus = (qty: number, min: number): StockStatus => {
-  if (qty === 0) return 'out';
-  if (qty <= min) return 'low';
-  return 'ok';
-};
-
-const seedInventory = (): InventoryItem[] => [
-  { id: 'inv-001', name: 'Pollo entero', category: 'Carnes', quantity: 25, unit: 'kg', minStock: 10, costPerUnit: 180, supplier: 'Carnes Premium SRL', lastUpdated: new Date().toISOString(), status: 'ok' },
-  { id: 'inv-002', name: 'Res (lomo)', category: 'Carnes', quantity: 8, unit: 'kg', minStock: 10, costPerUnit: 350, supplier: 'Carnes Premium SRL', lastUpdated: new Date().toISOString(), status: 'low' },
-  { id: 'inv-003', name: 'Camarones', category: 'Mariscos', quantity: 0, unit: 'kg', minStock: 5, costPerUnit: 520, supplier: 'Mariscos del Caribe', lastUpdated: new Date().toISOString(), status: 'out' },
-  { id: 'inv-004', name: 'Aceite vegetal', category: 'Aceites', quantity: 12, unit: 'litros', minStock: 5, costPerUnit: 95, supplier: 'Distribuidora Central', lastUpdated: new Date().toISOString(), status: 'ok' },
-  { id: 'inv-005', name: 'Arroz blanco', category: 'Granos', quantity: 50, unit: 'kg', minStock: 20, costPerUnit: 45, supplier: 'Granos y Más', lastUpdated: new Date().toISOString(), status: 'ok' },
-  { id: 'inv-006', name: 'Habichuelas negras', category: 'Granos', quantity: 3, unit: 'kg', minStock: 10, costPerUnit: 60, supplier: 'Granos y Más', lastUpdated: new Date().toISOString(), status: 'low' },
-  { id: 'inv-007', name: 'Piña fresca', category: 'Frutas', quantity: 20, unit: 'unidades', minStock: 8, costPerUnit: 35, supplier: 'Frutería Tropical', lastUpdated: new Date().toISOString(), status: 'ok' },
-  { id: 'inv-008', name: 'Ron Brugal', category: 'Licores', quantity: 6, unit: 'botellas', minStock: 4, costPerUnit: 750, supplier: 'Distribuidora de Licores', lastUpdated: new Date().toISOString(), status: 'ok' },
-  { id: 'inv-009', name: 'Vodka Absolut', category: 'Licores', quantity: 2, unit: 'botellas', minStock: 3, costPerUnit: 1200, supplier: 'Distribuidora de Licores', lastUpdated: new Date().toISOString(), status: 'low' },
-  { id: 'inv-010', name: 'Harina de maíz', category: 'Harinas', quantity: 30, unit: 'kg', minStock: 15, costPerUnit: 40, supplier: 'Granos y Más', lastUpdated: new Date().toISOString(), status: 'ok' },
-];
-
-const initializeFromStorage = <T,>(key: string, seed: () => T): T => {
-  try {
-    const stored = localStorage.getItem(key);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  const initial = seed();
-  localStorage.setItem(key, JSON.stringify(initial));
-  return initial;
-};
 
 const AdminContext = createContext<AdminContextValue | null>(null);
 
+const mapCashRegister = (raw: any): CashSession => ({
+  id: String(raw._id || raw.id),
+  date: raw.date || new Date().toISOString(),
+  openedBy: raw.openedBy?.name || 'Admin',
+  openingBalance: Number(raw.openingBalance || 0),
+  closingBalance: raw.closingBalance !== undefined ? Number(raw.closingBalance) : undefined,
+  totalSales: Number(raw.totalSales || 0),
+  totalOrders: Number(raw.transactionCount || 0),
+  isOpen: raw.status === 'open',
+  transactions: [],
+});
+
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tables, setTables] = useState<RestaurantTable[]>(() => initializeFromStorage(TABLES_KEY, seedTables));
-  const [inventory, setInventory] = useState<InventoryItem[]>(() => initializeFromStorage(INVENTORY_KEY, seedInventory));
-  const [cashSession, setCashSession] = useState<CashSession | null>(() => {
-    try {
-      const stored = localStorage.getItem(CASH_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch { return null; }
-  });
+  const { isAuthenticated, isAdmin } = useAuth();
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [cashSession, setCashSession] = useState<CashSession | null>(null);
 
-  useEffect(() => { localStorage.setItem(TABLES_KEY, JSON.stringify(tables)); }, [tables]);
-  useEffect(() => { localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); }, [inventory]);
-  useEffect(() => { localStorage.setItem(CASH_KEY, JSON.stringify(cashSession)); }, [cashSession]);
+  const refreshAdminData = useCallback(async () => {
+    if (!isAuthenticated || !isAdmin) {
+      setTables([]);
+      setInventory([]);
+      setCashSession(null);
+      return;
+    }
 
-  const updateTableStatus = useCallback((tableId: number, status: TableStatus, orderId?: string) => {
-    setTables(prev => prev.map(t =>
-      t.id === tableId ? { ...t, status, currentOrderId: orderId } : t
-    ));
+    const [tablesResponse, inventoryResponse, cashResponse] = await Promise.all([
+      apiRequest<ApiEnvelope<any[]>>('/admin/tables', { auth: true }),
+      apiRequest<ApiEnvelope<any[]>>('/admin/inventory', { auth: true }),
+      apiRequest<ApiEnvelope<any | null>>('/admin/cash-register/today', { auth: true }),
+    ]);
+
+    setTables((tablesResponse.data || []).map(mapBackendTable));
+    setInventory((inventoryResponse.data || []).map(mapBackendInventoryItem));
+    setCashSession(cashResponse.data ? mapCashRegister(cashResponse.data) : null);
+  }, [isAdmin, isAuthenticated]);
+
+  useEffect(() => {
+    refreshAdminData().catch(() => {
+      setTables([]);
+      setInventory([]);
+      setCashSession(null);
+    });
+  }, [refreshAdminData]);
+
+  const updateTableStatus = useCallback(async (tableId: string, status: TableStatus) => {
+    await apiRequest(`/admin/tables/${tableId}`, {
+      method: 'PATCH',
+      auth: true,
+      body: JSON.stringify({ status }),
+    });
+
+    setTables((prev) => prev.map((table) => (table.id === tableId ? { ...table, status } : table)));
   }, []);
 
-  const updateInventoryItem = useCallback((itemId: string, data: Partial<InventoryItem>) => {
-    setInventory(prev => prev.map(item => {
-      if (item.id !== itemId) return item;
-      const updated = { ...item, ...data, lastUpdated: new Date().toISOString() };
-      updated.status = computeStockStatus(updated.quantity, updated.minStock);
-      return updated;
-    }));
+  const updateInventoryItem = useCallback(async (itemId: string, data: Partial<InventoryItem>) => {
+    await apiRequest(`/admin/inventory/${itemId}`, {
+      method: 'PUT',
+      auth: true,
+      body: JSON.stringify({
+        name: data.name,
+        category: data.category,
+        currentStock: data.quantity,
+        minimumStock: data.minStock,
+        unit: data.unit,
+        costPerUnit: data.costPerUnit,
+        supplier: data.supplier,
+      }),
+    });
+
+    await refreshAdminData();
+  }, [refreshAdminData]);
+
+  const addInventoryItem = useCallback(async (item: Omit<InventoryItem, 'id' | 'lastUpdated' | 'status'>) => {
+    await apiRequest('/admin/inventory', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify({
+        name: item.name,
+        category: item.category,
+        currentStock: item.quantity,
+        minimumStock: item.minStock,
+        unit: item.unit,
+        costPerUnit: item.costPerUnit,
+        supplier: item.supplier,
+      }),
+    });
+
+    await refreshAdminData();
+  }, [refreshAdminData]);
+
+  const removeInventoryItem = useCallback(async (itemId: string) => {
+    await apiRequest(`/admin/inventory/${itemId}`, {
+      method: 'DELETE',
+      auth: true,
+    });
+
+    setInventory((prev) => prev.filter((item) => item.id !== itemId));
   }, []);
 
-  const addInventoryItem = useCallback((data: Omit<InventoryItem, 'id' | 'lastUpdated' | 'status'>) => {
-    const newItem: InventoryItem = {
-      ...data,
-      id: `inv-${Date.now()}`,
-      lastUpdated: new Date().toISOString(),
-      status: computeStockStatus(data.quantity, data.minStock),
-    };
-    setInventory(prev => [...prev, newItem]);
-  }, []);
+  const openCashSession = useCallback(async (openingBalance: number) => {
+    await apiRequest('/admin/cash-register/open', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify({ openingBalance }),
+    });
 
-  const removeInventoryItem = useCallback((itemId: string) => {
-    setInventory(prev => prev.filter(i => i.id !== itemId));
-  }, []);
+    await refreshAdminData();
+  }, [refreshAdminData]);
 
-  const openCashSession = useCallback((openingBalance: number, openedBy: string) => {
-    const session: CashSession = {
-      id: `CASH-${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      openedBy,
-      openingBalance,
-      totalSales: 0,
-      totalOrders: 0,
-      isOpen: true,
-      transactions: [],
-    };
-    setCashSession(session);
-  }, []);
+  const closeCashSession = useCallback(async () => {
+    await apiRequest('/admin/cash-register/close', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify({ notes: 'Cierre automático desde panel' }),
+    });
 
-  const closeCashSession = useCallback((closingBalance: number) => {
-    setCashSession(prev => prev ? { ...prev, closingBalance, isOpen: false } : null);
-  }, []);
+    await refreshAdminData();
+  }, [refreshAdminData]);
 
   return (
-    <AdminContext.Provider value={{
-      tables, inventory, cashSession,
-      updateTableStatus, updateInventoryItem, addInventoryItem, removeInventoryItem,
-      openCashSession, closeCashSession,
-    }}>
+    <AdminContext.Provider
+      value={{
+        tables,
+        inventory,
+        cashSession,
+        updateTableStatus,
+        updateInventoryItem,
+        addInventoryItem,
+        removeInventoryItem,
+        openCashSession,
+        closeCashSession,
+        refreshAdminData,
+      }}
+    >
       {children}
     </AdminContext.Provider>
   );

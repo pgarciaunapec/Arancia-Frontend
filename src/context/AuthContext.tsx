@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { User, UserRole } from '../types';
+import type { User } from '../types';
+import { apiRequest, getAuthToken, setAuthToken } from '../lib/api';
+import type { ApiEnvelope } from '../lib/api';
+import { mapBackendUser } from '../lib/mappers';
 
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
-  updateProfile: (data: Partial<User>) => void;
+  updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   getAllUsers: () => User[];
-  updateUser: (userId: string, data: Partial<User>) => void;
+  updateUser: (userId: string, data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface RegisterData {
@@ -20,61 +24,7 @@ interface RegisterData {
   phone?: string;
 }
 
-const STORAGE_KEY = 'restaurant_users';
 const CURRENT_USER_KEY = 'restaurant_current_user';
-
-// Seed admin + demo users
-const seedUsers = (): User[] => [
-  {
-    id: 'admin-001',
-    name: 'Administrador',
-    email: 'admin@restaurante.com',
-    phone: '+1 (809) 555-0001',
-    address: 'Restaurante Principal',
-    role: 'admin' as UserRole,
-    isVIP: false,
-    createdAt: '2025-01-01T00:00:00Z',
-    loyaltyPoints: 0,
-  },
-  {
-    id: 'user-001',
-    name: 'Juan Pérez',
-    email: 'juan@demo.com',
-    phone: '+1 (809) 555-0123',
-    address: 'Calle Demo 123, Santo Domingo',
-    role: 'customer' as UserRole,
-    isVIP: true,
-    createdAt: '2025-06-15T00:00:00Z',
-    loyaltyPoints: 450,
-  },
-];
-
-// Passwords are stored as plain text for this demo (no real backend)
-const PASSWORDS_KEY = 'restaurant_passwords';
-const seedPasswords = (): Record<string, string> => ({
-  'admin@restaurante.com': 'admin123',
-  'juan@demo.com': 'demo123',
-});
-
-const getStoredUsers = (): User[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  const initial = seedUsers();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-  return initial;
-};
-
-const getPasswords = (): Record<string, string> => {
-  try {
-    const stored = localStorage.getItem(PASSWORDS_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  const initial = seedPasswords();
-  localStorage.setItem(PASSWORDS_KEY, JSON.stringify(initial));
-  return initial;
-};
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -82,95 +32,193 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem(CURRENT_USER_KEY);
-      return stored ? JSON.parse(stored) : null;
+      return stored ? (JSON.parse(stored) as User) : null;
     } catch {
       return null;
     }
   });
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Ensure seed data exists on first load
-    getStoredUsers();
-    getPasswords();
+    const bootstrap = async () => {
+      const token = getAuthToken();
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await apiRequest<ApiEnvelope<any>>('/auth/me', { auth: true });
+        const mapped = mapBackendUser(response.data);
+        setUser(mapped);
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(mapped));
+      } catch {
+        setAuthToken(null);
+        setUser(null);
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+    };
+
+    bootstrap();
   }, []);
 
+  useEffect(() => {
+    const loadUsers = async () => {
+      if (!user || (user.role !== 'admin' && user.role !== 'staff')) {
+        setUsers([]);
+        return;
+      }
+
+      try {
+        const response = await apiRequest<ApiEnvelope<any[]>>('/admin/users?limit=200', { auth: true });
+        setUsers((response.data || []).map(mapBackendUser));
+      } catch {
+        setUsers([]);
+      }
+    };
+
+    loadUsers();
+  }, [user]);
+
   const login = useCallback(async (email: string, password: string) => {
-    const users = getStoredUsers();
-    const passwords = getPasswords();
-    const found = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (!found) return { success: false, error: 'Usuario no encontrado' };
-    if (passwords[found.email] !== password) return { success: false, error: 'Contraseña incorrecta' };
-    setUser(found);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(found));
-    return { success: true };
+    try {
+      const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+
+      const token = response.data.token;
+      const mapped = mapBackendUser(response.data.user);
+
+      setAuthToken(token);
+      setUser(mapped);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(mapped));
+
+      return { success: true, user: mapped };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Error al iniciar sesión' };
+    }
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {
-    const users = getStoredUsers();
-    const passwords = getPasswords();
-    if (users.find(u => u.email.toLowerCase() === data.email.toLowerCase())) {
-      return { success: false, error: 'Este correo ya está registrado' };
+    try {
+      const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          phone: data.phone,
+        }),
+      });
+
+      const token = response.data.token;
+      const mapped = mapBackendUser(response.data.user);
+
+      setAuthToken(token);
+      setUser(mapped);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(mapped));
+
+      return { success: true, user: mapped };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Error al registrar usuario' };
     }
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: data.name,
-      email: data.email,
-      phone: data.phone || '',
-      address: '',
-      role: 'customer',
-      isVIP: false,
-      createdAt: new Date().toISOString(),
-      loyaltyPoints: 0,
-    };
-    const updatedUsers = [...users, newUser];
-    const updatedPasswords = { ...passwords, [data.email]: data.password };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(PASSWORDS_KEY, JSON.stringify(updatedPasswords));
-    setUser(newUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
-    return { success: true };
   }, []);
 
   const logout = useCallback(() => {
+    setAuthToken(null);
     setUser(null);
     localStorage.removeItem(CURRENT_USER_KEY);
   }, []);
 
-  const updateProfile = useCallback((data: Partial<User>) => {
-    if (!user) return;
-    const updated = { ...user, ...data };
-    const users = getStoredUsers();
-    const updatedUsers = users.map(u => u.id === user.id ? updated : u);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updated));
-    setUser(updated);
-  }, [user]);
+  const updateProfile = useCallback(async (data: Partial<User>) => {
+    try {
+      const response = await apiRequest<ApiEnvelope<any>>('/users/profile', {
+        method: 'PUT',
+        auth: true,
+        body: JSON.stringify({
+          name: data.name,
+          phone: data.phone,
+          address: data.address,
+        }),
+      });
 
-  const getAllUsers = useCallback(() => getStoredUsers(), []);
+      const mapped = mapBackendUser(response.data);
+      setUser(mapped);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(mapped));
 
-  const updateUser = useCallback((userId: string, data: Partial<User>) => {
-    const users = getStoredUsers();
-    const updatedUsers = users.map(u => u.id === userId ? { ...u, ...data } : u);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
-    if (user?.id === userId) {
-      const updated = { ...user, ...data };
-      setUser(updated);
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updated));
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'No se pudo actualizar el perfil' };
+    }
+  }, []);
+
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    try {
+      await apiRequest('/users/password', {
+        method: 'PUT',
+        auth: true,
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'No se pudo cambiar la contraseña' };
+    }
+  }, []);
+
+  const getAllUsers = useCallback(() => users, [users]);
+
+  const updateUser = useCallback(async (userId: string, data: Partial<User>) => {
+    try {
+      const isVipPayload = typeof data.isVIP === 'boolean';
+
+      if (isVipPayload) {
+        await apiRequest(`/admin/users/${userId}/vip`, {
+          method: 'PATCH',
+          auth: true,
+          body: JSON.stringify({ isVip: data.isVIP, vipDiscount: data.isVIP ? 10 : 0 }),
+        });
+      } else {
+        await apiRequest(`/admin/users/${userId}`, {
+          method: 'PUT',
+          auth: true,
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            role: data.role,
+          }),
+        });
+      }
+
+      if (user?.id === userId) {
+        const merged = { ...user, ...data };
+        setUser(merged);
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(merged));
+      }
+
+      setUsers((prev) => prev.map((item) => (item.id === userId ? { ...item, ...data } : item)));
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'No se pudo actualizar el usuario' };
     }
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      isAdmin: user?.role === 'admin',
-      login,
-      register,
-      logout,
-      updateProfile,
-      getAllUsers,
-      updateUser,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === 'admin' || user?.role === 'staff',
+        login,
+        register,
+        logout,
+        updateProfile,
+        changePassword,
+        getAllUsers,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

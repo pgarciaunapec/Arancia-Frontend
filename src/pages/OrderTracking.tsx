@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { CheckCircle, Clock, ChefHat, Package, Truck, Home, ArrowLeft, MapPin } from 'lucide-react';
@@ -15,7 +15,7 @@ const COLORS = {
     border: 'rgba(245, 180, 0, 0.3)'
 };
 
-const trackingSteps: { status: OrderStatus; label: string; sublabel: string; icon: React.ReactNode }[] = [
+const deliveryTrackingSteps: { status: OrderStatus; label: string; sublabel: string; icon: React.ReactNode }[] = [
     { status: 'confirmed',  label: 'Pedido Confirmado',   sublabel: 'Tu pedido fue recibido',       icon: <CheckCircle size={22} /> },
     { status: 'preparing',  label: 'Preparando',          sublabel: 'Nuestro chef está cocinando',   icon: <ChefHat size={22} /> },
     { status: 'ready',      label: 'Listo',               sublabel: 'Tu pedido está listo',          icon: <Package size={22} /> },
@@ -23,31 +23,18 @@ const trackingSteps: { status: OrderStatus; label: string; sublabel: string; ico
     { status: 'delivered',  label: 'Entregado',           sublabel: '¡Buen provecho!',               icon: <Home size={22} /> },
 ];
 
-const statusOrder: OrderStatus[] = ['confirmed', 'preparing', 'ready', 'delivering', 'delivered'];
+const pickupTrackingSteps: { status: OrderStatus; label: string; sublabel: string; icon: React.ReactNode }[] = [
+    { status: 'confirmed',  label: 'Pedido Confirmado',   sublabel: 'Tu pedido fue recibido',       icon: <CheckCircle size={22} /> },
+    { status: 'preparing',  label: 'Preparando',          sublabel: 'Nuestro chef está cocinando',   icon: <ChefHat size={22} /> },
+    { status: 'ready',      label: 'Listo para retirar',  sublabel: 'Puedes retirarlo en el local',  icon: <Package size={22} /> },
+    { status: 'delivered',  label: 'Completado',          sublabel: 'Orden finalizada',              icon: <Home size={22} /> },
+];
 
 const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
-    const { getOrderById, updateOrderStatus } = useOrders();
+    const { getOrderById } = useOrders();
     const order = orderId ? getOrderById(orderId) : undefined;
-
-    const [elapsed, setElapsed] = useState(0);
-
-    useEffect(() => {
-        if (!order || order.status === 'delivered' || order.status === 'cancelled') return;
-        const interval = setInterval(() => {
-            setElapsed(e => {
-                const newElapsed = e + 1;
-                // Simulate automatic order progression
-                if (newElapsed === 10 && order.status === 'confirmed') updateOrderStatus(orderId!, 'preparing');
-                if (newElapsed === 25 && order.status === 'preparing') updateOrderStatus(orderId!, 'ready');
-                if (newElapsed === 35 && order.status === 'ready' && order.deliveryType === 'delivery') updateOrderStatus(orderId!, 'delivering');
-                if (newElapsed === 60) updateOrderStatus(orderId!, 'delivered');
-                return newElapsed;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [order?.status, orderId, updateOrderStatus]);
 
     if (!order) {
         return (
@@ -60,8 +47,11 @@ const OrderTracking: React.FC = () => {
         );
     }
 
-    const currentIndex = statusOrder.indexOf(order.status as OrderStatus);
-    const estimatedRemaining = order.estimatedMinutes ? Math.max(0, order.estimatedMinutes - Math.floor(elapsed / 60)) : null;
+    const trackingSteps = order.deliveryType === 'delivery' ? deliveryTrackingSteps : pickupTrackingSteps;
+    const statusOrder: OrderStatus[] = trackingSteps.map((item) => item.status);
+    const normalizedStatus = order.status === 'delivering' && order.deliveryType !== 'delivery' ? 'delivered' : order.status;
+    const currentIndex = statusOrder.indexOf(normalizedStatus as OrderStatus);
+    const estimatedRemaining = order.estimatedMinutes ?? null;
 
     return (
         <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">

@@ -35,9 +35,9 @@ const Reservations: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const reservation = createReservation({
+        const reservation = await createReservation({
             userId: user?.id || 'guest',
             name: formData.name,
             email: formData.email,
@@ -46,7 +46,6 @@ const Reservations: React.FC = () => {
             time: formData.time,
             guests: parseInt(formData.guests),
             notes: formData.notes,
-            location: 'Restaurante Principal',
         });
         navigate('/booking-confirmation', { state: { booking: { ...formData, reservationId: reservation.id } } });
     };

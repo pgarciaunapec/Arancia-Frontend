@@ -26,3 +26,7 @@ build
 
 # Package lock files (generated)
 package-lock.json
+
+# Backend env files
+backend/.env
+backend/.env.*

@@ -17,7 +17,7 @@ const COLORS = {
 };
 
 const Profile: React.FC = () => {
-    const { user, updateProfile, logout } = useAuth();
+    const { user, updateProfile, changePassword, logout } = useAuth();
     const { getOrdersByUser } = useOrders();
     const { getReservationsByUser } = useReservations();
     const navigate = useNavigate();
@@ -34,6 +34,7 @@ const Profile: React.FC = () => {
 
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [saved, setSaved] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,6 +50,35 @@ const Profile: React.FC = () => {
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const handlePasswordUpdate = async () => {
+        setPasswordError('');
+
+        if (!passwords.current || !passwords.new || !passwords.confirm) {
+            setPasswordError('Completa todos los campos de contraseña.');
+            return;
+        }
+
+        if (passwords.new.length < 6) {
+            setPasswordError('La nueva contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+
+        if (passwords.new !== passwords.confirm) {
+            setPasswordError('La confirmación no coincide con la nueva contraseña.');
+            return;
+        }
+
+        const result = await changePassword(passwords.current, passwords.new);
+        if (!result.success) {
+            setPasswordError(result.error || 'No se pudo cambiar la contraseña.');
+            return;
+        }
+
+        setPasswords({ current: '', new: '', confirm: '' });
+        setPasswordError('');
+        window.alert('Contraseña actualizada correctamente.');
     };
 
     const initials = user?.name
@@ -163,9 +193,16 @@ const Profile: React.FC = () => {
                                 onChange={e => setPasswords({ ...passwords, new: e.target.value })}
                                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                                 style={{ borderColor: COLORS.border }} />
+                            <input type="password" placeholder="Confirmar Nueva Contraseña" value={passwords.confirm}
+                                onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
+                                className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none md:col-span-2"
+                                style={{ borderColor: COLORS.border }} />
                         </div>
+                        {passwordError && (
+                            <p className="text-sm text-red-400">{passwordError}</p>
+                        )}
                         <div className="flex justify-end">
-                            <Button variant="outline" type="button" className="border-white/20 text-white/60 hover:text-white">
+                            <Button variant="outline" type="button" className="border-white/20 text-white/60 hover:text-white" onClick={handlePasswordUpdate}>
                                 Actualizar Contraseña
                             </Button>
                         </div>

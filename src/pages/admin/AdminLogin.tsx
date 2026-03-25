@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Lock, Mail, UtensilsCrossed, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -15,15 +15,14 @@ const COLORS = {
 
 const AdminLogin: React.FC = () => {
     const navigate = useNavigate();
-    const { login, isAdmin } = useAuth();
+    const { login, isAdmin, user, logout } = useAuth();
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     if (isAdmin) {
-        navigate('/admin', { replace: true });
-        return null;
+        return <Navigate to="/admin" replace />;
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -35,10 +34,8 @@ const AdminLogin: React.FC = () => {
             setError(result.error || 'Error al iniciar sesión');
             return;
         }
-        // Check after login
-        const stored = localStorage.getItem('restaurant_current_user');
-        const user = stored ? JSON.parse(stored) : null;
-        if (user?.role !== 'admin') {
+        if (result.user?.role !== 'admin') {
+            logout();
             setError('No tienes permisos de administrador');
             return;
         }
@@ -81,10 +78,6 @@ const AdminLogin: React.FC = () => {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
-                        </div>
-
-                        <div className="bg-white/5 rounded-lg p-3 text-xs text-white/50">
-                            Demo: admin@restaurante.com / admin123
                         </div>
 
                         {error && (

@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Search, Plus, Filter, ShoppingBag } from 'lucide-react';
-import { menuData } from '../data/menuData';
 import type { MenuItem } from '../types';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
 import { useCart } from '../context/CartContext';
+import { apiRequest } from '../lib/api';
+import type { ApiEnvelope } from '../lib/api';
+import { mapBackendMenuItem } from '../lib/mappers';
 
 interface MenuPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -16,17 +18,31 @@ interface MenuPageProps {
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const { addItem, items: cartItems } = useCart();
 
-  const allCategories = useMemo(() => {
-    const cats = Array.from(new Set(menuData.map(item => item.category)));
-    return ['all', ...cats];
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        const response = await apiRequest<ApiEnvelope<any[]>>('/menu');
+        setMenuItems((response.data || []).map(mapBackendMenuItem));
+      } catch {
+        setMenuItems([]);
+      }
+    };
+
+    loadMenu();
   }, []);
+
+  const allCategories = useMemo(() => {
+    const cats = Array.from(new Set(menuItems.map(item => item.category)));
+    return ['all', ...cats];
+  }, [menuItems]);
 
   const filteredItems = useMemo(() => {
     let items = selectedCategory === 'all'
-      ? [...menuData]
-      : menuData.filter(item => item.category === selectedCategory);
+      ? [...menuItems]
+      : menuItems.filter(item => item.category === selectedCategory);
 
     if (searchQuery) {
       items = items.filter(item =>
@@ -38,7 +54,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     return items;
   }, [selectedCategory, searchQuery]);
 
-  const getCartQty = (itemId: number) => {
+  const getCartQty = (itemId: string) => {
     const found = cartItems.find(i => i.id === itemId);
     return found ? found.quantity : 0;
   };

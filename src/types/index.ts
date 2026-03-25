@@ -1,5 +1,6 @@
 export interface MenuItem {
-  id: number;
+  id: string;
+  backendId?: string;
   name: string;
   category: string;
   price: number;
@@ -13,7 +14,7 @@ export interface FilterState {
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
-export type UserRole = 'customer' | 'admin';
+export type UserRole = 'customer' | 'staff' | 'admin';
 
 export interface User {
   id: string;
@@ -29,7 +30,8 @@ export interface User {
 
 // ─── Cart ────────────────────────────────────────────────────────────────────
 export interface CartItem {
-  id: number;
+  id: string;
+  backendId?: string;
   name: string;
   price: number;
   quantity: number;
@@ -57,7 +59,7 @@ export interface PaymentTransaction {
 }
 
 export interface OrderItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -66,6 +68,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  backendId?: string;
   userId: string;
   items: OrderItem[];
   subtotal: number;
@@ -86,6 +89,7 @@ export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'complet
 
 export interface Reservation {
   id: string;
+  backendId?: string;
   userId: string;
   name: string;
   email: string;
@@ -115,7 +119,7 @@ export interface DeliveryTracking {
 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning';
 
 export interface RestaurantTable {
-  id: number;
+  id: string;
   number: number;
   capacity: number;
   status: TableStatus;

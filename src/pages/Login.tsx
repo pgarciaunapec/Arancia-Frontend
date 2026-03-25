@@ -120,13 +120,6 @@ const Login: React.FC = () => {
                             </motion.div>
                         )}
 
-                        {/* Demo credentials hint */}
-                        <div className="bg-white/5 rounded-lg p-3 text-xs text-white/50 space-y-1">
-                            <p className="font-medium text-white/70">Credenciales demo:</p>
-                            <p>Cliente: juan@demo.com / demo123</p>
-                            <p>Admin: admin@restaurante.com / admin123</p>
-                        </div>
-
                         <Button type="submit" className="w-full flex items-center justify-center gap-2" size="lg" disabled={loading}>
                             {loading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

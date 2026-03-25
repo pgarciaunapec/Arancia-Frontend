@@ -19,7 +19,7 @@ const COLORS = {
 
 const Checkout: React.FC = () => {
     const navigate = useNavigate();
-    const { items, subtotal, tax, total, clearCart } = useCart();
+    const { items, subtotal, tax, total, clearCart, refreshCart } = useCart();
     const { createOrder } = useOrders();
     const { user } = useAuth();
 
@@ -40,16 +40,15 @@ const Checkout: React.FC = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handlePayment = (e: React.FormEvent) => {
+    const handlePayment = async (e: React.FormEvent) => {
         e.preventDefault();
         if (items.length === 0) return;
         setLoading(true);
 
-        setTimeout(() => {
+        try {
             const cardLast4 = formData.cardNumber.replace(/\s/g, '').slice(-4) || '0000';
-            const order = createOrder({
+            const order = await createOrder({
                 userId: user?.id || 'guest',
-                items,
                 subtotal,
                 tax,
                 total,
@@ -57,9 +56,11 @@ const Checkout: React.FC = () => {
                 deliveryAddress: deliveryType === 'delivery' ? `${formData.address}, ${formData.city}` : undefined,
                 paymentMethod,
                 cardLast4: paymentMethod === 'card' ? cardLast4 : undefined,
+                cardNumber: paymentMethod === 'card' ? formData.cardNumber : undefined,
             });
 
             clearCart();
+            refreshCart().catch(() => undefined);
             setLoading(false);
             navigate('/booking-confirmation', {
                 state: {
@@ -69,7 +70,15 @@ const Checkout: React.FC = () => {
                     order,
                 }
             });
-        }, 2000);
+        } catch {
+            setLoading(false);
+            navigate('/booking-confirmation', {
+                state: {
+                    message: 'No se pudo completar el pago. Intenta de nuevo.',
+                    type: 'error',
+                }
+            });
+        }
     };
 
     if (items.length === 0) {
