@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     LayoutDashboard, Users, UtensilsCrossed, ShoppingBag,
-    DollarSign, Package, LogOut, Menu, X, ChevronRight
+    DollarSign, Package, LogOut, Menu, X, ChevronRight, Truck, Receipt
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,13 +15,23 @@ const COLORS = {
     border: 'rgba(245, 180, 0, 0.2)',
 };
 
-const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={18} />, exact: true },
-    { path: '/admin/orders', label: 'Pedidos', icon: <ShoppingBag size={18} /> },
-    { path: '/admin/clients', label: 'Clientes', icon: <Users size={18} /> },
-    { path: '/admin/tables', label: 'Mesas', icon: <UtensilsCrossed size={18} /> },
-    { path: '/admin/cash', label: 'Caja', icon: <DollarSign size={18} /> },
-    { path: '/admin/inventory', label: 'Inventario', icon: <Package size={18} /> },
+type AdminNavItem = {
+    path: string;
+    label: string;
+    icon: React.ReactNode;
+    exact?: boolean;
+    roles: Array<'admin' | 'staff'>;
+};
+
+const navItems: AdminNavItem[] = [
+    { path: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={18} />, exact: true, roles: ['admin', 'staff'] },
+    { path: '/admin/orders', label: 'Pedidos', icon: <ShoppingBag size={18} />, roles: ['admin', 'staff'] },
+    { path: '/admin/clients', label: 'Clientes', icon: <Users size={18} />, roles: ['admin'] },
+    { path: '/admin/tables', label: 'Mesas', icon: <UtensilsCrossed size={18} />, roles: ['admin', 'staff'] },
+    { path: '/admin/cash', label: 'Caja', icon: <DollarSign size={18} />, roles: ['admin', 'staff'] },
+    { path: '/admin/inventory', label: 'Inventario', icon: <Package size={18} />, roles: ['admin'] },
+    { path: '/admin/delivery', label: 'Delivery', icon: <Truck size={18} />, roles: ['admin', 'staff'] },
+    { path: '/admin/table-bills', label: 'Cuentas Mesa', icon: <Receipt size={18} />, roles: ['admin', 'staff'] },
 ];
 
 interface AdminLayoutProps {
@@ -33,6 +43,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const visibleNavItems = navItems.filter((item) => user?.role && item.roles.includes(user.role as 'admin' | 'staff'));
 
     const handleLogout = () => {
         logout();
@@ -61,7 +72,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
             {/* Nav Items */}
             <div className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {navItems.map(item => (
+                {visibleNavItems.map(item => (
                     <Link
                         key={item.path} to={item.path}
                         onClick={() => setSidebarOpen(false)}
@@ -137,7 +148,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     </button>
                     <div className="flex-1">
                         <h2 className="font-bold text-white text-sm">
-                            {navItems.find(n => isActive(n.path, n.exact))?.label || 'Admin'}
+                            {visibleNavItems.find(n => isActive(n.path, n.exact))?.label || 'Admin'}
                         </h2>
                     </div>
                     <Link to="/" className="text-xs hover:underline" style={{ color: COLORS.muted }}>

@@ -4,10 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 
 interface AdminRouteProps {
   children: React.ReactNode;
+  allowedRoles?: Array<'admin' | 'staff'>;
 }
 
-const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { isAuthenticated, isAdmin } = useAuth();
+const AdminRoute: React.FC<AdminRouteProps> = ({ children, allowedRoles = ['admin', 'staff'] }) => {
+  const { isAuthenticated, isAdmin, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
@@ -15,6 +16,10 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
   if (!isAdmin) {
     return <Navigate to="/admin/login" replace />;
+  }
+
+  if (!user || !allowedRoles.includes(user.role as 'admin' | 'staff')) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;

@@ -45,6 +45,8 @@ import AdminClients from './pages/admin/AdminClients';
 import AdminTables from './pages/admin/AdminTables';
 import AdminCashRegister from './pages/admin/AdminCashRegister';
 import AdminInventory from './pages/admin/AdminInventory';
+import AdminDelivery from './pages/admin/AdminDelivery';
+import AdminTableBills from './pages/admin/AdminTableBills';
 
 type PopupInfo = { displayFlag: boolean; titleContent: string; bodyContent: string };
 type PopupAction =
@@ -87,10 +89,12 @@ const RestaurantApp: React.FC = () => {
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin" element={<AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>} />
                   <Route path="/admin/orders" element={<AdminRoute><AdminLayout><AdminOrders /></AdminLayout></AdminRoute>} />
-                  <Route path="/admin/clients" element={<AdminRoute><AdminLayout><AdminClients /></AdminLayout></AdminRoute>} />
+                  <Route path="/admin/clients" element={<AdminRoute allowedRoles={['admin']}><AdminLayout><AdminClients /></AdminLayout></AdminRoute>} />
                   <Route path="/admin/tables" element={<AdminRoute><AdminLayout><AdminTables /></AdminLayout></AdminRoute>} />
                   <Route path="/admin/cash" element={<AdminRoute><AdminLayout><AdminCashRegister /></AdminLayout></AdminRoute>} />
-                  <Route path="/admin/inventory" element={<AdminRoute><AdminLayout><AdminInventory /></AdminLayout></AdminRoute>} />
+                  <Route path="/admin/inventory" element={<AdminRoute allowedRoles={['admin']}><AdminLayout><AdminInventory /></AdminLayout></AdminRoute>} />
+                  <Route path="/admin/delivery" element={<AdminRoute><AdminLayout><AdminDelivery /></AdminLayout></AdminRoute>} />
+                  <Route path="/admin/table-bills" element={<AdminRoute><AdminLayout><AdminTableBills /></AdminLayout></AdminRoute>} />
 
                   {/* ─── Main Layout Routes ─── */}
                   <Route path="/*" element={

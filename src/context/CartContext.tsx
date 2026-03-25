@@ -36,6 +36,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<CartItem[]>(() => parseLocalCart());
 
+  const mergeGuestCart = useCallback(async () => {
+    const guestItems = parseLocalCart();
+    if (!guestItems.length) {
+      return;
+    }
+
+    await apiRequest('/cart/merge', {
+      method: 'POST',
+      auth: true,
+      body: JSON.stringify({
+        items: guestItems.map((item) => ({
+          menuItemId: item.backendId || item.id,
+          quantity: item.quantity,
+        })),
+      }),
+    });
+
+    localStorage.removeItem(CART_KEY);
+  }, []);
+
   const hydrateFromBackend = useCallback(async () => {
     const response = await apiRequest<ApiEnvelope<any>>('/cart', { auth: true });
     const mapped = (response.data?.items || []).map(mapBackendCartItem);
@@ -50,12 +70,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (isAuthenticated) {
-      hydrateFromBackend().catch(() => setItems([]));
+      mergeGuestCart()
+        .catch((error) => {
+          console.error('Error merging guest cart:', error);
+        })
+        .finally(() => {
+          hydrateFromBackend().catch((error) => {
+            console.error('Error hydrating cart:', error);
+            setItems([]);
+          });
+        });
       return;
     }
 
     setItems(parseLocalCart());
-  }, [hydrateFromBackend, isAuthenticated]);
+  }, [hydrateFromBackend, isAuthenticated, mergeGuestCart]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -75,7 +104,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const mapped = (response.data?.items || []).map(mapBackendCartItem);
             setItems(mapped);
           })
-          .catch(() => undefined);
+          .catch((error) => {
+            console.error('Error adding item to cart:', error);
+          });
         return;
       }
 
@@ -113,7 +144,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const mapped = (response.data?.items || []).map(mapBackendCartItem);
             setItems(mapped);
           })
-          .catch(() => undefined);
+          .catch((error) => {
+            console.error('Error removing item from cart:', error);
+          });
         return;
       }
 
@@ -139,7 +172,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const mapped = (response.data?.items || []).map(mapBackendCartItem);
             setItems(mapped);
           })
-          .catch(() => undefined);
+          .catch((error) => {
+            console.error('Error updating cart quantity:', error);
+          });
         return;
       }
 
@@ -155,7 +190,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         auth: true,
       })
         .then(() => setItems([]))
-        .catch(() => undefined);
+        .catch((error) => {
+          console.error('Error clearing cart:', error);
+        });
       return;
     }
 

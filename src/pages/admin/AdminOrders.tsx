@@ -15,8 +15,10 @@ const COLORS = {
 
 const STATUS_OPTIONS: { value: OrderStatus | 'all'; label: string }[] = [
     { value: 'all', label: 'Todos' },
+    { value: 'pending', label: 'Pendientes' },
     { value: 'confirmed', label: 'Confirmados' },
     { value: 'preparing', label: 'Preparando' },
+    { value: 'ready', label: 'Listos' },
     { value: 'delivering', label: 'En camino' },
     { value: 'delivered', label: 'Entregados' },
     { value: 'cancelled', label: 'Cancelados' },

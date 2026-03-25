@@ -34,7 +34,7 @@ const AdminLogin: React.FC = () => {
             setError(result.error || 'Error al iniciar sesión');
             return;
         }
-        if (result.user?.role !== 'admin') {
+        if (result.user?.role !== 'admin' && result.user?.role !== 'staff') {
             logout();
             setError('No tienes permisos de administrador');
             return;

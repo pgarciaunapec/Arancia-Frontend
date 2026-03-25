@@ -8,13 +8,16 @@ import { useAuth } from './AuthContext';
 interface AdminContextValue {
   tables: RestaurantTable[];
   inventory: InventoryItem[];
+  lowStockAlerts: InventoryItem[];
   cashSession: CashSession | null;
   updateTableStatus: (tableId: string, status: TableStatus) => Promise<void>;
   updateInventoryItem: (itemId: string, data: Partial<InventoryItem>) => Promise<void>;
+  restockInventoryItem: (itemId: string, quantity: number) => Promise<void>;
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'lastUpdated' | 'status'>) => Promise<void>;
   removeInventoryItem: (itemId: string) => Promise<void>;
-  openCashSession: (openingBalance: number, openedBy: string) => Promise<void>;
-  closeCashSession: () => Promise<void>;
+  openCashSession: (openingBalance: number) => Promise<void>;
+  closeCashSession: (payload?: { notes?: string; declaredClosingBalance?: number }) => Promise<void>;
+  refreshAlerts: () => Promise<void>;
   refreshAdminData: () => Promise<void>;
 }
 
@@ -33,34 +36,55 @@ const mapCashRegister = (raw: any): CashSession => ({
 });
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, user } = useAuth();
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [lowStockAlerts, setLowStockAlerts] = useState<InventoryItem[]>([]);
   const [cashSession, setCashSession] = useState<CashSession | null>(null);
+
+  const refreshAlerts = useCallback(async () => {
+    if (!isAuthenticated || user?.role !== 'admin') {
+      setLowStockAlerts([]);
+      return;
+    }
+
+    const alertsResponse = await apiRequest<ApiEnvelope<any[]>>('/admin/inventory/alerts', { auth: true });
+    setLowStockAlerts((alertsResponse.data || []).map(mapBackendInventoryItem));
+  }, [isAuthenticated, user?.role]);
 
   const refreshAdminData = useCallback(async () => {
     if (!isAuthenticated || !isAdmin) {
       setTables([]);
       setInventory([]);
+      setLowStockAlerts([]);
       setCashSession(null);
       return;
     }
 
-    const [tablesResponse, inventoryResponse, cashResponse] = await Promise.all([
+    const canManageInventory = user?.role === 'admin';
+
+    const [tablesResponse, cashResponse, inventoryResponse, alertsResponse] = await Promise.all([
       apiRequest<ApiEnvelope<any[]>>('/admin/tables', { auth: true }),
-      apiRequest<ApiEnvelope<any[]>>('/admin/inventory', { auth: true }),
       apiRequest<ApiEnvelope<any | null>>('/admin/cash-register/today', { auth: true }),
+      canManageInventory
+        ? apiRequest<ApiEnvelope<any[]>>('/admin/inventory', { auth: true })
+        : Promise.resolve({ data: [] } as ApiEnvelope<any[]>),
+      canManageInventory
+        ? apiRequest<ApiEnvelope<any[]>>('/admin/inventory/alerts', { auth: true })
+        : Promise.resolve({ data: [] } as ApiEnvelope<any[]>),
     ]);
 
     setTables((tablesResponse.data || []).map(mapBackendTable));
     setInventory((inventoryResponse.data || []).map(mapBackendInventoryItem));
+    setLowStockAlerts((alertsResponse.data || []).map(mapBackendInventoryItem));
     setCashSession(cashResponse.data ? mapCashRegister(cashResponse.data) : null);
-  }, [isAdmin, isAuthenticated]);
+  }, [isAdmin, isAuthenticated, user?.role]);
 
   useEffect(() => {
     refreshAdminData().catch(() => {
       setTables([]);
       setInventory([]);
+      setLowStockAlerts([]);
       setCashSession(null);
     });
   }, [refreshAdminData]);
@@ -111,6 +135,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await refreshAdminData();
   }, [refreshAdminData]);
 
+  const restockInventoryItem = useCallback(async (itemId: string, quantity: number) => {
+    await apiRequest(`/admin/inventory/${itemId}/restock`, {
+      method: 'PATCH',
+      auth: true,
+      body: JSON.stringify({ quantity }),
+    });
+
+    await refreshAdminData();
+  }, [refreshAdminData]);
+
   const removeInventoryItem = useCallback(async (itemId: string) => {
     await apiRequest(`/admin/inventory/${itemId}`, {
       method: 'DELETE',
@@ -130,11 +164,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await refreshAdminData();
   }, [refreshAdminData]);
 
-  const closeCashSession = useCallback(async () => {
+  const closeCashSession = useCallback(async (payload?: { notes?: string; declaredClosingBalance?: number }) => {
     await apiRequest('/admin/cash-register/close', {
       method: 'POST',
       auth: true,
-      body: JSON.stringify({ notes: 'Cierre automático desde panel' }),
+      body: JSON.stringify({
+        notes: payload?.notes || 'Cierre desde panel',
+        declaredClosingBalance: payload?.declaredClosingBalance,
+      }),
     });
 
     await refreshAdminData();
@@ -145,13 +182,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       value={{
         tables,
         inventory,
+        lowStockAlerts,
         cashSession,
         updateTableStatus,
         updateInventoryItem,
+        restockInventoryItem,
         addInventoryItem,
         removeInventoryItem,
         openCashSession,
         closeCashSession,
+        refreshAlerts,
         refreshAdminData,
       }}
     >

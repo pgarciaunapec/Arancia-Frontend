@@ -34,15 +34,21 @@ const Profile: React.FC = () => {
 
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [saved, setSaved] = useState(false);
+    const [profileError, setProfileError] = useState('');
     const [passwordError, setPasswordError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateProfile(formData);
+        setProfileError('');
+        const result = await updateProfile(formData);
+        if (!result.success) {
+            setProfileError(result.error || 'No se pudo actualizar el perfil.');
+            return;
+        }
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
     };
@@ -178,6 +184,7 @@ const Profile: React.FC = () => {
                                 {saved ? '✓ Guardado' : <><Save size={18} /> Guardar Cambios</>}
                             </Button>
                         </div>
+                        {profileError && <p className="text-sm text-red-400">{profileError}</p>}
                     </Card>
 
                     <Card className="p-8 space-y-6 opacity-75 hover:opacity-100 transition-all" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>

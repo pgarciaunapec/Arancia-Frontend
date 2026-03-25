@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingBag, Users, DollarSign, TrendingUp, Calendar, Package, Clock } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { useOrders } from '../../context/OrdersContext';
-import { useAuth } from '../../context/AuthContext';
-import { useReservations } from '../../context/ReservationsContext';
 import { useAdmin } from '../../context/AdminContext';
+import { apiRequest } from '../../lib/api';
+import type { ApiEnvelope } from '../../lib/api';
 
 const COLORS = {
     primary: '#f5b400',
@@ -16,27 +16,56 @@ const COLORS = {
 
 const AdminDashboard: React.FC = () => {
     const { getAllOrders } = useOrders();
-    const { getAllUsers } = useAuth();
-    const { getAllReservations } = useReservations();
-    const { inventory, cashSession } = useAdmin();
+    const { inventory, cashSession, lowStockAlerts, refreshAlerts } = useAdmin();
+    const [metrics, setMetrics] = useState({
+        totalUsers: 0,
+        totalOrders: 0,
+        pendingOrders: 0,
+        todayOrders: 0,
+        todayReservations: 0,
+        todayRevenue: 0,
+        activeDeliveries: 0,
+        occupiedTables: 0,
+        totalTables: 0,
+    });
+    const [loading, setLoading] = useState(true);
 
     const orders = getAllOrders();
-    const users = getAllUsers().filter(u => u.role === 'customer');
-    const reservations = getAllReservations();
+    const lowStock = useMemo(() => (lowStockAlerts.length ? lowStockAlerts : inventory.filter(i => i.status !== 'ok')), [inventory, lowStockAlerts]);
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayOrders = orders.filter(o => o.createdAt.startsWith(todayStr));
-    const todayRevenue = todayOrders.reduce((s, o) => s + o.total, 0);
-    const pendingOrders = orders.filter(o => ['pending', 'confirmed', 'preparing', 'ready', 'delivering'].includes(o.status));
-    const lowStock = inventory.filter(i => i.status !== 'ok');
-    const todayReservations = reservations.filter(r => r.date === todayStr && r.status === 'confirmed');
+    useEffect(() => {
+        const loadDashboard = async () => {
+            try {
+                const response = await apiRequest<ApiEnvelope<any>>('/admin/dashboard', { auth: true });
+                const data = response.data || {};
+                setMetrics({
+                    totalUsers: Number(data.totalUsers || 0),
+                    totalOrders: Number(data.totalOrders || 0),
+                    pendingOrders: Number(data.pendingOrders || 0),
+                    todayOrders: Number(data.todayOrders || 0),
+                    todayReservations: Number(data.todayReservations || 0),
+                    todayRevenue: Number(data.todayRevenue || 0),
+                    activeDeliveries: Number(data.activeDeliveries || 0),
+                    occupiedTables: Number(data.occupiedTables || 0),
+                    totalTables: Number(data.totalTables || 0),
+                });
+                await refreshAlerts();
+            } catch (error) {
+                console.error('Error loading admin dashboard metrics:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadDashboard();
+    }, [refreshAlerts]);
 
     const stats = [
-        { label: 'Ingresos Hoy', value: `RD$${todayRevenue.toLocaleString()}`, icon: <DollarSign size={20} />, color: '#22c55e' },
-        { label: 'Pedidos Hoy', value: todayOrders.length, icon: <ShoppingBag size={20} />, color: COLORS.primary },
-        { label: 'Pedidos Activos', value: pendingOrders.length, icon: <Clock size={20} />, color: '#3b82f6' },
-        { label: 'Clientes', value: users.length, icon: <Users size={20} />, color: '#a855f7' },
-        { label: 'Reservas Hoy', value: todayReservations.length, icon: <Calendar size={20} />, color: '#06b6d4' },
+        { label: 'Ingresos Hoy', value: `RD$${metrics.todayRevenue.toLocaleString()}`, icon: <DollarSign size={20} />, color: '#22c55e' },
+        { label: 'Pedidos Hoy', value: metrics.todayOrders, icon: <ShoppingBag size={20} />, color: COLORS.primary },
+        { label: 'Pedidos Activos', value: metrics.pendingOrders, icon: <Clock size={20} />, color: '#3b82f6' },
+        { label: 'Clientes', value: metrics.totalUsers, icon: <Users size={20} />, color: '#a855f7' },
+        { label: 'Reservas Hoy', value: metrics.todayReservations, icon: <Calendar size={20} />, color: '#06b6d4' },
         { label: 'Alertas Stock', value: lowStock.length, icon: <Package size={20} />, color: lowStock.length > 0 ? '#ef4444' : '#22c55e' },
     ];
 
@@ -51,6 +80,7 @@ const AdminDashboard: React.FC = () => {
                 <p style={{ color: COLORS.muted }}>
                     {new Date().toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
+                {loading && <p className="text-xs mt-1" style={{ color: COLORS.muted }}>Actualizando métricas...</p>}
             </div>
 
             {/* Stats Grid */}

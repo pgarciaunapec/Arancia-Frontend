@@ -18,7 +18,7 @@ const CATEGORIES = ['Carnes', 'Mariscos', 'Frutas', 'Verduras', 'Granos', 'Harin
 const blankForm = { name: '', category: 'Carnes', quantity: 0, unit: 'kg', minStock: 5, costPerUnit: 0, supplier: '' };
 
 const AdminInventory: React.FC = () => {
-    const { inventory, updateInventoryItem, addInventoryItem, removeInventoryItem } = useAdmin();
+    const { inventory, lowStockAlerts, updateInventoryItem, restockInventoryItem, addInventoryItem, removeInventoryItem } = useAdmin();
     const [search, setSearch] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'ok' | 'low' | 'out'>('all');
     const [editItem, setEditItem] = useState<InventoryItem | null>(null);
@@ -55,13 +55,14 @@ const AdminInventory: React.FC = () => {
         low: inventory.filter(i => i.status === 'low').length,
         out: inventory.filter(i => i.status === 'out').length,
     };
+    const alertCount = lowStockAlerts.length || totals.low + totals.out;
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Inventario</h1>
-                    <p style={{ color: COLORS.muted }}>{inventory.length} items · {totals.low + totals.out} alertas</p>
+                    <p style={{ color: COLORS.muted }}>{inventory.length} items · {alertCount} alertas</p>
                 </div>
                 <Button onClick={() => setShowAddForm(true)} className="flex items-center gap-2">
                     <Plus size={16} /> Nuevo Item
@@ -69,7 +70,7 @@ const AdminInventory: React.FC = () => {
             </div>
 
             {/* Alert Bar */}
-            {(totals.low > 0 || totals.out > 0) && (
+            {alertCount > 0 && (
                 <Card className="p-4 flex items-center gap-3" style={{ backgroundColor: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}>
                     <AlertTriangle className="text-red-400 shrink-0" size={20} />
                     <p className="text-sm text-red-300">
@@ -143,6 +144,16 @@ const AdminInventory: React.FC = () => {
                                     </td>
                                     <td className="p-4">
                                         <div className="flex gap-2">
+                                            {(item.status === 'low' || item.status === 'out') && (
+                                                <button
+                                                    onClick={() => restockInventoryItem(item.id, Math.max(item.minStock, 1))}
+                                                    className="p-1.5 rounded hover:bg-green-500/10 hover:text-green-400 transition-colors"
+                                                    style={{ color: COLORS.muted }}
+                                                    title="Reabastecer"
+                                                >
+                                                    +
+                                                </button>
+                                            )}
                                             <button onClick={() => setEditItem({ ...item })} className="p-1.5 rounded hover:bg-white/10 transition-colors" style={{ color: COLORS.muted }}>
                                                 <Edit2 size={14} />
                                             </button>

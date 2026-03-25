@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { CheckCircle, Clock, ChefHat, Package, Truck, Home, ArrowLeft, MapPin } from 'lucide-react';
@@ -6,6 +6,9 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useOrders } from '../context/OrdersContext';
 import type { OrderStatus } from '../types';
+import { apiRequest } from '../lib/api';
+import type { ApiEnvelope } from '../lib/api';
+import { mapBackendOrder } from '../lib/mappers';
 
 const COLORS = {
     primary: '#f5b400',
@@ -34,7 +37,68 @@ const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
     const { getOrderById } = useOrders();
-    const order = orderId ? getOrderById(orderId) : undefined;
+    const [loading, setLoading] = useState(true);
+    const [liveOrder, setLiveOrder] = useState<ReturnType<typeof mapBackendOrder> | null>(null);
+    const [liveEstimatedMinutes, setLiveEstimatedMinutes] = useState<number | null>(null);
+    const fallbackOrder = orderId ? getOrderById(orderId) : undefined;
+
+    const mapDeliveryStatusToOrderStatus = (status?: string): OrderStatus | null => {
+        if (status === 'in_transit') return 'delivering';
+        if (status === 'delivered') return 'delivered';
+        if (status === 'pending' || status === 'assigned') return 'confirmed';
+        return null;
+    };
+
+    useEffect(() => {
+        if (!orderId) {
+            setLoading(false);
+            return;
+        }
+
+        const load = async () => {
+            try {
+                const [orderResponse, deliveryResponse] = await Promise.allSettled([
+                    apiRequest<ApiEnvelope<any>>(`/orders/${orderId}`, { auth: true }),
+                    apiRequest<ApiEnvelope<any>>(`/delivery/${orderId}`, { auth: true }),
+                ]);
+
+                if (orderResponse.status === 'fulfilled' && orderResponse.value?.data) {
+                    setLiveOrder(mapBackendOrder(orderResponse.value.data));
+                }
+
+                if (deliveryResponse.status === 'fulfilled' && deliveryResponse.value?.data) {
+                    const delivery = deliveryResponse.value.data;
+                    setLiveEstimatedMinutes(Number(delivery.estimatedMinutes || 0));
+
+                    setLiveOrder((current) => {
+                        if (!current) return current;
+                        const mappedStatus = mapDeliveryStatusToOrderStatus(delivery.status);
+                        return {
+                            ...current,
+                            status: mappedStatus || current.status,
+                            estimatedMinutes: Number(delivery.estimatedMinutes || current.estimatedMinutes || 0),
+                        };
+                    });
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        load();
+    }, [orderId]);
+
+    const order = useMemo(() => liveOrder || fallbackOrder, [liveOrder, fallbackOrder]);
+
+    if (loading) {
+        return (
+            <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-white mb-4">Cargando estado del pedido...</h2>
+                </div>
+            </div>
+        );
+    }
 
     if (!order) {
         return (
@@ -51,7 +115,7 @@ const OrderTracking: React.FC = () => {
     const statusOrder: OrderStatus[] = trackingSteps.map((item) => item.status);
     const normalizedStatus = order.status === 'delivering' && order.deliveryType !== 'delivery' ? 'delivered' : order.status;
     const currentIndex = statusOrder.indexOf(normalizedStatus as OrderStatus);
-    const estimatedRemaining = order.estimatedMinutes ?? null;
+    const estimatedRemaining = liveEstimatedMinutes ?? order.estimatedMinutes ?? null;
 
     return (
         <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">

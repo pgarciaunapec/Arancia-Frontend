@@ -85,7 +85,7 @@ const AdminCashRegister: React.FC = () => {
                                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                                 style={{ borderColor: COLORS.border }} />
                         </div>
-                        <Button variant="outline" onClick={() => { if (!closeAmount) return; const amount = parseFloat(closeAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de cierre válido.'); return; } closeCashSession(); setCloseAmount(''); }}
+                        <Button variant="outline" onClick={() => { if (!closeAmount) return; const amount = parseFloat(closeAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de cierre válido.'); return; } closeCashSession({ notes: 'Cierre desde panel administrativo', declaredClosingBalance: amount }); setCloseAmount(''); }}
                             className="flex items-center gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10">
                             <Lock size={16} /> Cerrar Caja
                         </Button>
@@ -128,7 +128,9 @@ const AdminCashRegister: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {todayOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(order => (
+                            {todayOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(order => {
+                                const paymentMethod = order.transaction?.method || 'cash';
+                                return (
                                 <tr key={order.id} className="border-b hover:bg-white/3" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                                     <td className="p-3" style={{ color: COLORS.muted }}>
                                         {new Date(order.createdAt).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}
@@ -137,17 +139,17 @@ const AdminCashRegister: React.FC = () => {
                                     <td className="p-3 text-white">{order.items.length}</td>
                                     <td className="p-3">
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                            order.transaction?.method === 'card' ? 'text-blue-400 bg-blue-500/10' :
-                                            order.transaction?.method === 'transfer' ? 'text-purple-400 bg-purple-500/10' :
+                                            paymentMethod === 'card' ? 'text-blue-400 bg-blue-500/10' :
+                                            paymentMethod === 'transfer' ? 'text-purple-400 bg-purple-500/10' :
                                             'text-green-400 bg-green-500/10'
                                         }`}>
-                                            {order.transaction?.method === 'card' ? 'Tarjeta' :
-                                             order.transaction?.method === 'transfer' ? 'Transferencia' : 'Efectivo'}
+                                            {paymentMethod === 'card' ? 'Tarjeta' :
+                                             paymentMethod === 'transfer' ? 'Transferencia' : 'Efectivo'}
                                         </span>
                                     </td>
                                     <td className="p-3 font-bold" style={{ color: COLORS.primary }}>RD${order.total.toFixed(0)}</td>
                                 </tr>
-                            ))}
+                            );})}
                         </tbody>
                     </table>
                     {todayOrders.length === 0 && (

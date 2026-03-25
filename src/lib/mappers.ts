@@ -58,7 +58,7 @@ export const mapBackendCartItem = (raw: any): CartItem => {
 };
 
 const mapOrderStatus = (status: string): OrderStatus => {
-  if (status === 'pending' || status === 'confirmed' || status === 'preparing' || status === 'ready' || status === 'delivered' || status === 'cancelled') {
+  if (status === 'pending' || status === 'confirmed' || status === 'preparing' || status === 'ready' || status === 'delivering' || status === 'delivered' || status === 'cancelled') {
     return status;
   }
   return 'pending';
