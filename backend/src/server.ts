@@ -27,79 +27,91 @@ import adminDashboardRoutes from "./routes/admin/dashboard.routes";
 import adminOrderRoutes from "./routes/admin/order.routes";
 import adminDeliveryRoutes from "./routes/admin/delivery.routes";
 
-const app: Application = express();
+export const createApp = (): Application => {
+  const app: Application = express();
 
-// Security Middleware
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin image loading
-  }),
-);
-app.use(mongoSanitize());
-app.use(
-  cors({
-    origin: env.frontendUrl,
-    credentials: true,
-  }),
-);
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+  // Security Middleware
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin image loading
+    }),
+  );
+  app.use(mongoSanitize());
+  app.use(
+    cors({
+      origin: env.frontendUrl,
+      credentials: true,
+    }),
+  );
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true }));
 
-// Health check
-app.get("/api/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
-});
-
-// Swagger Documentation
-app.use(
-  "/api/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-    customCss: ".topbar { display: none }",
-  }),
-);
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/menu", menuRoutes);
-app.use("/api/reservations", reservationRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/contact", contactRoutes);
-app.use("/api/images", imageRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/delivery", deliveryRoutes);
-
-// Admin routes
-app.use("/api/admin/users", adminUserRoutes);
-app.use("/api/admin/tables", adminTableRoutes);
-app.use("/api/admin/table-bills", adminTableBillRoutes);
-app.use("/api/admin/cash-register", adminCashRegisterRoutes);
-app.use("/api/admin/inventory", adminInventoryRoutes);
-app.use("/api/admin/dashboard", adminDashboardRoutes);
-app.use("/api/admin/orders", adminOrderRoutes);
-app.use("/api/admin/delivery", adminDeliveryRoutes);
-
-// 404 handler
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({ error: "Ruta no encontrada" });
-});
-
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error("Error:", err);
-  res.status(500).json({
-    error: "Error interno del servidor",
-    message: env.nodeEnv === "development" ? err.message : undefined,
+  // Health check
+  app.get("/api/health", (_req: Request, res: Response) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
-});
+
+  if (env.nodeEnv !== "production") {
+    app.get("/api/test/error", () => {
+      throw new Error("forced test error");
+    });
+  }
+
+  // Swagger Documentation
+  app.use(
+    "/api/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+      customCss: ".topbar { display: none }",
+    }),
+  );
+
+  // Routes
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/menu", menuRoutes);
+  app.use("/api/reservations", reservationRoutes);
+  app.use("/api/cart", cartRoutes);
+  app.use("/api/orders", orderRoutes);
+  app.use("/api/contact", contactRoutes);
+  app.use("/api/images", imageRoutes);
+  app.use("/api/payments", paymentRoutes);
+  app.use("/api/delivery", deliveryRoutes);
+
+  // Admin routes
+  app.use("/api/admin/users", adminUserRoutes);
+  app.use("/api/admin/tables", adminTableRoutes);
+  app.use("/api/admin/table-bills", adminTableBillRoutes);
+  app.use("/api/admin/cash-register", adminCashRegisterRoutes);
+  app.use("/api/admin/inventory", adminInventoryRoutes);
+  app.use("/api/admin/dashboard", adminDashboardRoutes);
+  app.use("/api/admin/orders", adminOrderRoutes);
+  app.use("/api/admin/delivery", adminDeliveryRoutes);
+
+  // 404 handler
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ error: "Ruta no encontrada" });
+  });
+
+  // Error handler
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("Error:", err);
+    res.status(500).json({
+      error: "Error interno del servidor",
+      message: env.nodeEnv === "development" ? err.message : undefined,
+    });
+  });
+
+  return app;
+};
+
+export const app = createApp();
 
 // Start server
-const startServer = async () => {
+export const startServer = async () => {
   await connectDatabase();
 
   app.listen(env.port, () => {
@@ -111,6 +123,10 @@ const startServer = async () => {
   });
 };
 
-startServer();
+/* c8 ignore start */
+if (env.nodeEnv !== "test") {
+  void startServer();
+}
+/* c8 ignore stop */
 
 export default app;
