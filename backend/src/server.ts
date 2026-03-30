@@ -2,8 +2,10 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
+import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env";
 import { connectDatabase } from "./config/database";
+import { specs } from "./config/swagger";
 
 // Import routes
 import authRoutes from "./routes/auth.routes";
@@ -28,9 +30,11 @@ import adminDeliveryRoutes from "./routes/admin/delivery.routes";
 const app: Application = express();
 
 // Security Middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin image loading
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin image loading
+  }),
+);
 app.use(mongoSanitize());
 app.use(
   cors({
@@ -45,6 +49,18 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// Swagger Documentation
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customCss: ".topbar { display: none }",
+  }),
+);
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -89,6 +105,9 @@ const startServer = async () => {
   app.listen(env.port, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${env.port}`);
     console.log(`📝 Ambiente: ${env.nodeEnv}`);
+    console.log(
+      `📚 Documentación Swagger: http://localhost:${env.port}/api/docs`,
+    );
   });
 };
 

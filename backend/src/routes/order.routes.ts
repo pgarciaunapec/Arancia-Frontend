@@ -6,9 +6,60 @@ import { AuthRequest } from "../types/index";
 
 const router = Router();
 
-// @route   POST /api/orders
-// @desc    Create order from cart (checkout)
-// @access  Private
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Crear una nueva orden
+ *     description: Convierte el carrito en una orden de compra
+ *     tags:
+ *       - Órdenes
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - shippingAddress
+ *             properties:
+ *               shippingAddress:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   address:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   zip:
+ *                     type: string
+ *               isDelivery:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       201:
+ *         description: Orden creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Order'
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Carrito vacío o datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       500:
+ *         description: Error del servidor
+ */
 router.post(
   "/",
   authMiddleware,
@@ -67,9 +118,35 @@ router.post(
   },
 );
 
-// @route   GET /api/orders
-// @desc    Get user's order history
-// @access  Private
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Obtener historial de órdenes del usuario
+ *     description: Retorna todas las órdenes del usuario autenticado
+ *     tags:
+ *       - Órdenes
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Órdenes obtenidas exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *       401:
+ *         description: No autenticado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get(
   "/",
   authMiddleware,

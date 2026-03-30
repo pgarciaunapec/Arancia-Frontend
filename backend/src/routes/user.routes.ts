@@ -6,9 +6,35 @@ import { AuthRequest } from "../types/index";
 
 const router = Router();
 
-// @route   GET /api/users/profile
-// @desc    Get user profile
-// @access  Private
+/**
+ * @swagger
+ * /users/profile:
+ *   get:
+ *     summary: Obtener perfil del usuario
+ *     description: Retorna los datos del perfil del usuario autenticado
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Perfil obtenido exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get(
   "/profile",
   authMiddleware,
@@ -41,9 +67,49 @@ router.get(
   },
 );
 
-// @route   PUT /api/users/profile
-// @desc    Update user profile
-// @access  Private
+/**
+ * @swagger
+ * /users/profile:
+ *   put:
+ *     summary: Actualizar perfil del usuario
+ *     description: Actualiza los datos del perfil del usuario autenticado
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.put(
   "/profile",
   authMiddleware,

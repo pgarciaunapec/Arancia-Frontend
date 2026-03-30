@@ -7,9 +7,37 @@ import { AuthRequest } from "../../types/index";
 
 const router = Router();
 
-// @route   GET /api/admin/tables
-// @desc    List all tables
-// @access  Admin/Staff
+/**
+ * @swagger
+ * /admin/tables:
+ *   get:
+ *     summary: Obtener todas las mesas
+ *     description: Retorna la lista de todas las mesas del restaurante con su estado actual
+ *     tags:
+ *       - Admin - Mesas
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Mesas obtenidas exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Table'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: Sin permisos suficientes
+ *       500:
+ *         description: Error del servidor
+ */
 router.get(
   "/",
   authMiddleware,
@@ -27,9 +55,60 @@ router.get(
   },
 );
 
-// @route   POST /api/admin/tables
-// @desc    Create table
-// @access  Admin
+/**
+ * @swagger
+ * /admin/tables:
+ *   post:
+ *     summary: Crear una mesa
+ *     description: Crea una nueva mesa en el sistema
+ *     tags:
+ *       - Admin - Mesas
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - number
+ *               - capacity
+ *             properties:
+ *               number:
+ *                 type: integer
+ *                 example: 1
+ *               capacity:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 20
+ *                 example: 4
+ *               zone:
+ *                 type: string
+ *                 example: "Terraza"
+ *     responses:
+ *       201:
+ *         description: Mesa creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Table'
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: Solo administradores
+ *       409:
+ *         description: Mesa duplicada
+ *       500:
+ *         description: Error del servidor
+ */
 router.post(
   "/",
   authMiddleware,
