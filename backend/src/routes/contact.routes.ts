@@ -1,91 +1,98 @@
-import { Router, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import { Contact, EventRequest } from '../models/index';
+/**
+ * Contact Routes - Refactored
+ */
 
-const router = Router();
+import { Router, type Router as ExpressRouter } from "express";
+import { ContactController } from "../controllers/index";
+import { authMiddleware } from "../middleware/auth.middleware";
+import { adminMiddleware } from "../middleware/admin.middleware";
+import {
+  validateCreateContact,
+  validateMongoId,
+  handleValidationErrors,
+} from "../utils/index";
 
-// @route   POST /api/contact
-// @desc    Send contact message
-// @access  Public
+const router: ExpressRouter = Router();
+
+/**
+ * @swagger
+ * /contact:
+ *   post:
+ *     summary: Enviar mensaje de contacto
+ *     tags:
+ *       - Contacto
+ */
 router.post(
-    '/',
-    [
-        body('name').trim().notEmpty().withMessage('El nombre es requerido'),
-        body('email').isEmail().withMessage('Email inválido'),
-        body('message').trim().notEmpty().withMessage('El mensaje es requerido'),
-    ],
-    async (req: Request, res: Response): Promise<void> => {
-        try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                res.status(400).json({ errors: errors.array() });
-                return;
-            }
-
-            const { name, email, phone, message } = req.body;
-
-            const contact = await Contact.create({
-                name,
-                email,
-                phone,
-                message,
-            });
-
-            res.status(201).json({
-                success: true,
-                data: contact,
-                message: 'Mensaje enviado correctamente. Te responderemos pronto.',
-            });
-        } catch (error) {
-            console.error('Contact error:', error);
-            res.status(500).json({ error: 'Error al enviar mensaje' });
-        }
-    }
+  "/",
+  validateCreateContact(),
+  handleValidationErrors,
+  ContactController.create,
 );
 
-// @route   POST /api/contact/event-quote
-// @desc    Request event quote
-// @access  Public
-router.post(
-    '/event-quote',
-    [
-        body('name').trim().notEmpty().withMessage('El nombre es requerido'),
-        body('email').isEmail().withMessage('Email inválido'),
-        body('phone').trim().notEmpty().withMessage('El teléfono es requerido'),
-        body('eventType').notEmpty().withMessage('Tipo de evento requerido'),
-        body('guests').isInt({ min: 1 }).withMessage('Número de invitados inválido'),
-    ],
-    async (req: Request, res: Response): Promise<void> => {
-        try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                res.status(400).json({ errors: errors.array() });
-                return;
-            }
+/**
+ * @swagger
+ * /admin/contact:
+ *   get:
+ *     summary: Obtener todos los mensajes de contacto (admin)
+ *     tags:
+ *       - Contacto
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get(
+  "/",
+  authMiddleware,
+  adminMiddleware,
+  ContactController.getAll,
+);
 
-            const { name, email, phone, eventType, packageName, guests, preferredDate, notes } = req.body;
+/**
+ * @swagger
+ * /contact/:id:
+ *   get:
+ *     summary: Obtener un mensaje de contacto
+ *     tags:
+ *       - Contacto
+ */
+router.get("/:id", validateMongoId(), handleValidationErrors, ContactController.getById);
 
-            const eventRequest = await EventRequest.create({
-                name,
-                email,
-                phone,
-                eventType,
-                packageName,
-                guests,
-                preferredDate: preferredDate ? new Date(preferredDate) : undefined,
-                notes,
-            });
+/**
+ * @swagger
+ * /contact/:id/status:
+ *   put:
+ *     summary: Actualizar estado de mensaje (admin)
+ *     tags:
+ *       - Contacto
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put(
+  "/:id/status",
+  authMiddleware,
+  adminMiddleware,
+  validateMongoId(),
+  handleValidationErrors,
+  ContactController.updateStatus,
+);
 
-            res.status(201).json({
-                success: true,
-                data: eventRequest,
-                message: 'Solicitud de cotización recibida. Te contactaremos pronto.',
-            });
-        } catch (error) {
-            console.error('Event quote error:', error);
-            res.status(500).json({ error: 'Error al enviar solicitud' });
-        }
-    }
+/**
+ * @swagger
+ * /contact/:id:
+ *   delete:
+ *     summary: Eliminar un mensaje (admin)
+ *     tags:
+ *       - Contacto
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete(
+  "/:id",
+  authMiddleware,
+  adminMiddleware,
+  validateMongoId(),
+  handleValidationErrors,
+  ContactController.delete,
 );
 
 export default router;
+
