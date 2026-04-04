@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:80"
     networks:
-      - dokploy
+      - dokploy-network
 
 networks:
   dokploy-network:
