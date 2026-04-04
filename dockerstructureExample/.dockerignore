@@ -1,0 +1,54 @@
+# Version control
+.git
+.gitignore
+.github
+
+# IDE and Editor
+.vscode
+.vs
+*.user
+*.sln.user
+.idea
+*.swp
+*.swo
+*~
+
+# Build outputs
+bin/
+obj/
+dist/
+build/
+*.dll
+*.exe
+
+# Dependencies
+node_modules/
+packages/
+
+# Documentation
+docs/
+README.md
+*.md
+
+# Development files
+.env*
+docker-compose*.yml
+Dockerfile.dev
+
+# CI/CD
+.github/
+
+# Operating System
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache

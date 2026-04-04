@@ -1,0 +1,160 @@
+# ============================================================================
+# TRAEFIK DYNAMIC CONFIGURATION
+# ============================================================================
+# This file contains dynamic routes and middlewares for Traefik
+# Monitored & auto-reloaded by Traefik when changes are detected
+# Version: 3.0+
+#
+# Structure:
+# - http: HTTP routes, middlewares, and services
+# - tcp: TCP routes (optional, for non-HTTP protocols)
+# - tls: Global TLS options
+# ============================================================================
+
+http:
+
+  # =========================================================================
+  # MIDDLEWARES
+  # =========================================================================
+  middlewares:
+    
+    # Redirect HTTP to HTTPS (old, kept for backward compatibility)
+    redirect-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    
+    # Security headers
+    security-headers:
+      headers:
+        accessControlAllowOriginList: "*"
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+          - PATCH
+        accessControlMaxAge: 100
+        addVaryHeader: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        frameDeny: true
+        sslRedirect: true
+        stsIncludeSubdomains: true
+        stsMaxAge: 31536000
+        stsPreload: true
+        customRequestHeaders:
+          X-Frame-Options: DENY
+          X-Content-Type-Options: nosniff
+          X-XSS-Protection: "1; mode=block"
+          Referrer-Policy: strict-origin-when-cross-origin
+    
+    # Compression middleware
+    gzip-compression:
+      compress:
+        minResponseBodyBytes: 1000
+    
+    # Rate limiting (protect against DDoS)
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
+    
+    # Authentication placeholder
+    basic-auth:
+      basicAuth:
+        users:
+          - "admin:$2y$05$Jp7VHlXJ7rFKmKLFhQDq5OmQH6JKo2VfcDCqfO4l.tDWKvJ9z2nhy"  # admin:admin
+
+  # =========================================================================
+  # ROUTERS (Entry Rules)
+  # =========================================================================
+  routers:
+    
+    # Traefik Dashboard over HTTPS
+    traefik-dashboard:
+      rule: Host(`traefik.medical-auth.local`) || Host(`traefik.example.com`)
+      service: api@internal
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - security-headers
+        - basic-auth
+    
+    # Traefik Dashboard redirect (HTTP to HTTPS)
+    traefik-dashboard-http:
+      rule: Host(`traefik.medical-auth.local`) || Host(`traefik.example.com`)
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-https
+      service: api@internal
+
+  # =========================================================================
+  # SERVICES (Upstream backends)
+  # =========================================================================
+  services:
+    
+    # API service (discovered from docker labels, kept for reference)
+    # The actual Auth API is defined in docker-compose.yml labels
+    api-service:
+      loadBalancer:
+        servers:
+          - url: "http://api:5239"
+        healthCheck:
+          path: /health
+          interval: 10s
+          timeout: 5s
+          scheme: http
+
+# ============================================================================
+# TLS CONFIGURATION
+# ============================================================================
+tls:
+  
+  # Global TLS options
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      preferServerCipherSuites: true
+      sniStrict: false
+      # ALPN (Application-Layer Protocol Negotiation)
+      alpnProtocols:
+        - h2
+        - http/1.1
+        - acme-tls/1
+    
+    mintls13:
+      minVersion: VersionTLS13
+      sideEffects: NonIdempotent
+      preferServerCipherSuites: false
+
+# ============================================================================
+# TCP ROUTING (Optional - for TCP protocols like DB connections)
+# ============================================================================
+tcp:
+  routers:
+    # Example: TCP router for MariaDB if you need external access
+    # mariadb-router:
+    #   rule: "HostSNI(`db.example.com`)"
+    #   service: mariadb-service
+    #   tls:
+    #     passthrough: true
+  
+  services:
+    # mariadb-service:
+    #   loadBalancer:
+    #     servers:
+    #       - address: "mariadb:3306"

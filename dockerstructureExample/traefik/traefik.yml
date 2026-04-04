@@ -1,0 +1,121 @@
+# ============================================================================
+# TRAEFIK CONFIGURATION - Static Configuration
+# ============================================================================
+# This is the static configuration for Traefik reverse proxy
+# Version: 3.0+
+# 
+# For dynamic routes, see: docker/traefik/dynamic.yml
+# ============================================================================
+
+# ============================================================================
+# API & DASHBOARD
+# ============================================================================
+api:
+  dashboard: true
+  debug: false
+  insecure: false  # Require TLS for API access in production
+
+# ============================================================================
+# ENTRY POINTS (Listeners)
+# ============================================================================
+entryPoints:
+  
+  # HTTP entry point - redirects to HTTPS
+  web:
+    address: :80
+    http:
+      redirections:
+        entrypoint:
+          regex: ^http://(.*)
+          replacement: https://$1
+          permanent: true
+  
+  # HTTPS entry point - main ingress point
+  websecure:
+    address: :443
+    http:
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: "example.com"
+            sans:
+              - "*.example.com"
+
+# ============================================================================
+# PROVIDERS (Service Discovery)
+# ============================================================================
+providers:
+  
+  # Docker provider - auto-discovers containers with labels
+  docker:
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: false  # Only expose containers with traefik.enable=true
+    network: traefik-net
+    swarmMode: false
+  
+  # File provider - for static routes (dynamic.yml)
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true  # Auto-reload on changes
+
+# ============================================================================
+# CERTIFICATE RESOLVERS
+# ============================================================================
+certificatesResolvers:
+  
+  # Let's Encrypt with HTTP-01 challenge
+  letsencrypt:
+    acme:
+      email: ${LETSENCRYPT_EMAIL:-admin@example.com}
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+log:
+  level: ${TRAEFIK_LOG_LEVEL:-INFO}
+  format: json
+
+# Access log - shows all HTTP requests
+accessLog:
+  filePath: /var/log/traefik/access.log
+  format: json
+  fields:
+    defaultMode: keep
+    names:
+      ClientUsername: drop
+    headers:
+      defaultMode: keep
+      names:
+        Authorization: drop
+        Cookie: drop
+        Set-Cookie: drop
+        X-Forwarded-For: keep
+
+# ============================================================================
+# METRICS (Optional - Prometheus)
+# ============================================================================
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addServicesLabels: true
+
+# ============================================================================
+# GLOBAL OPTIONS
+# ============================================================================
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+# ============================================================================
+# EXPERIMENTAL FEATURES
+# ============================================================================
+experimental:
+  http3: true  # Enable HTTP/3 (QUIC) support
+  plugins:
+    geoblock:
+      moduleName: github.com/PaulMaddox/traefik-geoblock
+      version: v0.1.4
