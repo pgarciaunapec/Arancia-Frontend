@@ -12,8 +12,6 @@ import {
 import { useCart, useAuth } from "../contexts";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
 
 const COLORS = {
   primary: "#f5b400",
