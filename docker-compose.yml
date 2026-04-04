@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  frontend:
+    build: .
+    image: arancia-frontend:latest
+    restart: always
+    env_file: .env
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - arancia-net
+
+  backend:
+    image: arancia-backend:latest
+    restart: unless-stopped
+    networks:
+      - arancia-net
+
+networks:
+  arancia-net:
+    driver: bridge
