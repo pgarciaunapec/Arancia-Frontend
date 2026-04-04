@@ -84,7 +84,7 @@ const AdminDelivery: React.FC = () => {
           <p className="text-white/70">No hay deliveries para mostrar.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[680px] text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="text-left p-3">Orden</th>

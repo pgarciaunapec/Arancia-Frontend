@@ -39,7 +39,7 @@ const AdminCashRegister: React.FC = () => {
 
             {/* Session Card */}
             <Card className="p-6" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
                     <div className="flex items-center gap-3">
                         {cashSession?.isOpen ? (
                             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10">
@@ -63,7 +63,7 @@ const AdminCashRegister: React.FC = () => {
                 </div>
 
                 {!cashSession?.isOpen ? (
-                    <div className="flex gap-4 items-end">
+                    <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-end">
                         <div className="flex-1">
                             <label className="text-sm font-medium text-white/80 block mb-2">Balance de Apertura (RD$)</label>
                             <input type="number" value={openAmount} onChange={e => setOpenAmount(e.target.value)}
@@ -72,12 +72,12 @@ const AdminCashRegister: React.FC = () => {
                                 style={{ borderColor: COLORS.border }} />
                         </div>
                         <Button onClick={() => { if (!openAmount) return; const amount = parseFloat(openAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de apertura válido.'); return; } openCashSession(amount); setOpenAmount(''); }}
-                            className="flex items-center gap-2">
+                            className="flex items-center justify-center gap-2 w-full sm:w-auto">
                             <Unlock size={16} /> Abrir Caja
                         </Button>
                     </div>
                 ) : (
-                    <div className="flex gap-4 items-end">
+                    <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-end">
                         <div className="flex-1">
                             <label className="text-sm font-medium text-white/80 block mb-2">Balance de Cierre (RD$)</label>
                             <input type="number" value={closeAmount} onChange={e => setCloseAmount(e.target.value)}
@@ -86,7 +86,7 @@ const AdminCashRegister: React.FC = () => {
                                 style={{ borderColor: COLORS.border }} />
                         </div>
                         <Button variant="outline" onClick={() => { if (!closeAmount) return; const amount = parseFloat(closeAmount); if (!Number.isFinite(amount) || amount < 0) { window.alert('Por favor ingresa un monto de cierre válido.'); return; } closeCashSession({ notes: 'Cierre desde panel administrativo', declaredClosingBalance: amount }); setCloseAmount(''); }}
-                            className="flex items-center gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10">
+                            className="flex items-center justify-center gap-2 w-full sm:w-auto border-red-500/30 text-red-400 hover:bg-red-500/10">
                             <Lock size={16} /> Cerrar Caja
                         </Button>
                     </div>
@@ -119,7 +119,7 @@ const AdminCashRegister: React.FC = () => {
                     <DollarSign size={16} style={{ color: COLORS.primary }} /> Transacciones de Hoy
                 </h3>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[640px] text-sm">
                         <thead>
                             <tr className="border-b" style={{ borderColor: COLORS.border }}>
                                 {['Hora', 'Pedido', 'Items', 'Método', 'Total'].map(h => (

@@ -165,15 +165,15 @@ const AdminTableBills: React.FC = () => {
         <div className="flex gap-3 items-end flex-wrap">
           <div>
             <label className="text-xs text-white/60 block mb-1">Mesa disponible</label>
-            <select value={tableId} onChange={(event) => setTableId(event.target.value)} className="bg-black/20 border border-white/20 rounded px-3 py-2 text-white">
+            <select value={tableId} onChange={(event) => setTableId(event.target.value)} className="bg-black/20 border border-white/20 rounded px-3 py-2 text-white max-w-full">
               <option value="">Seleccionar mesa...</option>
               {availableTables.map((table) => (
                 <option key={table.id} value={table.id}>Mesa #{table.number} - {table.section}</option>
               ))}
             </select>
           </div>
-          <Button onClick={openBill}>Abrir Cuenta</Button>
-          <Button variant="outline" className="border-white/20 text-white" onClick={loadBills}>Refrescar</Button>
+          <Button onClick={openBill} className="w-full sm:w-auto">Abrir Cuenta</Button>
+          <Button variant="outline" className="border-white/20 text-white w-full sm:w-auto" onClick={loadBills}>Refrescar</Button>
         </div>
       </Card>
 
@@ -184,7 +184,7 @@ const AdminTableBills: React.FC = () => {
           <p className="text-white/70">No hay cuentas registradas.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[860px] text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-white/60">
                   <th className="text-left p-3">Cuenta</th>

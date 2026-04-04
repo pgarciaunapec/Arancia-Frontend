@@ -55,18 +55,18 @@ const AdminOrders: React.FC = () => {
             {/* Filters */}
             <Card className="p-4" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
                 <div className="flex flex-wrap gap-4 items-center">
-                    <div className="relative flex-1 min-w-[200px]">
+                    <div className="relative flex-1 min-w-[160px] sm:min-w-[200px]">
                         <Search className="absolute left-3 top-2.5 text-white/30" size={16} />
                         <input value={search} onChange={e => setSearch(e.target.value)}
                             placeholder="Buscar por ID..."
                             className="w-full bg-black/20 pl-9 pr-4 py-2 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                             style={{ borderColor: COLORS.border }} />
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto overflow-x-auto pb-1">
                         <Filter size={14} style={{ color: COLORS.muted }} />
                         {STATUS_OPTIONS.map(opt => (
                             <button key={opt.value} onClick={() => setFilterStatus(opt.value)}
-                                className="text-xs px-3 py-1.5 rounded-full border transition-all"
+                                className="text-xs px-3 py-1.5 rounded-full border transition-all shrink-0"
                                 style={{
                                     borderColor: filterStatus === opt.value ? COLORS.primary : 'transparent',
                                     backgroundColor: filterStatus === opt.value ? 'rgba(245,180,0,0.1)' : 'rgba(255,255,255,0.05)',
@@ -82,7 +82,7 @@ const AdminOrders: React.FC = () => {
             {/* Orders Table */}
             <Card style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[760px] text-sm">
                         <thead>
                             <tr className="border-b" style={{ borderColor: COLORS.border }}>
                                 {['ID Pedido', 'Fecha/Hora', 'Items', 'Total', 'Tipo', 'Estado', 'Acción'].map(h => (
@@ -125,7 +125,7 @@ const AdminOrders: React.FC = () => {
                                             {nextStatus && (
                                                 <Button size="sm" variant="outline"
                                                     onClick={() => updateOrderStatus(order.id, nextStatus)}
-                                                    className="text-xs border-white/20 text-white/70 hover:text-white">
+                                                    className="text-xs border-white/20 text-white/70 hover:text-white whitespace-nowrap">
                                                     → {nextStatus === 'preparing' ? 'Preparar' : nextStatus === 'ready' ? 'Listo' : nextStatus === 'delivering' ? 'Enviar' : 'Entregar'}
                                                 </Button>
                                             )}

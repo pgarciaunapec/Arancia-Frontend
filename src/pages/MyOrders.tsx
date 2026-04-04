@@ -108,9 +108,9 @@ const MyOrders: React.FC = () => {
                                                             <span className="text-white capitalize">{order.deliveryType === 'delivery' ? 'Delivery' : order.deliveryType === 'pickup' ? 'Recogida' : 'En Mesa'}</span>
                                                         </div>
                                                         {order.deliveryAddress && (
-                                                            <div className="flex justify-between">
+                                                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
                                                                 <span style={{ color: COLORS.muted }}><MapPin size={12} className="inline mr-1" />Dirección</span>
-                                                                <span className="text-white text-right max-w-[150px]">{order.deliveryAddress}</span>
+                                                                <span className="text-white text-left sm:text-right break-words sm:max-w-[220px]">{order.deliveryAddress}</span>
                                                             </div>
                                                         )}
                                                         <div className="flex justify-between">

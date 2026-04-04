@@ -43,14 +43,14 @@ const AdminClients: React.FC = () => {
 
             {/* Filters */}
             <Card className="p-4 flex gap-4 flex-wrap items-center" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                <div className="relative flex-1 min-w-[200px]">
+                <div className="relative flex-1 min-w-[160px] sm:min-w-[200px]">
                     <Search className="absolute left-3 top-2.5 text-white/30" size={16} />
                     <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar clientes..."
                         className="w-full bg-black/20 pl-9 pr-4 py-2 rounded-lg border text-white text-sm focus:ring-2 outline-none"
                         style={{ borderColor: COLORS.border }} />
                 </div>
                 <button onClick={() => setFilterVIP(!filterVIP)}
-                    className="flex items-center gap-2 text-xs px-4 py-2 rounded-full border transition-all"
+                    className="flex items-center gap-2 text-xs px-4 py-2 rounded-full border transition-all shrink-0"
                     style={{
                         borderColor: filterVIP ? COLORS.primary : 'transparent',
                         backgroundColor: filterVIP ? 'rgba(245,180,0,0.1)' : 'rgba(255,255,255,0.05)',
@@ -157,7 +157,7 @@ const AdminClients: React.FC = () => {
                                 <div key={row.label} className="flex items-center gap-3 p-3 rounded-lg bg-black/20">
                                     <span style={{ color: COLORS.primary }}>{row.icon}</span>
                                     <span style={{ color: COLORS.muted }}>{row.label}</span>
-                                    <span className="ml-auto text-white">{row.value}</span>
+                                    <span className="ml-auto text-white text-right break-words max-w-[55%]">{row.value}</span>
                                 </div>
                             ))}
                         </div>

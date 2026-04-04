@@ -141,7 +141,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Top Bar */}
-                <header className="sticky top-0 z-30 px-6 py-4 border-b flex items-center gap-4"
+                <header className="sticky top-0 z-30 px-4 sm:px-6 py-4 border-b flex items-center gap-4"
                     style={{ backgroundColor: COLORS.secondary, borderColor: COLORS.border }}>
                     <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-white/60 hover:text-white">
                         <Menu size={22} />
@@ -156,7 +156,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     </Link>
                 </header>
 
-                <main className="flex-1 p-6 overflow-auto">
+                <main className="flex-1 p-4 sm:p-6 overflow-auto overflow-x-hidden">
                     {children}
                 </main>
             </div>
