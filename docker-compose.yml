@@ -7,7 +7,7 @@ services:
     restart: always
     env_file: .env
     ports:
-      - "8080:80"
+      - "${FRONTEND_PORT:-8080}:80"
     networks:
       - dokploy-network
 
