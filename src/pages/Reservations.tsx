@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { reservationApi } from "../services/api";
-import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
+import { useReservations } from "../context/ReservationsContext";
 
 const COLORS = {
   primary: "#f5b400",
@@ -26,14 +26,16 @@ const COLORS = {
 
 const Reservations: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createReservation } = useReservations();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     date: "",
     time: "",
     guests: "2",
-    name: "",
-    email: "",
-    phone: "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
     notes: "",
   });
 
@@ -50,23 +52,19 @@ const Reservations: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const response = await reservationApi.create({
-        ...formData,
-        guests: parseInt(formData.guests),
-      });
-      toast.success("¡Reserva creada exitosamente!");
-      navigate("/booking-confirmation", {
-        state: { booking: formData, reservationId: response.data?._id },
-      });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Error al crear la reserva";
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    const reservation = await createReservation({
+      userId: user?.id || "guest",
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      date: formData.date,
+      time: formData.time,
+      guests: parseInt(formData.guests),
+      notes: formData.notes,
+    });
+    navigate("/booking-confirmation", {
+      state: { booking: { ...formData, reservationId: reservation.id } },
+    });
   };
 
   const nextStep = () => setStep((prev) => prev + 1);

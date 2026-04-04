@@ -1,208 +1,199 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Plus, Trash2, UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed, Users } from "lucide-react";
+import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { adminApi, type TableData } from "../../services/api";
-import { toast } from "sonner";
+import { useAdmin } from "../../context/AdminContext";
+import type { TableStatus, RestaurantTable } from "../../types";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  available: { label: "Disponible", color: "bg-green-500" },
-  occupied: { label: "Ocupada", color: "bg-red-500" },
-  reserved: { label: "Reservada", color: "bg-yellow-500" },
-  maintenance: { label: "Mantenimiento", color: "bg-gray-500" },
+const COLORS = {
+  primary: "#f5b400",
+  secondary: "#2d1f0f",
+  muted: "rgba(255,255,255,0.6)",
+  border: "rgba(245, 180, 0, 0.2)",
 };
 
+const statusConfig: Record<
+  TableStatus,
+  { label: string; color: string; dot: string }
+> = {
+  available: {
+    label: "Disponible",
+    color: "text-green-400",
+    dot: "bg-green-400",
+  },
+  occupied: { label: "Ocupada", color: "text-red-400", dot: "bg-red-400" },
+  reserved: {
+    label: "Reservada",
+    color: "text-yellow-400",
+    dot: "bg-yellow-400",
+  },
+  cleaning: { label: "Limpieza", color: "text-blue-400", dot: "bg-blue-400" },
+};
+
+const STATUS_CYCLE: TableStatus[] = [
+  "available",
+  "occupied",
+  "reserved",
+  "cleaning",
+];
+
 const AdminTables: React.FC = () => {
-  const [tables, setTables] = useState<TableData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    number: "",
-    capacity: "4",
-    zone: "principal",
-  });
+  const { tables, updateTableStatus } = useAdmin();
+  const [selectedSection, setSelectedSection] = useState<string>("all");
 
-  const fetchTables = async () => {
-    try {
-      const res = await adminApi.tables.getAll();
-      if (res.data) setTables(res.data);
-    } catch {
-      toast.error("Error al cargar mesas");
-    } finally {
-      setLoading(false);
-    }
+  const sections = [
+    "all",
+    ...Array.from(new Set(tables.map((t) => t.section))),
+  ];
+  const filtered =
+    selectedSection === "all"
+      ? tables
+      : tables.filter((t) => t.section === selectedSection);
+
+  const counts = {
+    available: tables.filter((t) => t.status === "available").length,
+    occupied: tables.filter((t) => t.status === "occupied").length,
+    reserved: tables.filter((t) => t.status === "reserved").length,
+    cleaning: tables.filter((t) => t.status === "cleaning").length,
   };
 
-  useEffect(() => {
-    fetchTables();
-  }, []);
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await adminApi.tables.create({
-        number: parseInt(form.number),
-        capacity: parseInt(form.capacity),
-        zone: form.zone,
-      });
-      toast.success("Mesa creada");
-      setShowForm(false);
-      setForm({ number: "", capacity: "4", zone: "principal" });
-      fetchTables();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Error";
-      toast.error(message);
-    }
+  const cycleStatus = (table: RestaurantTable) => {
+    const idx = STATUS_CYCLE.indexOf(table.status);
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    updateTableStatus(table.id, next);
   };
-
-  const handleStatusChange = async (id: string, status: string) => {
-    try {
-      await adminApi.tables.update(id, { status } as Partial<TableData>);
-      fetchTables();
-    } catch {
-      toast.error("Error al actualizar mesa");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar esta mesa?")) return;
-    try {
-      await adminApi.tables.delete(id);
-      toast.success("Mesa eliminada");
-      fetchTables();
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Solo puedes eliminar mesas disponibles";
-      toast.error(message);
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#f5b400]" />
-      </div>
-    );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Mesas</h1>
-          <p className="text-white/50 text-sm">
-            Gestión de mesas del restaurante
-          </p>
-        </div>
-        <Button onClick={() => setShowForm(!showForm)}>
-          <Plus size={16} className="mr-2" /> Nueva Mesa
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Gestión de Mesas</h1>
+        <p style={{ color: COLORS.muted }}>
+          {tables.length} mesas · Haz clic en una mesa para cambiar su estado
+        </p>
       </div>
 
-      {/* Create form */}
-      {showForm && (
-        <motion.form
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          onSubmit={handleCreate}
-          className="bg-[#0a0a0a] border border-white/10 rounded-xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end"
-        >
-          <div>
-            <label className="text-white/50 text-xs block mb-1">Número</label>
-            <input
-              type="number"
-              required
-              value={form.number}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, number: e.target.value }))
-              }
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-white/50 text-xs block mb-1">
-              Capacidad
-            </label>
-            <input
-              type="number"
-              required
-              value={form.capacity}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, capacity: e.target.value }))
-              }
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-white/50 text-xs block mb-1">Zona</label>
-            <select
-              value={form.zone}
-              onChange={(e) => setForm((p) => ({ ...p, zone: e.target.value }))}
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none"
-            >
-              <option value="principal">Principal</option>
-              <option value="terraza">Terraza</option>
-              <option value="privado">Privado</option>
-              <option value="bar">Bar</option>
-            </select>
-          </div>
-          <Button type="submit">Crear</Button>
-        </motion.form>
-      )}
+      {/* Status Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {(Object.entries(counts) as [TableStatus, number][]).map(
+          ([status, count]) => {
+            const cfg = statusConfig[status];
+            return (
+              <Card
+                key={status}
+                className="p-4 text-center"
+                style={{
+                  backgroundColor: COLORS.secondary,
+                  border: `1px solid ${COLORS.border}`,
+                }}
+              >
+                <div
+                  className={`w-3 h-3 rounded-full mx-auto mb-2 ${cfg.dot}`}
+                />
+                <p className="text-2xl font-bold text-white">{count}</p>
+                <p className="text-xs" style={{ color: COLORS.muted }}>
+                  {cfg.label}
+                </p>
+              </Card>
+            );
+          },
+        )}
+      </div>
+
+      {/* Section Filter */}
+      <div className="flex gap-2 flex-wrap">
+        {sections.map((sec) => (
+          <button
+            key={sec}
+            onClick={() => setSelectedSection(sec)}
+            className="text-xs px-4 py-2 rounded-full border transition-all capitalize"
+            style={{
+              borderColor:
+                selectedSection === sec ? COLORS.primary : "transparent",
+              backgroundColor:
+                selectedSection === sec
+                  ? "rgba(245,180,0,0.1)"
+                  : "rgba(255,255,255,0.05)",
+              color: selectedSection === sec ? COLORS.primary : COLORS.muted,
+            }}
+          >
+            {sec === "all" ? "Todas" : sec}
+          </button>
+        ))}
+      </div>
 
       {/* Tables Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {tables.map((table, i) => {
-          const statusInfo =
-            STATUS_LABELS[table.status] || STATUS_LABELS.available;
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {filtered.map((table) => {
+          const cfg = statusConfig[table.status];
           return (
             <motion.div
-              key={table._id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.03 }}
-              className="bg-[#0a0a0a] border border-white/10 rounded-xl p-5 relative group"
+              layout
+              key={table.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div
-                className={`absolute top-3 right-3 w-3 h-3 rounded-full ${statusInfo.color}`}
-              />
-              <div className="text-center mb-4">
-                <UtensilsCrossed
-                  size={24}
-                  className="mx-auto text-[#f5b400] mb-2"
-                />
-                <p className="text-white text-2xl font-bold">#{table.number}</p>
-                <p className="text-white/40 text-xs">
-                  {table.capacity} personas • {table.zone}
+              <Card
+                className="p-4 cursor-pointer text-center transition-all hover:shadow-lg"
+                style={{
+                  backgroundColor:
+                    table.status === "occupied"
+                      ? "rgba(239,68,68,0.08)"
+                      : table.status === "reserved"
+                        ? "rgba(245,180,0,0.08)"
+                        : table.status === "cleaning"
+                          ? "rgba(59,130,246,0.08)"
+                          : COLORS.secondary,
+                  border: `2px solid ${
+                    table.status === "occupied"
+                      ? "rgba(239,68,68,0.4)"
+                      : table.status === "reserved"
+                        ? "rgba(245,180,0,0.4)"
+                        : table.status === "cleaning"
+                          ? "rgba(59,130,246,0.4)"
+                          : COLORS.border
+                  }`,
+                }}
+                onClick={() => cycleStatus(table)}
+              >
+                <div className="mb-2">
+                  <UtensilsCrossed
+                    size={24}
+                    className="mx-auto"
+                    style={{
+                      color:
+                        table.status === "available"
+                          ? COLORS.primary
+                          : COLORS.muted,
+                    }}
+                  />
+                </div>
+                <p className="text-lg font-bold text-white">#{table.number}</p>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <Users size={10} style={{ color: COLORS.muted }} />
+                  <p className="text-xs" style={{ color: COLORS.muted }}>
+                    {table.capacity} pers.
+                  </p>
+                </div>
+                <div
+                  className={`flex items-center justify-center gap-1 mt-2 text-xs font-medium ${cfg.color}`}
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                  {cfg.label}
+                </div>
+                <p className="text-xs mt-1 opacity-50 text-white">
+                  {table.section}
                 </p>
-              </div>
-              <select
-                value={table.status}
-                onChange={(e) => handleStatusChange(table._id, e.target.value)}
-                className="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-white text-xs mb-2 outline-none"
-              >
-                <option value="available">Disponible</option>
-                <option value="occupied">Ocupada</option>
-                <option value="reserved">Reservada</option>
-                <option value="maintenance">Mantenimiento</option>
-              </select>
-              <button
-                onClick={() => handleDelete(table._id)}
-                className="w-full text-center text-red-400/50 hover:text-red-400 text-xs py-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 size={12} className="inline mr-1" /> Eliminar
-              </button>
+              </Card>
             </motion.div>
           );
         })}
-        {tables.length === 0 && (
-          <div className="col-span-full text-center py-12 text-white/30">
-            <UtensilsCrossed size={32} className="mx-auto mb-2" />
-            No hay mesas registradas
-          </div>
-        )}
       </div>
+
+      <p className="text-xs text-center" style={{ color: COLORS.muted }}>
+        Haz clic en cualquier mesa para ciclar su estado: Disponible → Ocupada →
+        Reservada → Limpieza
+      </p>
     </div>
   );
 };

@@ -1,139 +1,254 @@
 import React, { useState } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
 import {
   LayoutDashboard,
   Users,
   UtensilsCrossed,
-  Receipt,
-  Wallet,
+  ShoppingBag,
+  DollarSign,
   Package,
-  Truck,
-  BarChart3,
   LogOut,
   Menu,
   X,
-  ChefHat,
+  ChevronRight,
+  Truck,
+  Receipt,
 } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
-const NAV_ITEMS = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/orders", label: "Pedidos", icon: Package },
-  { to: "/admin/customers", label: "Clientes", icon: Users },
-  { to: "/admin/tables", label: "Mesas", icon: UtensilsCrossed },
-  { to: "/admin/table-bills", label: "Cuentas", icon: Receipt },
-  { to: "/admin/cash-register", label: "Caja", icon: Wallet },
-  { to: "/admin/inventory", label: "Inventario", icon: BarChart3 },
-  { to: "/admin/delivery", label: "Delivery", icon: Truck },
+const COLORS = {
+  primary: "#f5b400",
+  secondary: "#2d1f0f",
+  bg: "#1a0f06",
+  muted: "rgba(255,255,255,0.5)",
+  border: "rgba(245, 180, 0, 0.2)",
+};
+
+type AdminNavItem = {
+  path: string;
+  label: string;
+  icon: React.ReactNode;
+  exact?: boolean;
+  roles: Array<"admin" | "staff">;
+};
+
+const navItems: AdminNavItem[] = [
+  {
+    path: "/admin",
+    label: "Dashboard",
+    icon: <LayoutDashboard size={18} />,
+    exact: true,
+    roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/orders",
+    label: "Pedidos",
+    icon: <ShoppingBag size={18} />,
+    roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/clients",
+    label: "Clientes",
+    icon: <Users size={18} />,
+    roles: ["admin"],
+  },
+  {
+    path: "/admin/tables",
+    label: "Mesas",
+    icon: <UtensilsCrossed size={18} />,
+    roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/cash",
+    label: "Caja",
+    icon: <DollarSign size={18} />,
+    roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/inventory",
+    label: "Inventario",
+    icon: <Package size={18} />,
+    roles: ["admin"],
+  },
+  {
+    path: "/admin/delivery",
+    label: "Delivery",
+    icon: <Truck size={18} />,
+    roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/table-bills",
+    label: "Cuentas Mesa",
+    icon: <Receipt size={18} />,
+    roles: ["admin", "staff"],
+  },
 ];
 
-const AdminLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const visibleNavItems = navItems.filter(
+    (item) => user?.role && item.roles.includes(user.role as "admin" | "staff"),
+  );
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate("/admin/login");
   };
 
-  const SidebarContent = () => (
-    <>
-      <div className="p-6 border-b border-white/10">
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return location.pathname === path;
+    return location.pathname.startsWith(path);
+  };
+
+  const Sidebar = () => (
+    <nav className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="p-6 border-b" style={{ borderColor: COLORS.border }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#f5b400] flex items-center justify-center">
-            <ChefHat size={20} className="text-[#2d1f0f]" />
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: COLORS.primary }}
+          >
+            <UtensilsCrossed size={18} style={{ color: COLORS.secondary }} />
           </div>
           <div>
-            <h2 className="text-white font-bold text-lg">Arancia</h2>
-            <p className="text-white/40 text-xs">Panel de Administración</p>
+            <p className="font-bold text-white text-sm">Panel Admin</p>
+            <p className="text-xs" style={{ color: COLORS.muted }}>
+              {user?.name}
+            </p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
+      {/* Nav Items */}
+      <div className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {visibleNavItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
             onClick={() => setSidebarOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm font-medium ${
-                isActive
-                  ? "bg-[#f5b400]/15 text-[#f5b400]"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
-              }`
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive(item.path, item.exact) ? "text-secondary" : "hover:bg-white/5"}`}
+            style={
+              isActive(item.path, item.exact)
+                ? { backgroundColor: COLORS.primary, color: COLORS.secondary }
+                : { color: COLORS.muted }
             }
           >
-            <Icon size={18} />
-            {label}
-          </NavLink>
+            {item.icon}
+            {item.label}
+            {isActive(item.path, item.exact) && (
+              <ChevronRight size={14} className="ml-auto" />
+            )}
+          </Link>
         ))}
-      </nav>
+      </div>
 
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 mb-4 px-2">
-          <div className="w-8 h-8 rounded-full bg-[#f5b400]/20 flex items-center justify-center text-[#f5b400] text-sm font-bold">
-            {user?.name?.[0]?.toUpperCase() || "A"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">
-              {user?.name}
-            </p>
-            <p className="text-white/40 text-xs capitalize">{user?.role}</p>
-          </div>
-        </div>
+      {/* Logout */}
+      <div className="p-4 border-t" style={{ borderColor: COLORS.border }}>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2 w-full rounded-lg text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all text-sm"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all hover:bg-red-500/10 hover:text-red-400"
+          style={{ color: COLORS.muted }}
         >
-          <LogOut size={16} />
+          <LogOut size={18} />
           Cerrar Sesión
         </button>
       </div>
-    </>
+    </nav>
   );
 
   return (
-    <div className="flex min-h-screen bg-black">
+    <div className="min-h-screen flex" style={{ backgroundColor: COLORS.bg }}>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-[#0a0a0a] border-r border-white/10 fixed h-full z-40">
-        <SidebarContent />
+      <aside
+        className="hidden lg:block w-64 shrink-0 border-r"
+        style={{
+          backgroundColor: COLORS.secondary,
+          borderColor: COLORS.border,
+        }}
+      >
+        <div className="h-full sticky top-0">
+          <Sidebar />
+        </div>
       </aside>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-[#0a0a0a] border-r border-white/10 flex flex-col">
-            <SidebarContent />
-          </aside>
-        </div>
-      )}
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden border-r"
+              style={{
+                backgroundColor: COLORS.secondary,
+                borderColor: COLORS.border,
+              }}
+            >
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="text-white/50 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <Sidebar />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
-      {/* Main content */}
-      <div className="flex-1 lg:ml-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-4 flex items-center gap-4">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar */}
+        <header
+          className="sticky top-0 z-30 px-4 sm:px-6 py-4 border-b flex items-center gap-4"
+          style={{
+            backgroundColor: COLORS.secondary,
+            borderColor: COLORS.border,
+          }}
+        >
           <button
-            className="lg:hidden text-white/60 hover:text-white"
             onClick={() => setSidebarOpen(true)}
+            className="lg:hidden text-white/60 hover:text-white"
           >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={22} />
           </button>
-          <div className="flex-1" />
-          <NavLink to="/" className="text-white/40 hover:text-white text-sm">
-            ← Volver al sitio
-          </NavLink>
+          <div className="flex-1">
+            <h2 className="font-bold text-white text-sm">
+              {visibleNavItems.find((n) => isActive(n.path, n.exact))?.label ||
+                "Admin"}
+            </h2>
+          </div>
+          <Link
+            to="/"
+            className="text-xs hover:underline"
+            style={{ color: COLORS.muted }}
+          >
+            Ver Sitio →
+          </Link>
         </header>
 
-        {/* Page content */}
-        <main className="p-4 lg:p-8">
-          <Outlet />
+        <main className="flex-1 p-4 sm:p-6 overflow-auto overflow-x-hidden">
+          {children}
         </main>
       </div>
     </div>

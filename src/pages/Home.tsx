@@ -21,7 +21,7 @@ const COLORS = {
   white: "#ffffff",
 };
 
-interface HomeProps { }
+interface HomeProps {}
 
 const Home: React.FC<HomeProps> = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -113,7 +113,7 @@ const Home: React.FC<HomeProps> = () => {
         data-section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative h-screen flex items-center justify-center overflow-hidden w-full"
+        className="relative min-h-[100svh] flex items-center justify-center overflow-hidden w-full"
       >
         <div className="absolute inset-0 z-0">
           <img

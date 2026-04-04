@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Phone, Mail, MapPin, Clock, Send, Loader2 } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Badge } from "../components/ui/badge";
-import { contactApi } from "../services/api";
+import { apiRequest } from "../lib/api";
 
 interface ContactProps {
   onShowModal: (title: string, message: string) => void;
@@ -19,27 +19,33 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
     phone: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setLoading(true);
+    setError("");
 
     try {
-      await contactApi.sendMessage(formData);
+      await apiRequest("/contact", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+
       onShowModal(
         "¡Mensaje Enviado!",
         "Gracias por contactarnos. Te responderemos pronto.",
       );
       setFormData({ name: "", email: "", phone: "", message: "" });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      onShowModal(
-        "Error",
-        "No se pudo enviar el mensaje. Por favor intenta de nuevo.",
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : "No se pudo enviar el mensaje",
       );
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -260,11 +266,13 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
 
                   <Button
                     type="submit"
+                    disabled={loading}
                     className="w-full bg-gradient-warm text-white hover:shadow-lg py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base"
                   >
                     <Send className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                    Enviar Mensaje
+                    {loading ? "Enviando..." : "Enviar Mensaje"}
                   </Button>
+                  {error && <p className="text-sm text-red-500">{error}</p>}
                 </form>
               </Card>
             </motion.div>

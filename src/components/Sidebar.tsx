@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onBooking }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:relative top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 overflow-y-auto flex-shrink-0 shadow-xl lg:shadow-none transition-transform duration-300 ease-out ${
+        className={`fixed lg:relative top-0 left-0 h-screen w-[85vw] max-w-72 lg:w-72 bg-sidebar border-r border-sidebar-border z-50 overflow-y-auto flex-shrink-0 shadow-xl lg:shadow-none transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >

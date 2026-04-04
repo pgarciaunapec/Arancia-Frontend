@@ -1,234 +1,170 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { Truck, MapPin, Phone, User, Package } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { adminApi, type DeliveryData } from "../../services/api";
-import { toast } from "sonner";
+import { apiRequest } from "../../lib/api";
+import type { ApiEnvelope } from "../../lib/api";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "Pendiente", color: "text-yellow-400 bg-yellow-400/10" },
-  confirmed: { label: "Confirmado", color: "text-blue-400 bg-blue-400/10" },
-  preparing: { label: "Preparando", color: "text-orange-400 bg-orange-400/10" },
-  ready: { label: "Listo", color: "text-purple-400 bg-purple-400/10" },
-  in_transit: { label: "En Camino", color: "text-cyan-400 bg-cyan-400/10" },
-  delivered: { label: "Entregado", color: "text-green-500 bg-green-500/10" },
+type DeliveryStatus =
+  | "pending"
+  | "assigned"
+  | "in_transit"
+  | "delivered"
+  | "failed";
+
+interface DeliveryRecord {
+  _id: string;
+  status: DeliveryStatus;
+  estimatedMinutes?: number;
+  order?: { _id: string; total?: number };
+  user?: { name?: string; email?: string; phone?: string };
+  agent?: { name?: string; phone?: string };
+  createdAt?: string;
+}
+
+const STATUS_LABEL: Record<DeliveryStatus, string> = {
+  pending: "Pendiente",
+  assigned: "Asignado",
+  in_transit: "En tránsito",
+  delivered: "Entregado",
+  failed: "Fallido",
 };
 
-const FLOW = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "ready",
-  "in_transit",
-  "delivered",
-];
+const NEXT_STATUS: Partial<Record<DeliveryStatus, DeliveryStatus>> = {
+  pending: "assigned",
+  assigned: "in_transit",
+  in_transit: "delivered",
+};
 
 const AdminDelivery: React.FC = () => {
-  const [deliveries, setDeliveries] = useState<DeliveryData[]>([]);
+  const [deliveries, setDeliveries] = useState<DeliveryRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [assignAgent, setAssignAgent] = useState<string | null>(null);
-  const [agentForm, setAgentForm] = useState({ name: "", phone: "" });
+  const [error, setError] = useState("");
 
-  const fetchDeliveries = async () => {
+  const loadDeliveries = async () => {
+    setLoading(true);
+    setError("");
     try {
-      const res = await adminApi.delivery.getActive();
-      if (res.data) setDeliveries(res.data);
-    } catch {
-      toast.error("Error al cargar entregas");
+      const response = await apiRequest<ApiEnvelope<DeliveryRecord[]>>(
+        "/admin/delivery",
+        { auth: true },
+      );
+      setDeliveries(response.data || []);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "No se pudo cargar delivery",
+      );
+      setDeliveries([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDeliveries();
+    loadDeliveries();
   }, []);
 
-  const handleAdvanceStatus = async (id: string, currentStatus: string) => {
-    const idx = FLOW.indexOf(currentStatus);
-    if (idx === -1 || idx >= FLOW.length - 1) return;
-    const nextStatus = FLOW[idx + 1];
+  const activeCount = useMemo(
+    () =>
+      deliveries.filter((item) =>
+        ["pending", "assigned", "in_transit"].includes(item.status),
+      ).length,
+    [deliveries],
+  );
 
-    if (
-      nextStatus === "in_transit" &&
-      !deliveries.find((d) => d._id === id)?.agent
-    ) {
-      setAssignAgent(id);
-      return;
-    }
-
+  const updateStatus = async (
+    delivery: DeliveryRecord,
+    status: DeliveryStatus,
+  ) => {
     try {
-      await adminApi.delivery.updateStatus(id, { status: nextStatus });
-      toast.success(
-        `Estado actualizado a: ${STATUS_LABELS[nextStatus]?.label}`,
-      );
-      fetchDeliveries();
-    } catch {
-      toast.error("Error al actualizar");
-    }
-  };
-
-  const handleAssignAndSend = async () => {
-    if (!assignAgent || !agentForm.name || !agentForm.phone) {
-      toast.error("Completa los datos del repartidor");
-      return;
-    }
-    try {
-      await adminApi.delivery.updateStatus(assignAgent, {
-        status: "in_transit",
-        agent: agentForm,
+      await apiRequest(`/admin/delivery/${delivery._id}/status`, {
+        method: "PATCH",
+        auth: true,
+        body: JSON.stringify({ status }),
       });
-      toast.success("Repartidor asignado y en camino");
-      setAssignAgent(null);
-      setAgentForm({ name: "", phone: "" });
-      fetchDeliveries();
+      await loadDeliveries();
     } catch {
-      toast.error("Error al asignar");
+      setError("No se pudo actualizar el estado del delivery");
     }
   };
-
-  if (loading)
-    return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#f5b400]" />
-      </div>
-    );
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-white mb-2">Delivery</h1>
-      <p className="text-white/50 text-sm mb-8">
-        Gestión de entregas activas ({deliveries.length})
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Delivery</h1>
+        <p className="text-sm text-white/60">Activos: {activeCount}</p>
+      </div>
 
-      {/* Agent assignment modal */}
-      {assignAgent && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-        >
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <User size={18} className="text-[#f5b400]" />
-              Asignar Repartidor
-            </h3>
-            <div className="space-y-3 mb-6">
-              <input
-                placeholder="Nombre del repartidor"
-                value={agentForm.name}
-                onChange={(e) =>
-                  setAgentForm((p) => ({ ...p, name: e.target.value }))
-                }
-                className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white outline-none"
-              />
-              <input
-                placeholder="Teléfono"
-                value={agentForm.phone}
-                onChange={(e) =>
-                  setAgentForm((p) => ({ ...p, phone: e.target.value }))
-                }
-                className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white outline-none"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button onClick={handleAssignAndSend} className="flex-1">
-                Asignar y Enviar
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setAssignAgent(null)}
-                className="text-white/50"
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+      {error && (
+        <Card className="p-4 text-red-400 bg-red-500/10 border-red-500/30">
+          {error}
+        </Card>
       )}
 
-      <div className="space-y-4">
-        {deliveries.map((d, i) => {
-          const cfg = STATUS_LABELS[d.status] || STATUS_LABELS.pending;
-          const idx = FLOW.indexOf(d.status);
-          const hasNext = idx < FLOW.length - 1;
-
-          return (
-            <motion.div
-              key={d._id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="bg-[#0a0a0a] border border-white/10 rounded-xl p-6"
-            >
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Truck size={14} className={cfg.color.split(" ")[0]} />
-                    <span
-                      className={`text-xs font-bold uppercase px-2 py-0.5 rounded-full ${cfg.color}`}
+      <Card className="p-4 bg-[#2d1f0f] border border-white/10">
+        {loading ? (
+          <p className="text-white/70">Cargando deliveries...</p>
+        ) : deliveries.length === 0 ? (
+          <p className="text-white/70">No hay deliveries para mostrar.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-white/60">
+                  <th className="text-left p-3">Orden</th>
+                  <th className="text-left p-3">Cliente</th>
+                  <th className="text-left p-3">Estado</th>
+                  <th className="text-left p-3">ETA</th>
+                  <th className="text-left p-3">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deliveries.map((delivery) => {
+                  const nextStatus = NEXT_STATUS[delivery.status];
+                  return (
+                    <tr
+                      key={delivery._id}
+                      className="border-b border-white/5 text-white/90"
                     >
-                      {cfg.label}
-                    </span>
-                    <span className="text-white/30 text-xs">
-                      #
-                      {(typeof d.order === "string" ? d.order : d.order._id)
-                        .slice(-8)
-                        .toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-2 text-sm text-white/70">
-                    <MapPin
-                      size={14}
-                      className="text-[#f5b400] shrink-0 mt-0.5"
-                    />
-                    <div>
-                      <p>{d.deliveryAddress.name}</p>
-                      <p className="text-white/40">
-                        {d.deliveryAddress.address}, {d.deliveryAddress.city}
-                      </p>
-                    </div>
-                  </div>
-
-                  {d.agent && (
-                    <div className="flex items-center gap-2 text-sm text-white/50">
-                      <User size={14} className="text-cyan-400" />
-                      <span>{d.agent.name}</span>
-                      <Phone size={12} />
-                      <span>{d.agent.phone}</span>
-                    </div>
-                  )}
-
-                  <p className="text-white/30 text-xs">
-                    Estimado: {d.estimatedMinutes} min
-                    {d.estimatedArrival &&
-                      ` • Llegada: ${new Date(d.estimatedArrival).toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" })}`}
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  {hasNext && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleAdvanceStatus(d._id, d.status)}
-                    >
-                      → {STATUS_LABELS[FLOW[idx + 1]]?.label}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-
-        {deliveries.length === 0 && (
-          <div className="text-center py-16 text-white/30">
-            <Package size={48} className="mx-auto mb-3" />
-            No hay entregas activas
+                      <td className="p-3 font-mono text-xs">
+                        #
+                        {delivery.order?._id?.slice(-6) ||
+                          delivery._id.slice(-6)}
+                      </td>
+                      <td className="p-3">
+                        {delivery.user?.name || "Cliente"}
+                      </td>
+                      <td className="p-3">{STATUS_LABEL[delivery.status]}</td>
+                      <td className="p-3">
+                        {delivery.estimatedMinutes
+                          ? `${delivery.estimatedMinutes} min`
+                          : "-"}
+                      </td>
+                      <td className="p-3">
+                        {nextStatus ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-white/20 text-white"
+                            onClick={() => updateStatus(delivery, nextStatus)}
+                          >
+                            → {STATUS_LABEL[nextStatus]}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-white/40">
+                            Sin acción
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 };

@@ -1,12 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Search, Plus, Filter, Loader2 } from 'lucide-react';
-import { menuApi, type MenuItem, getImageUrl } from '../services/api';
-import { useCart } from '../contexts';
-import { Button } from '../components/ui/button';
-import { Card } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Input } from '../components/ui/input';
+import React, { useState, useMemo, useEffect } from "react";
+import { motion } from "motion/react";
+import { Search, Plus, Filter, ShoppingBag } from "lucide-react";
+import type { MenuItem } from "../types";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Input } from "../components/ui/input";
+import { useCart } from "../context/CartContext";
+import { apiRequest } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
+import { mapBackendMenuItem } from "../lib/mappers";
 
 interface MenuPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -16,72 +19,57 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const { addItem } = useCart();
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const { addItem, items: cartItems } = useCart();
 
-  // Fetch menu data from API
   useEffect(() => {
-    const fetchMenu = async () => {
+    const loadMenu = async () => {
       try {
-        setIsLoading(true);
-        const [menuResponse, categoriesResponse] = await Promise.all([
-          menuApi.getAll(),
-          menuApi.getCategories()
-        ]);
-
-        if (menuResponse.data) {
-          setMenuData(menuResponse.data);
-        }
-        if (categoriesResponse.data) {
-          setCategories(['all', ...categoriesResponse.data]);
-        }
-      } catch (error) {
-        console.error('Error fetching menu:', error);
-        onShowModal('Error', 'No se pudo cargar el menú. Por favor intenta de nuevo.');
-      } finally {
-        setIsLoading(false);
+        const response = await apiRequest<ApiEnvelope<any[]>>("/menu");
+        setMenuItems((response.data || []).map(mapBackendMenuItem));
+      } catch {
+        setMenuItems([]);
       }
     };
 
-    fetchMenu();
-  }, [onShowModal]);
+    loadMenu();
+  }, []);
+
+  const allCategories = useMemo(() => {
+    const cats = Array.from(new Set(menuItems.map((item) => item.category)));
+    return ["all", ...cats];
+  }, [menuItems]);
 
   const filteredItems = useMemo(() => {
-    let items = selectedCategory === 'all'
-      ? [...menuData]
-      : menuData.filter(item => item.category === selectedCategory);
+    let items =
+      selectedCategory === "all"
+        ? [...menuItems]
+        : menuItems.filter((item) => item.category === selectedCategory);
 
     if (searchQuery) {
-      items = items.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()))
+      items = items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.ingredients.some((ing) =>
+            ing.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       );
     }
 
     return items;
-  }, [menuData, selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery]);
 
-  const handleAddItem = async (item: MenuItem) => {
-    try {
-      await addItem(item, 1);
-      onShowModal('¡Agregado!', `${item.name} ha sido agregado a tu carrito`);
-    } catch (error) {
-      console.error('Error adding item:', error);
-      onShowModal('Error', 'No se pudo agregar el item al carrito');
-    }
+  const getCartQty = (itemId: string) => {
+    const found = cartItems.find((i) => i.id === itemId);
+    return found ? found.quantity : 0;
   };
 
-  if (isLoading) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Cargando menú...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleAddItem = (item: MenuItem) => {
+    addItem(item);
+    onShowModal("¡Agregado!", `${item.name} ha sido agregado a tu carrito`);
+  };
 
   return (
     <div className="w-full min-h-full">
@@ -103,7 +91,8 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
               transition={{ delay: 0.4 }}
               className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4"
             >
-              Descubre nuestra selección de platillos preparados con ingredientes frescos y de la más alta calidad
+              Descubre nuestra selección de platillos preparados con
+              ingredientes frescos y de la más alta calidad
             </motion.p>
           </div>
 
@@ -136,25 +125,30 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
               {/* Category Filters */}
               <div className="flex flex-wrap gap-2">
-                {categories.map(cat => (
+                {categories.map((cat) => (
                   <Button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    variant={selectedCategory === cat ? 'default' : 'outline'}
-                    className={`rounded-full px-3 sm:px-4 lg:px-6 py-2 transition-all text-xs sm:text-sm ${selectedCategory === cat
-                      ? 'bg-gradient-warm text-white shadow-md hover:shadow-lg'
-                      : 'border-border hover:border-primary/50'
-                      }`}
+                    variant={selectedCategory === cat ? "default" : "outline"}
+                    className={`rounded-full px-3 sm:px-4 lg:px-6 py-2 transition-all text-xs sm:text-sm ${
+                      selectedCategory === cat
+                        ? "bg-gradient-warm text-white shadow-md hover:shadow-lg"
+                        : "border-border hover:border-primary/50"
+                    }`}
                   >
-                    {cat === 'all' ? 'Todos' : cat}
+                    {cat === "all" ? "Todos" : cat}
                   </Button>
                 ))}
               </div>
 
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  Mostrando <span className="font-semibold text-foreground">{filteredItems.length}</span> platillos
-                  {selectedCategory !== 'all' && ` en ${selectedCategory}`}
+                  Mostrando{" "}
+                  <span className="font-semibold text-foreground">
+                    {filteredItems.length}
+                  </span>{" "}
+                  platillos
+                  {selectedCategory !== "all" && ` en ${selectedCategory}`}
                 </p>
               </div>
             </Card>
@@ -191,7 +185,8 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=No+Image';
+                          (e.target as HTMLImageElement).src =
+                            "https://placehold.co/600x400?text=No+Image";
                         }}
                       />
                       <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
@@ -233,10 +228,19 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
                       <Button
                         onClick={() => handleAddItem(item)}
-                        className="w-full bg-gradient-warm text-white hover:shadow-lg transition-all group-hover:scale-105 text-sm sm:text-base py-5"
+                        className="w-full bg-gradient-warm text-white hover:shadow-lg transition-all group-hover:scale-105 text-sm sm:text-base py-5 flex items-center justify-center gap-2"
                       >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Agregar al Carrito
+                        {getCartQty(item.id) > 0 ? (
+                          <>
+                            <ShoppingBag className="w-4 h-4" />
+                            En carrito ({getCartQty(item.id)}) · Agregar
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4" />
+                            Agregar al Carrito
+                          </>
+                        )}
                       </Button>
                     </div>
                   </Card>
