@@ -8,17 +8,9 @@ services:
     env_file: .env
     ports:
       - "8080:80"
-    depends_on:
-      - backend
     networks:
-      - arancia-net
-
-  backend:
-    image: arancia-backend:latest
-    restart: unless-stopped
-    networks:
-      - arancia-net
+      - dokploy
 
 networks:
-  arancia-net:
-    driver: bridge
+  dokploy:
+    external: true
