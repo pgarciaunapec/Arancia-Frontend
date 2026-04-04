@@ -3,13 +3,13 @@
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
 
-  export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
-    const vitePort = Number(env.VITE_PORT) || 3000;
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const vitePort = Number(env.VITE_PORT) || 3000;
 
-    return {
-      plugins: [react()],
-      resolve: {
+  return {
+    plugins: [react()],
+    resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
         "vaul@1.1.2": "vaul",
@@ -37,8 +37,7 @@
         "@radix-ui/react-radio-group@1.2.3": "@radix-ui/react-radio-group",
         "@radix-ui/react-progress@1.1.2": "@radix-ui/react-progress",
         "@radix-ui/react-popover@1.1.6": "@radix-ui/react-popover",
-        "@radix-ui/react-navigation-menu@1.2.5":
-          "@radix-ui/react-navigation-menu",
+        "@radix-ui/react-navigation-menu@1.2.5": "@radix-ui/react-navigation-menu",
         "@radix-ui/react-menubar@1.1.6": "@radix-ui/react-menubar",
         "@radix-ui/react-label@2.1.2": "@radix-ui/react-label",
         "@radix-ui/react-hover-card@1.1.6": "@radix-ui/react-hover-card",
@@ -63,5 +62,4 @@
       open: true,
     },
   };
-  });
-};
+});
