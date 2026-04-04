@@ -1,11 +1,15 @@
 
-  import { defineConfig } from 'vite';
+  import { defineConfig, loadEnv } from 'vite';
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
 
-  export default defineConfig({
-    plugins: [react()],
-    resolve: {
+  export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const vitePort = Number(env.VITE_PORT) || 3000;
+
+    return {
+      plugins: [react()],
+      resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
         'vaul@1.1.2': 'vaul',
@@ -54,7 +58,8 @@
       outDir: 'build',
     },
     server: {
-      port: 3000,
+      port: vitePort,
       open: true,
     },
+  };
   });

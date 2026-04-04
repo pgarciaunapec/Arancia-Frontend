@@ -5,9 +5,15 @@ services:
     build: .
     image: arancia-frontend:latest
     restart: always
-    env_file: .env
     ports:
-      - "8080:80"
+      - "${VITE_PORT:-3002}:80"
+    environment:
+      NODE_ENV: "${NODE_ENV:-production}"
+      VITE_API_URL: "${VITE_API_URL:-http://arancia-api-dev.nauvolan.abrdns.com/api}"
+      VITE_APP_NAME: "${VITE_APP_NAME:-Arancia}"
+      VITE_APP_VERSION: "${VITE_APP_VERSION:-0.1.0}"
+      VITE_PORT: "${VITE_PORT:-3002}"
+      VITE_BASE_URL: "${VITE_BASE_URL:-/}"
     networks:
       - dokploy-network
 
