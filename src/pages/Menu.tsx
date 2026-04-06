@@ -16,9 +16,6 @@ interface MenuPageProps {
 }
 
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
-  const [menuData, setMenuData] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -27,8 +24,15 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   useEffect(() => {
     const loadMenu = async () => {
       try {
-        const response = await apiRequest<ApiEnvelope<any[]>>("/menu");
-        setMenuItems((response.data || []).map(mapBackendMenuItem));
+        const response = await apiRequest<ApiEnvelope<any[] | { data?: any[] }>>(
+          "/menu",
+        );
+        const rawItems = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.data)
+            ? response.data.data
+            : [];
+        setMenuItems(rawItems.map(mapBackendMenuItem));
       } catch {
         setMenuItems([]);
       }
@@ -37,7 +41,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     loadMenu();
   }, []);
 
-  const allCategories = useMemo(() => {
+  const categories = useMemo(() => {
     const cats = Array.from(new Set(menuItems.map((item) => item.category)));
     return ["all", ...cats];
   }, [menuItems]);
@@ -59,7 +63,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     }
 
     return items;
-  }, [selectedCategory, searchQuery]);
+  }, [menuItems, selectedCategory, searchQuery]);
 
   const getCartQty = (itemId: string) => {
     const found = cartItems.find((i) => i.id === itemId);
@@ -173,7 +177,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredItems.map((item, index) => (
                 <motion.div
-                  key={item._id}
+                  key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
@@ -181,7 +185,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                   <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50 h-full flex flex-col">
                     <div className="relative h-48 sm:h-56 overflow-hidden">
                       <img
-                        src={getImageUrl(item.image)}
+                        src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {

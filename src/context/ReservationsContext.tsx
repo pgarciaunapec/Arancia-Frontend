@@ -38,8 +38,13 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    const response = await apiRequest<ApiEnvelope<any[]>>('/reservations/my', { auth: true });
-    const mapped = (response.data || []).map((raw) => mapBackendReservation(raw, user?.id));
+    const response = await apiRequest<ApiEnvelope<any[] | { data?: any[] }>>('/reservations/my-reservations', { auth: true });
+    const rawReservations = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray(response.data?.data)
+        ? response.data.data
+        : [];
+    const mapped = rawReservations.map((raw) => mapBackendReservation(raw, user?.id));
     setReservations(mapped);
   }, [isAuthenticated, user?.id]);
 
@@ -69,7 +74,7 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const cancelReservation = useCallback(async (id: string) => {
     await apiRequest(`/reservations/${id}/cancel`, {
-      method: 'PUT',
+      method: 'POST',
       auth: true,
     });
 

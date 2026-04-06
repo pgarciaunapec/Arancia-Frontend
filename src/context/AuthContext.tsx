@@ -132,12 +132,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
     try {
-      const response = await apiRequest<ApiEnvelope<any>>('/users/profile', {
+      const response = await apiRequest<ApiEnvelope<any>>('/auth/profile', {
         method: 'PUT',
         auth: true,
         body: JSON.stringify({
           name: data.name,
-          email: data.email,
           phone: data.phone,
           address: data.address,
         }),
@@ -155,8 +154,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
     try {
-      await apiRequest('/users/password', {
-        method: 'PUT',
+      await apiRequest('/auth/change-password', {
+        method: 'POST',
         auth: true,
         body: JSON.stringify({ currentPassword, newPassword }),
       });

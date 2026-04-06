@@ -19,7 +19,10 @@ interface EventsPageProps {
 }
 
 const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
-  const requestQuote = async (eventType: string, packageName?: string) => {
+  const requestQuote = async (
+    eventType: "social" | "corporativo" | "privado" | "otro",
+    packageName?: string,
+  ) => {
     const name = window.prompt("Nombre completo para la cotización:");
     if (!name) return;
     const email = window.prompt("Correo electrónico:");
@@ -201,7 +204,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
           >
             <Button
               size="lg"
-              onClick={() => requestQuote("cotizacion-general")}
+              onClick={() => requestQuote("otro")}
               className="bg-white text-[#f5b400] hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
             >
               <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
@@ -362,7 +365,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                   </div>
 
                   <Button
-                    onClick={() => requestQuote("paquete", pkg.name)}
+                    onClick={() => requestQuote("social", pkg.name)}
                     className={`w-full ${
                       pkg.featured
                         ? "bg-white text-primary hover:bg-white/90"

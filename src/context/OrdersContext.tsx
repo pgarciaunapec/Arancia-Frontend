@@ -4,6 +4,7 @@ import { apiRequest } from '../lib/api';
 import type { ApiEnvelope } from '../lib/api';
 import { mapBackendOrder } from '../lib/mappers';
 import { useAuth } from './AuthContext';
+import { useCart } from './CartContext';
 
 interface OrdersContextValue {
   orders: Order[];
@@ -31,7 +32,14 @@ const OrdersContext = createContext<OrdersContextValue | null>(null);
 
 export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated, isAdmin } = useAuth();
+  const { items: cartItems } = useCart();
   const [orders, setOrders] = useState<Order[]>([]);
+
+  const extractList = (payload: any): any[] => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    return [];
+  };
 
   const refreshOrders = useCallback(async () => {
     if (!isAuthenticated) {
@@ -41,12 +49,14 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     if (isAdmin) {
       const response = await apiRequest<ApiEnvelope<any[]>>('/admin/orders?limit=200', { auth: true });
-      setOrders((response.data || []).map((raw) => mapBackendOrder(raw, String(raw.user?._id || raw.user))));
+      const adminOrders = extractList(response.data);
+      setOrders(adminOrders.map((raw) => mapBackendOrder(raw, String(raw.user?._id || raw.user))));
       return;
     }
 
-    const response = await apiRequest<ApiEnvelope<any[]>>('/orders', { auth: true });
-    setOrders((response.data || []).map((raw) => mapBackendOrder(raw, user?.id)));
+    const response = await apiRequest<ApiEnvelope<any[] | { data?: any[] }>>('/orders', { auth: true });
+    const userOrders = extractList(response.data);
+    setOrders(userOrders.map((raw) => mapBackendOrder(raw, user?.id)));
   }, [isAdmin, isAuthenticated, user?.id]);
 
   useEffect(() => {
@@ -54,12 +64,21 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [refreshOrders]);
 
   const createOrder = useCallback(async (data: CreateOrderData): Promise<Order> => {
+    if (cartItems.length === 0) {
+      throw new Error('El carrito está vacío');
+    }
+
     const [address = 'Sin dirección', city = 'Santo Domingo'] = (data.deliveryAddress || 'Sin dirección,Santo Domingo').split(',').map((part) => part.trim());
+    const payloadItems = cartItems.map((item) => ({
+      menuItem: item.backendId || item.id,
+      quantity: item.quantity,
+    }));
 
     const orderResponse = await apiRequest<ApiEnvelope<any>>('/orders', {
       method: 'POST',
       auth: true,
       body: JSON.stringify({
+        items: payloadItems,
         shippingAddress: {
           name: user?.name || 'Cliente',
           address,
@@ -87,10 +106,10 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     await refreshOrders();
     return mapped;
-  }, [refreshOrders, user?.name]);
+  }, [cartItems, refreshOrders, user?.name]);
 
   const getOrdersByUser = useCallback(
-    (userId: string) => orders.filter((order) => order.userId === userId || !order.userId),
+    (userId: string) => orders.filter((order) => order.userId === userId),
     [orders]
   );
 
