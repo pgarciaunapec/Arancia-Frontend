@@ -53,10 +53,20 @@ export async function apiRequest<T = unknown>(
 
   const response = await fetch(`${API_BASE_URL}${path}`, fetchOptions);
 
-  // Explicitly treat 304 as a non-fatal condition (resource not modified)
-  // and return an empty envelope so callers can handle missing data gracefully.
+  const cacheKey = `api_cache:${API_BASE_URL}${path}`;
+
+  // If server indicates resource not modified, try to return cached payload
   if (response.status === 304) {
-    return ({} as unknown) as T;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        return JSON.parse(cached) as T;
+      }
+    } catch (e) {
+      // ignore parse errors and fall-through to empty response
+    }
+
+    return {} as unknown as T;
   }
 
   const contentType = response.headers.get("content-type") || "";
@@ -68,11 +78,22 @@ export async function apiRequest<T = unknown>(
       payload?.error ||
       payload?.message ||
       (payload?.details?.errors &&
-        (payload.details.errors[0]?.message || payload.details.errors[0]?.msg)) ||
+        (payload.details.errors[0]?.message ||
+          payload.details.errors[0]?.msg)) ||
       (payload?.errors && payload.errors[0]?.msg) ||
       (payload?.errors && payload.errors[0]?.message) ||
       `HTTP ${response.status}`;
     throw new Error(message);
+  }
+
+  // Persist successful JSON GET responses to sessionStorage so we can
+  // recover data when the server later responds with 304 Not Modified.
+  try {
+    if (method === "GET" && isJson && payload) {
+      sessionStorage.setItem(cacheKey, JSON.stringify(payload));
+    }
+  } catch (e) {
+    // ignore storage errors
   }
 
   return payload as T;
