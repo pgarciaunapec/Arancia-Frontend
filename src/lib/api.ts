@@ -31,7 +31,8 @@ export async function apiRequest<T = unknown>(
     ...(headers || {}),
   };
 
-  if (!isFormDataBody && !("Content-Type" in requestHeaders)) {
+  // Only set Content-Type when there is a body and it's not FormData
+  if (!isFormDataBody && rest.body && !("Content-Type" in requestHeaders)) {
     requestHeaders["Content-Type"] = "application/json";
   }
 
@@ -39,10 +40,24 @@ export async function apiRequest<T = unknown>(
     requestHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  // Ensure GET requests bypass browser cache to avoid receiving 304 Not Modified
+  const method = (rest.method ? String(rest.method) : "GET").toUpperCase();
+  const fetchOptions: RequestInit = {
     ...rest,
     headers: requestHeaders,
-  });
+  };
+
+  if (method === "GET" && !(fetchOptions as any).cache) {
+    fetchOptions.cache = "no-store";
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, fetchOptions);
+
+  // Explicitly treat 304 as a non-fatal condition (resource not modified)
+  // and return an empty envelope so callers can handle missing data gracefully.
+  if (response.status === 304) {
+    return ({} as unknown) as T;
+  }
 
   const contentType = response.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
