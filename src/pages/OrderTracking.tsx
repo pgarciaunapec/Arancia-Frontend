@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import {
     ArrowLeft,
@@ -17,6 +17,10 @@ import type { OrderStatus } from "../types";
 import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
 import { mapBackendOrder } from "../lib/mappers";
+import {
+    clearCheckoutRedirectFlag,
+    useCheckoutState,
+} from "../store/checkoutStore";
 
 const COLORS = {
     primary: "#f59e0b",
@@ -69,7 +73,12 @@ const resolveStepIndex = (status: OrderStatus) => {
 const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { getOrderById } = useOrders();
+    const checkoutRedirectEnabled = useCheckoutState(
+        (state) => state.redirectToTracking,
+    );
+    const lastCheckoutOrderId = useCheckoutState((state) => state.lastOrderId);
     const [loading, setLoading] = useState(true);
     const [liveOrder, setLiveOrder] =
         useState<ReturnType<typeof mapBackendOrder> | null>(null);
@@ -129,7 +138,20 @@ const OrderTracking: React.FC = () => {
         load();
     }, [orderId]);
 
+    useEffect(() => {
+        if (
+            orderId &&
+            checkoutRedirectEnabled &&
+            lastCheckoutOrderId === orderId
+        ) {
+            clearCheckoutRedirectFlag();
+        }
+    }, [checkoutRedirectEnabled, lastCheckoutOrderId, orderId]);
+
     const order = useMemo(() => liveOrder || fallbackOrder, [liveOrder, fallbackOrder]);
+    const arrivedFromCheckout =
+        Boolean((location.state as { fromCheckout?: boolean } | null)?.fromCheckout) ||
+        (checkoutRedirectEnabled && lastCheckoutOrderId === orderId);
 
     if (loading) {
         return (
@@ -187,6 +209,11 @@ const OrderTracking: React.FC = () => {
                         >
                             <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                                 <div>
+                                    {arrivedFromCheckout && (
+                                        <span className="inline-flex mb-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] uppercase tracking-wider text-emerald-200">
+                                            Pedido confirmado y en seguimiento
+                                        </span>
+                                    )}
                                     <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Seguimiento de pedido</p>
                                     <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Orden #{order.id}</h1>
                                     {order.deliveryAddress && (

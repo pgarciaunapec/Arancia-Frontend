@@ -7,9 +7,9 @@ import {
   Minus,
   ShoppingBag,
   ArrowRight,
-  Loader2,
 } from "lucide-react";
-import { useCart, useAuth } from "../contexts";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 
@@ -89,7 +89,7 @@ const Cart: React.FC = () => {
               </Card>
             ) : (
               items.map((item) => (
-                <motion.div layout key={item.menuItem}>
+                <motion.div layout key={item.id}>
                   <Card
                     className="p-4 flex gap-4 items-center"
                     style={{

@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import type { DeliveryType } from "../types";
 import { checkoutSchema } from "../schemas/forms.schema";
 import { validateWithYup } from "../lib/forms/yupTanstack";
+import { registerSuccessfulCheckout } from "../store/checkoutStore";
 
 const COLORS = {
   primary: "#f5b400",
@@ -107,6 +108,7 @@ const Checkout: React.FC = () => {
           form.state.values.cardNumber.replace(/\s/g, "").slice(-4) || "0000";
       const order = await createOrder({
         userId: user?.id || "guest",
+        items,
         subtotal,
         tax,
         total,
@@ -122,14 +124,14 @@ const Checkout: React.FC = () => {
 
       clearCart();
       refreshCart().catch(() => undefined);
+      registerSuccessfulCheckout(order.id);
       setLoading(false);
-      navigate("/booking-confirmation", {
+      navigate(`/track/${order.id}`, {
         state: {
-          message: `Pedido Confirmado - ${order.id}`,
-          type: "order",
-          orderId: order.id,
+          fromCheckout: true,
           order,
         },
+        replace: true,
       });
     } catch {
       setLoading(false);
