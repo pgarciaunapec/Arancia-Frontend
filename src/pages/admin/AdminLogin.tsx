@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Lock, Mail, UtensilsCrossed, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { useForm } from '@tanstack/react-form';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { useAuth } from '../../context/AuthContext';
+import { validateWithYup } from '../../lib/forms/yupTanstack';
+import { loginSchema } from '../../schemas/forms.schema';
+import { TanstackFormInput } from '../../components/forms/TanstackFormInput';
 
 const COLORS = {
     primary: '#f5b400',
@@ -15,32 +19,45 @@ const COLORS = {
 
 const AdminLogin: React.FC = () => {
     const navigate = useNavigate();
-    const { login, isAdmin, user, logout } = useAuth();
-    const [form, setForm] = useState({ email: '', password: '' });
+    const { login, isAdmin, logout } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const form = useForm({
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+        validators: {
+            onChange: ({ value }) => validateWithYup(loginSchema, value),
+            onSubmit: ({ value }) => validateWithYup(loginSchema, value),
+        },
+        onSubmitInvalid: () => {
+            setError('Revisa los campos marcados antes de continuar.');
+        },
+        onSubmit: async ({ value }) => {
+            setLoading(true);
+            setError('');
+
+            const result = await login(value.email, value.password);
+            setLoading(false);
+            if (!result.success) {
+                setError(result.error || 'Error al iniciar sesión');
+                return;
+            }
+            if (result.user?.role !== 'admin' && result.user?.role !== 'staff') {
+                logout();
+                setError('No tienes permisos de administrador');
+                return;
+            }
+            navigate('/admin');
+        },
+    });
+
     if (isAdmin) {
         return <Navigate to="/admin" replace />;
     }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        const result = await login(form.email, form.password);
-        setLoading(false);
-        if (!result.success) {
-            setError(result.error || 'Error al iniciar sesión');
-            return;
-        }
-        if (result.user?.role !== 'admin' && result.user?.role !== 'staff') {
-            logout();
-            setError('No tienes permisos de administrador');
-            return;
-        }
-        navigate('/admin');
-    };
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#1a0f06' }}>
@@ -55,30 +72,39 @@ const AdminLogin: React.FC = () => {
                 </div>
 
                 <Card className="p-8" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Correo</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                                    placeholder="admin@restaurante.com" autoComplete="username"
-                                    className="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }} />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Contraseña</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                                    placeholder="••••••••" autoComplete="current-password"
-                                    className="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }} />
-                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-white/40 hover:text-white/70">
+                    <form onSubmit={(event) => {
+                        event.preventDefault();
+                        void form.handleSubmit();
+                    }} className="space-y-5">
+                        <TanstackFormInput
+                            form={form}
+                            name="email"
+                            label="Correo"
+                            type="email"
+                            placeholder="admin@restaurante.com"
+                            autoComplete="username"
+                            leftIcon={<Mail size={18} />}
+                            labelClassName="text-sm font-medium text-white/80"
+                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                        />
+                        <TanstackFormInput
+                            form={form}
+                            name="password"
+                            label="Contraseña"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="••••••••"
+                            autoComplete="current-password"
+                            leftIcon={<Lock size={18} />}
+                            rightSlot={
+                                <button type="button" onClick={() => setShowPassword((previous) => !previous)} className="text-white/40 hover:text-white/70">
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
-                            </div>
-                        </div>
+                            }
+                            labelClassName="text-sm font-medium text-white/80"
+                            inputClassName="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                        />
 
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">{error}</div>

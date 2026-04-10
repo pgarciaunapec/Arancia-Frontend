@@ -52,7 +52,10 @@ export async function apiRequest<T = unknown>(
     const message =
       payload?.error ||
       payload?.message ||
+      (payload?.details?.errors &&
+        (payload.details.errors[0]?.message || payload.details.errors[0]?.msg)) ||
       (payload?.errors && payload.errors[0]?.msg) ||
+      (payload?.errors && payload.errors[0]?.message) ||
       `HTTP ${response.status}`;
     throw new Error(message);
   }

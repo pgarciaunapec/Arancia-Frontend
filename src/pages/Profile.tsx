@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
+import { useForm } from "@tanstack/react-form";
 import {
   User,
   Mail,
@@ -18,6 +19,8 @@ import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../context/OrdersContext";
 import { useReservations } from "../context/ReservationsContext";
 import { useNavigate, Link } from "react-router-dom";
+import { validateWithYup } from "../lib/forms/yupTanstack";
+import { passwordUpdateSchema, profileSchema } from "../schemas/forms.schema";
 
 const COLORS = {
   primary: "#f5b400",
@@ -36,70 +39,70 @@ const Profile: React.FC = () => {
   const userOrders = user ? getOrdersByUser(user.id) : [];
   const userReservations = user ? getReservationsByUser(user.id) : [];
 
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
-  });
-
-  const [passwords, setPasswords] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  });
   const [saved, setSaved] = useState(false);
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const profileForm = useForm({
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      address: user?.address || "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(profileSchema, value),
+      onSubmit: ({ value }) => validateWithYup(profileSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setProfileError("Revisa los datos del perfil antes de guardar.");
+    },
+    onSubmit: async ({ value }) => {
+      setProfileError("");
+      const result = await updateProfile(value);
+      if (!result.success) {
+        setProfileError(result.error || "No se pudo actualizar el perfil.");
+        return;
+      }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setProfileError("");
-    const result = await updateProfile(formData);
-    if (!result.success) {
-      setProfileError(result.error || "No se pudo actualizar el perfil.");
-      return;
-    }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  const passwordForm = useForm({
+    defaultValues: {
+      current: "",
+      new: "",
+      confirm: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(passwordUpdateSchema, value),
+      onSubmit: ({ value }) => validateWithYup(passwordUpdateSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setPasswordError("Completa correctamente los campos de contraseña.");
+    },
+    onSubmit: async ({ value }) => {
+      setPasswordError("");
+      const result = await changePassword(value.current, value.new);
+      if (!result.success) {
+        setPasswordError(result.error || "No se pudo cambiar la contraseña.");
+        return;
+      }
+
+      passwordForm.reset();
+      window.alert("Contraseña actualizada correctamente.");
+    },
+  });
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  const handlePasswordUpdate = async () => {
-    setPasswordError("");
-
-    if (!passwords.current || !passwords.new || !passwords.confirm) {
-      setPasswordError("Completa todos los campos de contraseña.");
-      return;
-    }
-
-    if (passwords.new.length < 6) {
-      setPasswordError("La nueva contraseña debe tener al menos 6 caracteres.");
-      return;
-    }
-
-    if (passwords.new !== passwords.confirm) {
-      setPasswordError("La confirmación no coincide con la nueva contraseña.");
-      return;
-    }
-
-    const result = await changePassword(passwords.current, passwords.new);
-    if (!result.success) {
-      setPasswordError(result.error || "No se pudo cambiar la contraseña.");
-      return;
-    }
-
-    setPasswords({ current: "", new: "", confirm: "" });
-    setPasswordError("");
-    window.alert("Contraseña actualizada correctamente.");
+  const handlePasswordUpdate = () => {
+    void passwordForm.handleSubmit();
   };
 
   const initials = user?.name
@@ -207,7 +210,13 @@ const Profile: React.FC = () => {
           </div>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void profileForm.handleSubmit();
+          }}
+          className="space-y-6"
+        >
           <Card
             className="p-8 space-y-6"
             style={{
@@ -230,8 +239,10 @@ const Profile: React.FC = () => {
                   />
                   <input
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    value={String(profileForm.state.values.name)}
+                    onChange={(event) =>
+                      profileForm.setFieldValue("name", event.target.value)
+                    }
                     className="w-full bg-black/20 pl-10 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -248,8 +259,10 @@ const Profile: React.FC = () => {
                   />
                   <input
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={String(profileForm.state.values.email)}
+                    onChange={(event) =>
+                      profileForm.setFieldValue("email", event.target.value)
+                    }
                     type="email"
                     className="w-full bg-black/20 pl-10 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
@@ -267,8 +280,10 @@ const Profile: React.FC = () => {
                   />
                   <input
                     name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
+                    value={String(profileForm.state.values.phone)}
+                    onChange={(event) =>
+                      profileForm.setFieldValue("phone", event.target.value)
+                    }
                     className="w-full bg-black/20 pl-10 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -285,8 +300,10 @@ const Profile: React.FC = () => {
                   />
                   <input
                     name="address"
-                    value={formData.address}
-                    onChange={handleChange}
+                    value={String(profileForm.state.values.address)}
+                    onChange={(event) =>
+                      profileForm.setFieldValue("address", event.target.value)
+                    }
                     className="w-full bg-black/20 pl-10 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -327,9 +344,9 @@ const Profile: React.FC = () => {
               <input
                 type="password"
                 placeholder="Contraseña Actual"
-                value={passwords.current}
-                onChange={(e) =>
-                  setPasswords({ ...passwords, current: e.target.value })
+                value={String(passwordForm.state.values.current)}
+                onChange={(event) =>
+                  passwordForm.setFieldValue("current", event.target.value)
                 }
                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                 style={{ borderColor: COLORS.border }}
@@ -337,9 +354,9 @@ const Profile: React.FC = () => {
               <input
                 type="password"
                 placeholder="Nueva Contraseña"
-                value={passwords.new}
-                onChange={(e) =>
-                  setPasswords({ ...passwords, new: e.target.value })
+                value={String(passwordForm.state.values.new)}
+                onChange={(event) =>
+                  passwordForm.setFieldValue("new", event.target.value)
                 }
                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                 style={{ borderColor: COLORS.border }}
@@ -347,9 +364,9 @@ const Profile: React.FC = () => {
               <input
                 type="password"
                 placeholder="Confirmar Nueva Contraseña"
-                value={passwords.confirm}
-                onChange={(e) =>
-                  setPasswords({ ...passwords, confirm: e.target.value })
+                value={String(passwordForm.state.values.confirm)}
+                onChange={(event) =>
+                  passwordForm.setFieldValue("confirm", event.target.value)
                 }
                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none md:col-span-2"
                 style={{ borderColor: COLORS.border }}

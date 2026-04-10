@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { useForm } from "@tanstack/react-form";
 import {
   Calendar,
   Clock,
@@ -15,6 +16,8 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useAuth } from "../context/AuthContext";
 import { useReservations } from "../context/ReservationsContext";
+import { validateWithYup } from "../lib/forms/yupTanstack";
+import { reservationSchema } from "../schemas/forms.schema";
 
 const COLORS = {
   primary: "#f5b400",
@@ -29,17 +32,69 @@ const Reservations: React.FC = () => {
   const { user } = useAuth();
   const { createReservation } = useReservations();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    date: "",
-    time: "",
-    guests: "2",
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    notes: "",
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
+
+  const form = useForm({
+    defaultValues: {
+      date: "",
+      time: "",
+      guests: "2",
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      notes: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(reservationSchema, value),
+      onSubmit: ({ value }) => validateWithYup(reservationSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setSubmissionError("Revisa los campos resaltados antes de continuar.");
+      setShowErrors(true);
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        setIsSubmitting(true);
+        setSubmissionError("");
+
+        const reservation = await createReservation({
+          userId: user?.id || "guest",
+          name: value.name,
+          email: value.email,
+          phone: value.phone,
+          date: value.date,
+          time: value.time,
+          guests: Number(value.guests),
+          notes: value.notes,
+        });
+
+        navigate("/booking-confirmation", {
+          state: {
+            booking: {
+              ...value,
+              reservationId: reservation.id,
+            },
+          },
+        });
+      } catch (error) {
+        setSubmissionError(
+          error instanceof Error
+            ? error.message
+            : "No se pudo confirmar la reserva.",
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const validationErrors =
+    (validateWithYup(reservationSchema, form.state.values)?.fields as Record<
+      string,
+      string
+    >) || {};
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -47,27 +102,28 @@ const Reservations: React.FC = () => {
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    form.setFieldValue(name as never, value as never);
+    if (submissionError) {
+      setSubmissionError("");
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const reservation = await createReservation({
-      userId: user?.id || "guest",
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      date: formData.date,
-      time: formData.time,
-      guests: parseInt(formData.guests),
-      notes: formData.notes,
-    });
-    navigate("/booking-confirmation", {
-      state: { booking: { ...formData, reservationId: reservation.id } },
-    });
+  const nextStep = () => {
+    setShowErrors(true);
+
+    const stepFields =
+      step === 1 ? ["date", "time", "guests"] : ["name", "phone", "email", "notes"];
+
+    const hasErrors = stepFields.some((field) => Boolean(validationErrors[field]));
+    if (hasErrors) {
+      setSubmissionError("Completa correctamente los campos requeridos antes de continuar.");
+      return;
+    }
+
+    setSubmissionError("");
+    setStep((prev) => prev + 1);
   };
 
-  const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
   return (
@@ -134,7 +190,13 @@ const Reservations: React.FC = () => {
             />
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              setShowErrors(true);
+              void form.handleSubmit();
+            }}
+          >
             {/* Step 1: Reservation Details */}
             {step === 1 && (
               <motion.div
@@ -160,7 +222,7 @@ const Reservations: React.FC = () => {
                         type="date"
                         name="date"
                         required
-                        value={formData.date}
+                        value={String(form.state.values.date)}
                         onChange={handleInputChange}
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all"
                         style={{
@@ -170,6 +232,9 @@ const Reservations: React.FC = () => {
                         }}
                       />
                     </div>
+                    {showErrors && validationErrors.date && (
+                      <p className="text-xs text-red-400">{validationErrors.date}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -187,7 +252,7 @@ const Reservations: React.FC = () => {
                       <select
                         name="time"
                         required
-                        value={formData.time}
+                        value={String(form.state.values.time)}
                         onChange={handleInputChange}
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all appearance-none"
                         style={{
@@ -207,6 +272,9 @@ const Reservations: React.FC = () => {
                         <option value="21:00">09:00 PM</option>
                       </select>
                     </div>
+                    {showErrors && validationErrors.time && (
+                      <p className="text-xs text-red-400">{validationErrors.time}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
@@ -224,7 +292,7 @@ const Reservations: React.FC = () => {
                       <select
                         name="guests"
                         required
-                        value={formData.guests}
+                        value={String(form.state.values.guests)}
                         onChange={handleInputChange}
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all appearance-none"
                         style={{
@@ -233,13 +301,16 @@ const Reservations: React.FC = () => {
                           outlineColor: COLORS.primary,
                         }}
                       >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, "8+"].map((num) => (
+                        {Array.from({ length: 20 }, (_, index) => index + 1).map((num) => (
                           <option key={num} value={num}>
                             {num} {num === 1 ? "Persona" : "Personas"}
                           </option>
                         ))}
                       </select>
                     </div>
+                    {showErrors && validationErrors.guests && (
+                      <p className="text-xs text-red-400">{validationErrors.guests}</p>
+                    )}
                   </div>
                 </div>
 
@@ -276,7 +347,7 @@ const Reservations: React.FC = () => {
                         type="text"
                         name="name"
                         required
-                        value={formData.name}
+                        value={String(form.state.values.name)}
                         onChange={handleInputChange}
                         placeholder="Ej. Juan Pérez"
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all"
@@ -286,6 +357,9 @@ const Reservations: React.FC = () => {
                         }}
                       />
                     </div>
+                    {showErrors && validationErrors.name && (
+                      <p className="text-xs text-red-400">{validationErrors.name}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -304,7 +378,7 @@ const Reservations: React.FC = () => {
                         type="tel"
                         name="phone"
                         required
-                        value={formData.phone}
+                        value={String(form.state.values.phone)}
                         onChange={handleInputChange}
                         placeholder="Ej. (809) 555-0123"
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all"
@@ -314,6 +388,9 @@ const Reservations: React.FC = () => {
                         }}
                       />
                     </div>
+                    {showErrors && validationErrors.phone && (
+                      <p className="text-xs text-red-400">{validationErrors.phone}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
@@ -332,7 +409,7 @@ const Reservations: React.FC = () => {
                         type="email"
                         name="email"
                         required
-                        value={formData.email}
+                        value={String(form.state.values.email)}
                         onChange={handleInputChange}
                         placeholder="Ej. juan@ejemplo.com"
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all"
@@ -342,6 +419,9 @@ const Reservations: React.FC = () => {
                         }}
                       />
                     </div>
+                    {showErrors && validationErrors.email && (
+                      <p className="text-xs text-red-400">{validationErrors.email}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
@@ -358,7 +438,7 @@ const Reservations: React.FC = () => {
                       />
                       <textarea
                         name="notes"
-                        value={formData.notes}
+                        value={String(form.state.values.notes)}
                         onChange={handleInputChange}
                         placeholder="Ej. Alergias, ocasión especial, preferencia de mesa..."
                         rows={3}
@@ -369,6 +449,9 @@ const Reservations: React.FC = () => {
                         }}
                       />
                     </div>
+                    {showErrors && validationErrors.notes && (
+                      <p className="text-xs text-red-400">{validationErrors.notes}</p>
+                    )}
                   </div>
                 </div>
 
@@ -408,40 +491,40 @@ const Reservations: React.FC = () => {
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Fecha:</span>
                       <span className="font-medium text-white">
-                        {formData.date}
+                        {String(form.state.values.date)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Hora:</span>
                       <span className="font-medium text-white">
-                        {formData.time}
+                        {String(form.state.values.time)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Personas:</span>
                       <span className="font-medium text-white">
-                        {formData.guests}
+                        {String(form.state.values.guests)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Nombre:</span>
                       <span className="font-medium text-white">
-                        {formData.name}
+                        {String(form.state.values.name)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Email:</span>
                       <span className="font-medium text-white">
-                        {formData.email}
+                        {String(form.state.values.email)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/10 pb-2">
                       <span style={{ color: COLORS.muted }}>Teléfono:</span>
                       <span className="font-medium text-white">
-                        {formData.phone}
+                        {String(form.state.values.phone)}
                       </span>
                     </div>
-                    {formData.notes && (
+                    {String(form.state.values.notes) && (
                       <div className="md:col-span-2 pt-2">
                         <span
                           className="block mb-1"
@@ -450,12 +533,16 @@ const Reservations: React.FC = () => {
                           Notas:
                         </span>
                         <p className="text-white italic bg-white/5 p-3 rounded-lg text-sm">
-                          {formData.notes}
+                          {String(form.state.values.notes)}
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
+
+                {submissionError && (
+                  <p className="text-sm text-red-400">{submissionError}</p>
+                )}
 
                 <div className="flex justify-between pt-6">
                   <Button
