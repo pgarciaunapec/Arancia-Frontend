@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../lib/api";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { contactSchema } from "../schemas/forms.schema";
@@ -16,8 +17,10 @@ interface ContactProps {
 }
 
 const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
+  const { user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const didPrefillRef = useRef(false);
 
   const form = useForm({
     defaultValues: {
@@ -49,6 +52,12 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
           "Gracias por contactarnos. Te responderemos pronto.",
         );
         form.reset();
+
+        if (isAuthenticated && user) {
+          form.setFieldValue("name", user.name || "");
+          form.setFieldValue("email", user.email || "");
+          form.setFieldValue("phone", user.phone || "");
+        }
       } catch (submissionError) {
         setError(
           submissionError instanceof Error
@@ -60,6 +69,22 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
       }
     },
   });
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      didPrefillRef.current = false;
+      return;
+    }
+
+    if (didPrefillRef.current) {
+      return;
+    }
+
+    form.setFieldValue("name", user.name || "");
+    form.setFieldValue("email", user.email || "");
+    form.setFieldValue("phone", user.phone || "");
+    didPrefillRef.current = true;
+  }, [form, isAuthenticated, user]);
 
   const contactInfo = [
     {
