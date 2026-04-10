@@ -23,6 +23,20 @@
 - [x] Tests exitosos
 
 ## Cierre de tarea
-- [ ] Commit Task 1
+- [x] Commit Task 1
+- [x] Merge a `dev`
+- [x] Borrado de rama local/remota Task 1
+
+## Task 2 (Tracking + About + Events)
+- [x] Rediseño de seguimiento con mapa de fondo
+- [x] Stepper dinámico con estados de envío reales
+- [x] Alineación profesional de sección Nosotros
+- [x] Contraste de botones de Eventos
+- [x] Formularios de solicitud migrados a modal moderno
+- [x] Build exitoso
+- [x] Tests exitosos
+
+## Cierre de tarea
+- [ ] Commit Task 2
 - [ ] Merge a `dev`
-- [ ] Borrado de rama local/remota Task 1
+- [ ] Borrado de rama local/remota Task 2

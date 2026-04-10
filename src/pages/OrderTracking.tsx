@@ -1,51 +1,87 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { CheckCircle, Clock, ChefHat, Package, Truck, Home, ArrowLeft, MapPin } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card } from '../components/ui/card';
-import { useOrders } from '../context/OrdersContext';
-import type { OrderStatus } from '../types';
-import { apiRequest } from '../lib/api';
-import type { ApiEnvelope } from '../lib/api';
-import { mapBackendOrder } from '../lib/mappers';
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
+import {
+    ArrowLeft,
+    CheckCircle2,
+    ChefHat,
+    Clock,
+    House,
+    MapPin,
+    Truck,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { useOrders } from "../context/OrdersContext";
+import type { OrderStatus } from "../types";
+import { apiRequest } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
+import { mapBackendOrder } from "../lib/mappers";
 
 const COLORS = {
-    primary: '#f5b400',
-    secondary: '#2d1f0f',
-    white: '#ffffff',
-    muted: 'rgba(255,255,255,0.6)',
-    border: 'rgba(245, 180, 0, 0.3)'
+    primary: "#f59e0b",
+    panel: "#111827",
+    border: "rgba(148, 163, 184, 0.35)",
+    muted: "rgba(226, 232, 240, 0.75)",
 };
 
-const deliveryTrackingSteps: { status: OrderStatus; label: string; sublabel: string; icon: React.ReactNode }[] = [
-    { status: 'confirmed',  label: 'Pedido Confirmado',   sublabel: 'Tu pedido fue recibido',       icon: <CheckCircle size={22} /> },
-    { status: 'preparing',  label: 'Preparando',          sublabel: 'Nuestro chef está cocinando',   icon: <ChefHat size={22} /> },
-    { status: 'ready',      label: 'Listo',               sublabel: 'Tu pedido está listo',          icon: <Package size={22} /> },
-    { status: 'delivering', label: 'En Camino',           sublabel: 'El repartidor está en ruta',    icon: <Truck size={22} /> },
-    { status: 'delivered',  label: 'Entregado',           sublabel: '¡Buen provecho!',               icon: <Home size={22} /> },
+const timelineSteps = [
+    {
+        key: "received",
+        statuses: ["pending", "confirmed"],
+        label: "Recibido",
+        description: "Tu pedido fue registrado correctamente.",
+        icon: <CheckCircle2 size={18} />,
+    },
+    {
+        key: "kitchen",
+        statuses: ["preparing", "ready"],
+        label: "Cocina",
+        description: "Estamos preparando tu pedido en este momento.",
+        icon: <ChefHat size={18} />,
+    },
+    {
+        key: "on_the_way",
+        statuses: ["delivering"],
+        label: "Camino",
+        description: "Tu pedido salio y va en ruta.",
+        icon: <Truck size={18} />,
+    },
+    {
+        key: "delivered",
+        statuses: ["delivered"],
+        label: "Entregado",
+        description: "Pedido completado. Gracias por ordenar con Arancia.",
+        icon: <House size={18} />,
+    },
 ];
 
-const pickupTrackingSteps: { status: OrderStatus; label: string; sublabel: string; icon: React.ReactNode }[] = [
-    { status: 'confirmed',  label: 'Pedido Confirmado',   sublabel: 'Tu pedido fue recibido',       icon: <CheckCircle size={22} /> },
-    { status: 'preparing',  label: 'Preparando',          sublabel: 'Nuestro chef está cocinando',   icon: <ChefHat size={22} /> },
-    { status: 'ready',      label: 'Listo para retirar',  sublabel: 'Puedes retirarlo en el local',  icon: <Package size={22} /> },
-    { status: 'delivered',  label: 'Completado',          sublabel: 'Orden finalizada',              icon: <Home size={22} /> },
-];
+const resolveStepIndex = (status: OrderStatus) => {
+    if (status === "cancelled") {
+        return -1;
+    }
+
+    return timelineSteps.findIndex((step) =>
+        step.statuses.includes(status as (typeof step.statuses)[number]),
+    );
+};
 
 const OrderTracking: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
     const { getOrderById } = useOrders();
     const [loading, setLoading] = useState(true);
-    const [liveOrder, setLiveOrder] = useState<ReturnType<typeof mapBackendOrder> | null>(null);
-    const [liveEstimatedMinutes, setLiveEstimatedMinutes] = useState<number | null>(null);
+    const [liveOrder, setLiveOrder] =
+        useState<ReturnType<typeof mapBackendOrder> | null>(null);
+    const [liveEstimatedMinutes, setLiveEstimatedMinutes] = useState<number | null>(
+        null,
+    );
     const fallbackOrder = orderId ? getOrderById(orderId) : undefined;
 
     const mapDeliveryStatusToOrderStatus = (status?: string): OrderStatus | null => {
-        if (status === 'in_transit') return 'delivering';
-        if (status === 'delivered') return 'delivered';
-        if (status === 'pending' || status === 'assigned') return 'confirmed';
+        if (status === "in_transit") return "delivering";
+        if (status === "delivered") return "delivered";
+        if (status === "pending" || status === "assigned") return "confirmed";
         return null;
     };
 
@@ -62,11 +98,14 @@ const OrderTracking: React.FC = () => {
                     apiRequest<ApiEnvelope<any>>(`/delivery/${orderId}`, { auth: true }),
                 ]);
 
-                if (orderResponse.status === 'fulfilled' && orderResponse.value?.data) {
+                if (orderResponse.status === "fulfilled" && orderResponse.value?.data) {
                     setLiveOrder(mapBackendOrder(orderResponse.value.data));
                 }
 
-                if (deliveryResponse.status === 'fulfilled' && deliveryResponse.value?.data) {
+                if (
+                    deliveryResponse.status === "fulfilled" &&
+                    deliveryResponse.value?.data
+                ) {
                     const delivery = deliveryResponse.value.data;
                     setLiveEstimatedMinutes(Number(delivery.estimatedMinutes || 0));
 
@@ -76,7 +115,9 @@ const OrderTracking: React.FC = () => {
                         return {
                             ...current,
                             status: mappedStatus || current.status,
-                            estimatedMinutes: Number(delivery.estimatedMinutes || current.estimatedMinutes || 0),
+                            estimatedMinutes: Number(
+                                delivery.estimatedMinutes || current.estimatedMinutes || 0,
+                            ),
                         };
                     });
                 }
@@ -105,100 +146,141 @@ const OrderTracking: React.FC = () => {
             <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-white mb-4">Pedido no encontrado</h2>
-                    <Button onClick={() => navigate('/my-orders')}>Mis Pedidos</Button>
+                    <Button onClick={() => navigate("/my-orders")}>Mis Pedidos</Button>
                 </div>
             </div>
         );
     }
 
-    const trackingSteps = order.deliveryType === 'delivery' ? deliveryTrackingSteps : pickupTrackingSteps;
-    const statusOrder: OrderStatus[] = trackingSteps.map((item) => item.status);
-    const normalizedStatus = order.status === 'delivering' && order.deliveryType !== 'delivery' ? 'delivered' : order.status;
-    const currentIndex = statusOrder.indexOf(normalizedStatus as OrderStatus);
+    const currentStepIndex = resolveStepIndex(order.status);
     const estimatedRemaining = liveEstimatedMinutes ?? order.estimatedMinutes ?? null;
+    const isCancelled = order.status === "cancelled";
 
     return (
-        <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
-            <div className="max-w-2xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <button onClick={() => navigate('/my-orders')} className="flex items-center gap-2 mb-6 text-sm hover:underline" style={{ color: COLORS.muted }}>
-                        <ArrowLeft size={16} /> Mis Pedidos
+        <div className="relative w-full min-h-screen overflow-hidden pt-20 sm:pt-24 pb-16">
+            <div className="absolute inset-0">
+                <img
+                    src="https://images.unsplash.com/photo-1577086664693-894d8405334a?auto=format&fit=crop&w=1800&q=80"
+                    alt="Mapa de seguimiento"
+                    className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-slate-950/70" />
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-950/40 to-slate-950/85" />
+            </div>
+
+            <div className="relative z-10 px-4">
+                <div className="max-w-3xl mx-auto">
+                    <button
+                        onClick={() => navigate("/my-orders")}
+                        className="mb-4 inline-flex items-center gap-2 text-sm text-slate-200 hover:text-white"
+                    >
+                        <ArrowLeft size={16} /> Volver a mis pedidos
                     </button>
 
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-white mb-2">Rastrear Pedido</h1>
-                        <p className="text-sm font-mono" style={{ color: COLORS.primary }}>#{order.id}</p>
-                        {order.deliveryAddress && (
-                            <p className="flex items-center justify-center gap-1 mt-2 text-sm" style={{ color: COLORS.muted }}>
-                                <MapPin size={14} /> {order.deliveryAddress}
-                            </p>
-                        )}
-                    </div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card
+                            className="backdrop-blur-md border p-6 sm:p-8"
+                            style={{
+                                backgroundColor: "rgba(15, 23, 42, 0.82)",
+                                borderColor: COLORS.border,
+                            }}
+                        >
+                            <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Seguimiento de pedido</p>
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Orden #{order.id}</h1>
+                                    {order.deliveryAddress && (
+                                        <p className="mt-2 text-sm text-slate-300 inline-flex items-center gap-1.5">
+                                            <MapPin size={14} /> {order.deliveryAddress}
+                                        </p>
+                                    )}
+                                </div>
 
-                    {/* ETA Card */}
-                    {order.status !== 'delivered' && order.status !== 'cancelled' && estimatedRemaining !== null && (
-                        <Card className="p-6 text-center mb-8" style={{ backgroundColor: 'rgba(245,180,0,0.1)', border: `1px solid ${COLORS.primary}` }}>
-                            <Clock className="mx-auto mb-2" style={{ color: COLORS.primary }} />
-                            <p className="text-4xl font-bold text-white mb-1">{estimatedRemaining} min</p>
-                            <p className="text-sm" style={{ color: COLORS.muted }}>Tiempo estimado de entrega</p>
-                        </Card>
-                    )}
+                                <div className="rounded-2xl px-4 py-3 border border-amber-300/30 bg-amber-400/10 min-w-[170px]">
+                                    <p className="text-xs text-amber-100/80 uppercase tracking-wider">Tiempo estimado</p>
+                                    <p className="text-2xl font-bold text-amber-300 mt-1">
+                                        {estimatedRemaining !== null ? `${estimatedRemaining} min` : "N/A"}
+                                    </p>
+                                </div>
+                            </div>
 
-                    {order.status === 'delivered' && (
-                        <Card className="p-6 text-center mb-8" style={{ backgroundColor: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.4)' }}>
-                            <CheckCircle className="mx-auto mb-2 text-green-400" size={32} />
-                            <p className="text-2xl font-bold text-white mb-1">¡Pedido Entregado!</p>
-                            <p className="text-sm text-green-400">Esperamos que disfrutes tu comida 🎉</p>
-                        </Card>
-                    )}
+                            {isCancelled && (
+                                <div className="mb-5 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                                    Esta orden fue cancelada. Si necesitas ayuda, contacta al restaurante.
+                                </div>
+                            )}
 
-                    {/* Steps */}
-                    <Card className="p-6" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                        <div className="space-y-0">
-                            {trackingSteps.map((step, idx) => {
-                                const isCompleted = currentIndex >= idx;
-                                const isActive = currentIndex === idx;
-                                return (
-                                    <div key={step.status} className="flex gap-4">
-                                        {/* Line */}
-                                        <div className="flex flex-col items-center">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isCompleted ? '' : 'opacity-30'}`}
-                                                style={{ backgroundColor: isCompleted ? COLORS.primary : 'rgba(255,255,255,0.1)', color: isCompleted ? COLORS.secondary : COLORS.muted }}>
-                                                {step.icon}
-                                            </div>
-                                            {idx < trackingSteps.length - 1 && (
-                                                <div className={`w-0.5 flex-1 my-1 transition-all duration-500 ${idx < currentIndex ? '' : 'opacity-20'}`}
-                                                    style={{ backgroundColor: idx < currentIndex ? COLORS.primary : 'rgba(255,255,255,0.2)', minHeight: '32px' }} />
-                                            )}
-                                        </div>
-                                        {/* Content */}
-                                        <div className={`pb-6 transition-all duration-300 ${isCompleted ? '' : 'opacity-30'}`}>
-                                            <p className={`font-bold text-sm ${isActive ? 'text-white' : isCompleted ? 'text-white/70' : 'text-white/30'}`}>
-                                                {step.label}
-                                                {isActive && (
-                                                    <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full animate-pulse"
-                                                        style={{ backgroundColor: 'rgba(245,180,0,0.2)', color: COLORS.primary }}>
-                                                        Ahora
-                                                    </span>
+                            <div className="space-y-5">
+                                {timelineSteps.map((step, index) => {
+                                    const isActive = currentStepIndex === index;
+                                    const isDone = currentStepIndex > index || (!isCancelled && currentStepIndex === timelineSteps.length - 1 && index <= currentStepIndex);
+                                    const isPending = currentStepIndex < index || isCancelled;
+
+                                    return (
+                                        <div key={step.key} className="flex gap-4">
+                                            <div className="flex flex-col items-center">
+                                                <div
+                                                    className="h-10 w-10 rounded-full flex items-center justify-center transition-colors"
+                                                    style={{
+                                                        backgroundColor: isDone || isActive ? COLORS.primary : "rgba(148, 163, 184, 0.25)",
+                                                        color: isDone || isActive ? "#111827" : "#cbd5e1",
+                                                    }}
+                                                >
+                                                    {step.icon}
+                                                </div>
+                                                {index < timelineSteps.length - 1 && (
+                                                    <div
+                                                        className="w-[2px] flex-1 mt-2"
+                                                        style={{
+                                                            minHeight: "26px",
+                                                            backgroundColor: isDone ? COLORS.primary : "rgba(148, 163, 184, 0.3)",
+                                                        }}
+                                                    />
                                                 )}
-                                            </p>
-                                            <p className="text-xs mt-0.5" style={{ color: COLORS.muted }}>{step.sublabel}</p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Card>
+                                            </div>
 
-                    <div className="mt-6 grid grid-cols-2 gap-4">
-                        <Button variant="outline" onClick={() => navigate('/my-orders')} className="border-white/20 text-white/60">
-                            Mis Pedidos
-                        </Button>
-                        <Button asChild>
-                            <a href="tel:+18095550001">Llamar al Restaurante</a>
-                        </Button>
-                    </div>
-                </motion.div>
+                                            <div className="pb-4 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <p
+                                                        className="font-semibold"
+                                                        style={{
+                                                            color: isPending ? COLORS.muted : "#f8fafc",
+                                                        }}
+                                                    >
+                                                        {step.label}
+                                                    </p>
+                                                    {isActive && !isCancelled && (
+                                                        <span className="text-[10px] uppercase tracking-wider rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-300 animate-pulse">
+                                                            En curso
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm mt-1 text-slate-300">
+                                                    {step.key === "on_the_way" && order.deliveryType !== "delivery"
+                                                        ? "Pedido casi listo para retiro en tienda."
+                                                        : step.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/my-orders")}
+                                    className="border-slate-400/50 text-slate-100 hover:bg-slate-700/40"
+                                >
+                                    Ver todos mis pedidos
+                                </Button>
+                                <Button asChild>
+                                    <a href="tel:+18095550001">Contactar restaurante</a>
+                                </Button>
+                            </div>
+                        </Card>
+                    </motion.div>
+                </div>
             </div>
         </div>
     );

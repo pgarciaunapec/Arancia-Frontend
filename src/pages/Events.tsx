@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   PartyPopper,
@@ -9,51 +9,96 @@ import {
   ArrowRight,
   Phone,
 } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { apiRequest } from "../lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { TanstackFormInput } from "../components/forms/TanstackFormInput";
+import { TanstackFormSelect } from "../components/forms/TanstackFormSelect";
+import { TanstackFormTextarea } from "../components/forms/TanstackFormTextarea";
+import { validateWithYup } from "../lib/forms/yupTanstack";
+import { eventQuoteSchema } from "../schemas/forms.schema";
 
 interface EventsPageProps {
   onShowModal: (title: string, message: string) => void;
 }
 
-const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
-  const requestQuote = async (eventType: string, packageName?: string) => {
-    const name = window.prompt("Nombre completo para la cotización:");
-    if (!name) return;
-    const email = window.prompt("Correo electrónico:");
-    if (!email) return;
-    const phone = window.prompt("Teléfono de contacto:");
-    if (!phone) return;
-    const guestsRaw =
-      window.prompt("Cantidad estimada de invitados:", "30") || "30";
-    const guests = Number.parseInt(guestsRaw, 10);
+type EventType = "social" | "corporativo" | "privado" | "otro";
 
-    try {
-      await apiRequest("/contact/event-quote", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          eventType,
-          packageName,
-          guests: Number.isFinite(guests) && guests > 0 ? guests : 30,
-        }),
-      });
-      onShowModal(
-        "¡Solicitud Recibida!",
-        "Tu solicitud fue enviada correctamente. Te contactaremos pronto.",
-      );
-    } catch (error) {
-      onShowModal(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "No se pudo enviar la solicitud.",
-      );
-    }
+const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
+  const [quoteLoading, setQuoteLoading] = useState(false);
+
+  const quoteForm = useForm({
+    defaultValues: {
+      eventType: "social" as EventType,
+      packageName: "",
+      name: "",
+      email: "",
+      phone: "",
+      guests: "30",
+      preferredDate: "",
+      notes: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(eventQuoteSchema, value),
+      onSubmit: ({ value }) => validateWithYup(eventQuoteSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setQuoteError("Revisa los campos marcados antes de enviar la solicitud.");
+    },
+    onSubmit: async ({ value }) => {
+      setQuoteLoading(true);
+      setQuoteError("");
+
+      try {
+        await apiRequest("/contact/event-quote", {
+          method: "POST",
+          body: JSON.stringify({
+            name: value.name,
+            email: value.email,
+            phone: value.phone,
+            eventType: value.eventType,
+            packageName: value.packageName || undefined,
+            guests: Number(value.guests),
+            preferredDate: value.preferredDate || undefined,
+            notes: value.notes || undefined,
+          }),
+        });
+
+        setQuoteModalOpen(false);
+        quoteForm.reset();
+
+        onShowModal(
+          "¡Solicitud Recibida!",
+          "Tu solicitud fue enviada correctamente. Te contactaremos pronto.",
+        );
+      } catch (error) {
+        setQuoteError(
+          error instanceof Error
+            ? error.message
+            : "No se pudo enviar la solicitud.",
+        );
+      } finally {
+        setQuoteLoading(false);
+      }
+    },
+  });
+
+  const openQuoteModal = (eventType: EventType, packageName?: string) => {
+    quoteForm.setFieldValue("eventType", eventType);
+    quoteForm.setFieldValue("packageName", packageName || "");
+    setQuoteError("");
+    setQuoteModalOpen(true);
   };
 
   const eventTypes = [
@@ -201,8 +246,8 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
           >
             <Button
               size="lg"
-              onClick={() => requestQuote("cotizacion-general")}
-              className="bg-white text-[#f5b400] hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
+              onClick={() => openQuoteModal("social")}
+              className="bg-amber-400 text-slate-900 hover:bg-amber-300 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all font-bold"
             >
               <Calendar className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
               Solicitar Cotización
@@ -362,12 +407,12 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                   </div>
 
                   <Button
-                    onClick={() => requestQuote("paquete", pkg.name)}
+                    onClick={() => openQuoteModal("social", pkg.name)}
                     className={`w-full ${
                       pkg.featured
-                        ? "bg-white text-primary hover:bg-white/90"
-                        : "bg-gradient-warm text-white hover:shadow-lg"
-                    } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base`}
+                        ? "bg-slate-900 text-amber-300 border border-amber-300/70 hover:bg-slate-800"
+                        : "bg-amber-400 text-slate-900 hover:bg-amber-300"
+                    } py-5 sm:py-6 rounded-xl transition-all hover:scale-105 text-sm sm:text-base font-semibold`}
                   >
                     Solicitar Información
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -397,8 +442,8 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             </p>
             <Button
               size="lg"
-              onClick={() => requestQuote("contacto-directo")}
-              className="bg-white text-secondary hover:bg-white/90 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all"
+              onClick={() => openQuoteModal("privado")}
+              className="bg-amber-400 text-slate-900 hover:bg-amber-300 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all font-bold"
             >
               <Phone className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
               Contactar Ahora
@@ -406,6 +451,133 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
           </motion.div>
         </div>
       </section>
+
+      <Dialog open={quoteModalOpen} onOpenChange={setQuoteModalOpen}>
+        <DialogContent className="bg-slate-900 border border-amber-300/30 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-amber-300">
+              Solicitud de Cotizacion
+            </DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Completa estos datos y nuestro equipo te contactara con una
+              propuesta personalizada.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void quoteForm.handleSubmit();
+            }}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TanstackFormSelect
+                form={quoteForm}
+                name="eventType"
+                label="Tipo de Evento"
+                required
+                options={[
+                  { value: "social", label: "Social" },
+                  { value: "corporativo", label: "Corporativo" },
+                  { value: "privado", label: "Privado" },
+                  { value: "otro", label: "Otro" },
+                ]}
+                labelClassName="text-sm font-medium text-slate-200"
+                selectClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+
+              <TanstackFormInput
+                form={quoteForm}
+                name="packageName"
+                label="Paquete"
+                placeholder="Ej. Premium"
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TanstackFormInput
+                form={quoteForm}
+                name="name"
+                label="Nombre Completo"
+                required
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+              <TanstackFormInput
+                form={quoteForm}
+                name="email"
+                label="Correo Electronico"
+                type="email"
+                required
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+              <TanstackFormInput
+                form={quoteForm}
+                name="phone"
+                label="Telefono"
+                required
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+              <TanstackFormInput
+                form={quoteForm}
+                name="guests"
+                label="Invitados"
+                type="number"
+                required
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+              <TanstackFormInput
+                form={quoteForm}
+                name="preferredDate"
+                label="Fecha Preferida"
+                type="date"
+                labelClassName="text-sm font-medium text-slate-200"
+                inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+              />
+            </div>
+
+            <TanstackFormTextarea
+              form={quoteForm}
+              name="notes"
+              label="Notas"
+              placeholder="Cuéntanos detalles del evento"
+              rows={4}
+              labelClassName="text-sm font-medium text-slate-200"
+              textareaClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
+            />
+
+            {quoteError && (
+              <p className="text-sm text-red-300 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2">
+                {quoteError}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setQuoteModalOpen(false)}
+                className="border-slate-500 text-slate-100 hover:bg-slate-800"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={quoteLoading}
+                className="bg-amber-400 text-slate-900 hover:bg-amber-300"
+              >
+                {quoteLoading ? "Enviando..." : "Enviar Solicitud"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

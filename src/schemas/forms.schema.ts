@@ -194,6 +194,14 @@ export const checkoutSchema = yup.object({
 });
 
 export const eventQuoteSchema = yup.object({
+  eventType: yup
+    .string()
+    .oneOf(
+      ["social", "corporativo", "privado", "otro"],
+      "Selecciona un tipo de evento válido.",
+    )
+    .required("Selecciona el tipo de evento."),
+  packageName: yup.string().trim().nullable(),
   name: yup
     .string()
     .trim()
@@ -218,4 +226,6 @@ export const eventQuoteSchema = yup.object({
     .min(1, "Debe haber al menos 1 invitado.")
     .max(500, "No se permiten más de 500 invitados.")
     .required("La cantidad de invitados es obligatoria."),
+  preferredDate: yup.string().trim().nullable(),
+  notes: yup.string().trim().max(1000, "Las notas no pueden superar 1000 caracteres."),
 });
