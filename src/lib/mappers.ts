@@ -8,6 +8,7 @@ import type {
   PaymentMethod,
   PaymentTransaction,
   Reservation,
+  ReservationPricing,
   ReservationStatus,
   RestaurantTable,
   StockStatus,
@@ -115,6 +116,15 @@ export const mapBackendReservation = (raw: any, userId?: string): Reservation =>
     : 'pending';
 
   const date = raw.date ? new Date(raw.date).toISOString().split('T')[0] : '';
+  const pricing: ReservationPricing | undefined = raw.pricing
+    ? {
+        coverPerGuest: Number(raw.pricing.coverPerGuest || 0),
+        previousTotal: Number(raw.pricing.previousTotal || 0),
+        newTotal: Number(raw.pricing.newTotal || 0),
+        delta: Number(raw.pricing.delta || 0),
+        additionalChargeApplied: Boolean(raw.pricing.additionalChargeApplied),
+      }
+    : undefined;
 
   return {
     id: String(raw._id || raw.id),
@@ -129,6 +139,7 @@ export const mapBackendReservation = (raw: any, userId?: string): Reservation =>
     notes: raw.notes || '',
     status,
     location: raw.location || 'Restaurante Principal',
+    pricing,
     createdAt: raw.createdAt || new Date().toISOString(),
   };
 };

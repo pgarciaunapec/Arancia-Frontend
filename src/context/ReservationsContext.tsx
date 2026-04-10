@@ -8,6 +8,10 @@ import { useAuth } from './AuthContext';
 interface ReservationsContextValue {
   reservations: Reservation[];
   createReservation: (data: CreateReservationData) => Promise<Reservation>;
+  updateReservation: (
+    id: string,
+    data: UpdateReservationData,
+  ) => Promise<Reservation>;
   cancelReservation: (id: string) => Promise<void>;
   getReservationsByUser: (userId: string) => Reservation[];
   getAllReservations: () => Reservation[];
@@ -26,7 +30,33 @@ interface CreateReservationData {
   notes: string;
 }
 
+interface UpdateReservationData {
+  date?: string;
+  time?: string;
+  guests?: number;
+  name?: string;
+  phone?: string;
+  notes?: string;
+  acceptAdditionalCharge?: boolean;
+}
+
 const ReservationsContext = createContext<ReservationsContextValue | null>(null);
+
+const unpackArrayData = (payload: unknown): any[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    Array.isArray((payload as { data?: unknown }).data)
+  ) {
+    return (payload as { data: any[] }).data;
+  }
+
+  return [];
+};
 
 export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
@@ -38,8 +68,10 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    const response = await apiRequest<ApiEnvelope<any[]>>('/reservations/my', { auth: true });
-    const mapped = (response.data || []).map((raw) => mapBackendReservation(raw, user?.id));
+    const response = await apiRequest<ApiEnvelope<any>>('/reservations/my', { auth: true });
+    const mapped = unpackArrayData(response.data).map((raw) =>
+      mapBackendReservation(raw, user?.id),
+    );
     setReservations(mapped);
   }, [isAuthenticated, user?.id]);
 
@@ -67,9 +99,26 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return mapped;
   }, [isAuthenticated]);
 
+  const updateReservation = useCallback(
+    async (id: string, data: UpdateReservationData) => {
+      const response = await apiRequest<ApiEnvelope<any>>(`/reservations/${id}`, {
+        method: 'PUT',
+        auth: true,
+        body: JSON.stringify(data),
+      });
+
+      const mapped = mapBackendReservation(response.data, user?.id);
+      setReservations((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...mapped } : item)),
+      );
+      return mapped;
+    },
+    [user?.id],
+  );
+
   const cancelReservation = useCallback(async (id: string) => {
     await apiRequest(`/reservations/${id}/cancel`, {
-      method: 'PUT',
+      method: 'POST',
       auth: true,
     });
 
@@ -85,7 +134,7 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   return (
-    <ReservationsContext.Provider value={{ reservations, createReservation, cancelReservation, getReservationsByUser, getAllReservations, updateReservationStatus, refreshReservations }}>
+    <ReservationsContext.Provider value={{ reservations, createReservation, updateReservation, cancelReservation, getReservationsByUser, getAllReservations, updateReservationStatus, refreshReservations }}>
       {children}
     </ReservationsContext.Provider>
   );
