@@ -27,11 +27,28 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
   useEffect(() => {
     const loadMenu = async () => {
+      setIsLoading(true);
       try {
         const response = await apiRequest<ApiEnvelope<any[]>>("/menu");
-        setMenuItems((response.data || []).map(mapBackendMenuItem));
-      } catch {
+
+        // Backend sometimes wraps the payload as { data: { count, data: [...] } }
+        // or returns the array directly as `data`. Handle both shapes defensively.
+        const rawPayload = response?.data;
+        let itemsArray: any[] = [];
+
+        if (Array.isArray(rawPayload)) {
+          itemsArray = rawPayload;
+        } else if (rawPayload && Array.isArray((rawPayload as any).data)) {
+          itemsArray = (rawPayload as any).data;
+        } else {
+          itemsArray = [];
+        }
+
+        setMenuItems(itemsArray.map(mapBackendMenuItem));
+      } catch (err) {
         setMenuItems([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -60,7 +77,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     }
 
     return items;
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, menuItems]);
 
   const getCartQty = (itemId: string) => {
     const found = cartItems.find((i) => i.id === itemId);
