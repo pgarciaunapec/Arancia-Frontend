@@ -43,7 +43,7 @@
 - `task/2/amazon-ui-tracking`
 
 ### Estado
-- Implementacion completada en rama, con build/tests exitosos
+- Completada y mergeada a `dev`
 
 ### Cambios clave
 - Vista de seguimiento redisenada con fondo mapa y card flotante:
@@ -58,6 +58,22 @@
   - Uso de `Dialog` + TanStack Form + Yup
 - Esquema de validacion de cotizacion de eventos extendido:
   - `src/schemas/forms.schema.ts`
+
+### Verificacion
+- Build: OK (`pnpm run build`)
+- Tests: OK (`pnpm run test`)
+
+## Task 3 - Inteligencia de datos y prellenado
+### Rama de trabajo
+- `task/3/contact-prefill`
+
+### Estado
+- Implementacion completada en rama, con build/tests exitosos
+
+### Cambios clave
+- Prellenado editable de `Nombre`, `Email` y `Telefono` en contacto para usuario autenticado:
+  - `src/pages/Contact.tsx`
+- El formulario mantiene valores del perfil como default, pero el usuario puede sobrescribirlos para esa consulta.
 
 ### Verificacion
 - Build: OK (`pnpm run build`)

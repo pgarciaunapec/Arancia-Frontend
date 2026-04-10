@@ -37,6 +37,19 @@
 - [x] Tests exitosos
 
 ## Cierre de tarea
-- [ ] Commit Task 2
+- [x] Commit Task 2
+- [x] Merge a `dev`
+- [x] Borrado de rama local/remota Task 2
+
+## Task 3 (Prellenado de contacto)
+- [x] Nombre prellenado desde estado global autenticado
+- [x] Email prellenado desde estado global autenticado
+- [x] Teléfono prellenado desde estado global autenticado
+- [x] Campos permanecen editables por consulta
+- [x] Build exitoso
+- [x] Tests exitosos
+
+## Cierre de tarea
+- [ ] Commit Task 3
 - [ ] Merge a `dev`
-- [ ] Borrado de rama local/remota Task 2
+- [ ] Borrado de rama local/remota Task 3
