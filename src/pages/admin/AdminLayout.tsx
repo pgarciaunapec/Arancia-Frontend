@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   DollarSign,
   Package,
+  Database,
   LogOut,
   Menu,
   X,
@@ -82,6 +83,12 @@ const navItems: AdminNavItem[] = [
     label: "Cuentas Mesa",
     icon: <Receipt size={18} />,
     roles: ["admin", "staff"],
+  },
+  {
+    path: "/admin/collections",
+    label: "Colecciones",
+    icon: <Database size={18} />,
+    roles: ["admin"],
   },
 ];
 
