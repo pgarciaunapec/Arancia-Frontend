@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { useForm } from "@tanstack/react-form";
 import { CreditCard, Truck, ShieldCheck, MapPin, Package } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useCart } from "../context/CartContext";
 import { useOrders } from "../context/OrdersContext";
 import { useAuth } from "../context/AuthContext";
-import type { DeliveryType, PaymentMethod } from "../types";
+import type { DeliveryType } from "../types";
+import { checkoutSchema } from "../schemas/forms.schema";
+import { validateWithYup } from "../lib/forms/yupTanstack";
 
 const COLORS = {
   primary: "#f5b400",
@@ -28,28 +31,80 @@ const Checkout: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("delivery");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    address: user?.address || "",
-    city: "Santo Domingo",
-    cardNumber: "",
-    cardExp: "",
-    cardCvv: "",
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validateCheckoutByMode = (values: {
+    name: string;
+    email: string;
+    address: string;
+    city: string;
+    cardNumber: string;
+    cardExp: string;
+    cardCvv: string;
+  }) => {
+    const validation = validateWithYup(checkoutSchema, values);
+    const fields = { ...(validation?.fields || {}) } as Record<string, string>;
+
+    if (deliveryType !== "delivery") {
+      delete fields.address;
+      delete fields.city;
+      delete fields.name;
+      delete fields.email;
+    }
+
+    if (paymentMethod !== "card") {
+      delete fields.cardNumber;
+      delete fields.cardExp;
+      delete fields.cardCvv;
+    } else {
+      if (!values.cardNumber.trim()) {
+        fields.cardNumber = "El número de tarjeta es obligatorio.";
+      }
+
+      if (!values.cardExp.trim()) {
+        fields.cardExp = "La fecha de expiración es obligatoria.";
+      }
+
+      if (!values.cardCvv.trim()) {
+        fields.cardCvv = "El CVV es obligatorio.";
+      }
+    }
+
+    if (Object.keys(fields).length === 0) {
+      return undefined;
+    }
+
+    return {
+      fields,
+      form: "Hay datos de pago o envío por corregir.",
+    };
   };
 
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm({
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      address: user?.address || "",
+      city: "Santo Domingo",
+      cardNumber: "",
+      cardExp: "",
+      cardCvv: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateCheckoutByMode(value),
+      onSubmit: ({ value }) => validateCheckoutByMode(value),
+    },
+    onSubmit: async () => {
+      await submitPayment();
+    },
+  });
+
+  const submitPayment = async () => {
     if (items.length === 0) return;
     setLoading(true);
 
     try {
       const cardLast4 =
-        formData.cardNumber.replace(/\s/g, "").slice(-4) || "0000";
+          form.state.values.cardNumber.replace(/\s/g, "").slice(-4) || "0000";
       const order = await createOrder({
         userId: user?.id || "guest",
         subtotal,
@@ -58,11 +113,11 @@ const Checkout: React.FC = () => {
         deliveryType,
         deliveryAddress:
           deliveryType === "delivery"
-            ? `${formData.address}, ${formData.city}`
+              ? `${form.state.values.address}, ${form.state.values.city}`
             : undefined,
         paymentMethod,
         cardLast4: paymentMethod === "card" ? cardLast4 : undefined,
-        cardNumber: paymentMethod === "card" ? formData.cardNumber : undefined,
+          cardNumber: paymentMethod === "card" ? form.state.values.cardNumber : undefined,
       });
 
       clearCart();
@@ -119,7 +174,12 @@ const Checkout: React.FC = () => {
           </p>
         </motion.div>
 
-        <form onSubmit={handlePayment}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Left – Form */}
             <div className="lg:col-span-3 space-y-6">
@@ -200,8 +260,10 @@ const Checkout: React.FC = () => {
                   </h3>
                   <input
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    value={String(form.state.values.name)}
+                    onChange={(event) =>
+                      form.setFieldValue("name", event.target.value)
+                    }
                     placeholder="Nombre Completo"
                     required
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
@@ -209,8 +271,10 @@ const Checkout: React.FC = () => {
                   />
                   <input
                     name="address"
-                    value={formData.address}
-                    onChange={handleChange}
+                    value={String(form.state.values.address)}
+                    onChange={(event) =>
+                      form.setFieldValue("address", event.target.value)
+                    }
                     placeholder="Dirección de Envío"
                     required
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
@@ -218,16 +282,20 @@ const Checkout: React.FC = () => {
                   />
                   <input
                     name="city"
-                    value={formData.city}
-                    onChange={handleChange}
+                    value={String(form.state.values.city)}
+                    onChange={(event) =>
+                      form.setFieldValue("city", event.target.value)
+                    }
                     placeholder="Ciudad"
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
                   <input
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={String(form.state.values.email)}
+                    onChange={(event) =>
+                      form.setFieldValue("email", event.target.value)
+                    }
                     type="email"
                     placeholder="Correo (para confirmar)"
                     required
@@ -286,8 +354,10 @@ const Checkout: React.FC = () => {
                   <div className="space-y-3 mt-2">
                     <input
                       name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
+                      value={String(form.state.values.cardNumber)}
+                      onChange={(event) =>
+                        form.setFieldValue("cardNumber", event.target.value)
+                      }
                       placeholder="Número de Tarjeta (1234 5678 9012 3456)"
                       required
                       className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
@@ -296,8 +366,10 @@ const Checkout: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <input
                         name="cardExp"
-                        value={formData.cardExp}
-                        onChange={handleChange}
+                        value={String(form.state.values.cardExp)}
+                        onChange={(event) =>
+                          form.setFieldValue("cardExp", event.target.value)
+                        }
                         placeholder="MM/AA"
                         required
                         className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
@@ -305,8 +377,10 @@ const Checkout: React.FC = () => {
                       />
                       <input
                         name="cardCvv"
-                        value={formData.cardCvv}
-                        onChange={handleChange}
+                        value={String(form.state.values.cardCvv)}
+                        onChange={(event) =>
+                          form.setFieldValue("cardCvv", event.target.value)
+                        }
                         placeholder="CVV"
                         required
                         className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"

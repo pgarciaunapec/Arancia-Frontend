@@ -1,53 +1,65 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Badge } from "../components/ui/badge";
 import { apiRequest } from "../lib/api";
+import { validateWithYup } from "../lib/forms/yupTanstack";
+import { contactSchema } from "../schemas/forms.schema";
+import { TanstackFormInput } from "../components/forms/TanstackFormInput";
+import { TanstackFormTextarea } from "../components/forms/TanstackFormTextarea";
+import { TanstackFormSelect } from "../components/forms/TanstackFormSelect";
 
 interface ContactProps {
   onShowModal: (title: string, message: string) => void;
 }
 
 const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "Consulta general",
+      message: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(contactSchema, value),
+      onSubmit: ({ value }) => validateWithYup(contactSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setError("Revisa los campos marcados antes de enviar tu mensaje.");
+    },
+    onSubmit: async ({ value }) => {
+      setLoading(true);
+      setError("");
 
-    try {
-      await apiRequest("/contact", {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
+      try {
+        await apiRequest("/contact", {
+          method: "POST",
+          body: JSON.stringify(value),
+        });
 
-      onShowModal(
-        "¡Mensaje Enviado!",
-        "Gracias por contactarnos. Te responderemos pronto.",
-      );
-      setFormData({ name: "", email: "", phone: "", message: "" });
-    } catch (submissionError) {
-      setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : "No se pudo enviar el mensaje",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        onShowModal(
+          "¡Mensaje Enviado!",
+          "Gracias por contactarnos. Te responderemos pronto.",
+        );
+        form.reset();
+      } catch (submissionError) {
+        setError(
+          submissionError instanceof Error
+            ? submissionError.message
+            : "No se pudo enviar el mensaje",
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   const contactInfo = [
     {
@@ -182,87 +194,69 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                   Envíanos un Mensaje
                 </h2>
                 <form
-                  onSubmit={handleSubmit}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void form.handleSubmit();
+                  }}
                   className="space-y-4 sm:space-y-6"
                 >
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
-                    >
-                      Nombre Completo
-                    </label>
-                    <Input
-                      id="name"
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      placeholder="Tu nombre"
-                      className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
-                    />
-                  </div>
+                  <TanstackFormInput
+                    form={form}
+                    name="name"
+                    label="Nombre Completo"
+                    type="text"
+                    required
+                    placeholder="Tu nombre"
+                    labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    inputClassName="w-full bg-input-background border border-border text-sm sm:text-base py-5 sm:py-6 px-3 rounded-md"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
-                    >
-                      Email
-                    </label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      placeholder="tu@email.com"
-                      className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
-                    />
-                  </div>
+                  <TanstackFormInput
+                    form={form}
+                    name="email"
+                    label="Email"
+                    type="email"
+                    required
+                    placeholder="tu@email.com"
+                    labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    inputClassName="w-full bg-input-background border border-border text-sm sm:text-base py-5 sm:py-6 px-3 rounded-md"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
-                    >
-                      Teléfono
-                    </label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      placeholder="(809) 555-0123"
-                      className="bg-input-background border-border text-sm sm:text-base py-5 sm:py-6"
-                    />
-                  </div>
+                  <TanstackFormInput
+                    form={form}
+                    name="phone"
+                    label="Teléfono"
+                    type="tel"
+                    placeholder="(809) 555-0123"
+                    labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    inputClassName="w-full bg-input-background border border-border text-sm sm:text-base py-5 sm:py-6 px-3 rounded-md"
+                  />
 
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block mb-2 font-medium text-sm sm:text-base text-foreground"
-                    >
-                      Mensaje
-                    </label>
-                    <Textarea
-                      id="message"
-                      required
-                      value={formData.message}
-                      onChange={(e) =>
-                        setFormData({ ...formData, message: e.target.value })
-                      }
-                      placeholder="Escribe tu mensaje aquí..."
-                      rows={5}
-                      className="bg-input-background border-border resize-none text-sm sm:text-base"
-                    />
-                  </div>
+                  <TanstackFormSelect
+                    form={form}
+                    name="subject"
+                    label="Asunto"
+                    required
+                    options={[
+                      { value: "Consulta general", label: "Consulta general" },
+                      { value: "Reserva", label: "Reserva" },
+                      { value: "Eventos", label: "Eventos" },
+                      { value: "Soporte", label: "Soporte" },
+                    ]}
+                    labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    selectClassName="w-full bg-input-background border border-border text-sm sm:text-base py-4 sm:py-5 px-3 rounded-md"
+                  />
+
+                  <TanstackFormTextarea
+                    form={form}
+                    name="message"
+                    label="Mensaje"
+                    required
+                    placeholder="Escribe tu mensaje aquí..."
+                    rows={5}
+                    labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
+                    textareaClassName="w-full bg-input-background border border-border resize-none text-sm sm:text-base px-3 py-2 rounded-md"
+                  />
 
                   <Button
                     type="submit"

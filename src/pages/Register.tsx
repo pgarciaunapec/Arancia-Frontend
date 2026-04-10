@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { User, Mail, Lock, Phone, UserPlus, UtensilsCrossed, Eye, EyeOff } from 'lucide-react';
+import { useForm } from '@tanstack/react-form';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useAuth } from '../context/AuthContext';
+import { validateWithYup } from '../lib/forms/yupTanstack';
+import { registerSchema } from '../schemas/forms.schema';
+import { TanstackFormInput } from '../components/forms/TanstackFormInput';
 
 const COLORS = {
     primary: '#f5b400',
@@ -17,39 +21,45 @@ const Register: React.FC = () => {
     const navigate = useNavigate();
     const { register } = useAuth();
 
-    const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-        setError('');
-    };
+    const form = useForm({
+        defaultValues: {
+            name: '',
+            email: '',
+            phone: '',
+            password: '',
+            confirmPassword: '',
+        },
+        validators: {
+            onChange: ({ value }) => validateWithYup(registerSchema, value),
+            onSubmit: ({ value }) => validateWithYup(registerSchema, value),
+        },
+        onSubmitInvalid: () => {
+            setError('Revisa los campos marcados antes de continuar.');
+        },
+        onSubmit: async ({ value }) => {
+            setError('');
+            setLoading(true);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!form.name || !form.email || !form.password) {
-            setError('Por favor completa los campos obligatorios');
-            return;
-        }
-        if (form.password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres');
-            return;
-        }
-        if (form.password !== form.confirmPassword) {
-            setError('Las contraseñas no coinciden');
-            return;
-        }
-        setLoading(true);
-        const result = await register({ name: form.name, email: form.email, phone: form.phone, password: form.password });
-        setLoading(false);
-        if (result.success) {
-            navigate('/');
-        } else {
+            const result = await register({
+                name: value.name,
+                email: value.email,
+                phone: value.phone,
+                password: value.password,
+            });
+
+            setLoading(false);
+            if (result.success) {
+                navigate('/');
+                return;
+            }
+
             setError(result.error || 'Error al registrarse');
-        }
-    };
+        },
+    });
 
     return (
         <div className="w-full min-h-screen flex items-center justify-center px-4 bg-background pt-20 pb-12">
@@ -70,77 +80,81 @@ const Register: React.FC = () => {
                 </div>
 
                 <Card className="p-8" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Nombre Completo *</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input
-                                    name="name" type="text" value={form.name} onChange={handleChange}
-                                    placeholder="Tu nombre"
-                                    className="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }}
-                                />
-                            </div>
-                        </div>
+                    <form onSubmit={(event) => {
+                        event.preventDefault();
+                        void form.handleSubmit();
+                    }} className="space-y-5">
+                        <TanstackFormInput
+                            form={form}
+                            name="name"
+                            label="Nombre Completo *"
+                            type="text"
+                            placeholder="Tu nombre"
+                            leftIcon={<User size={18} />}
+                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                            labelClassName="text-sm font-medium text-white/80"
+                        />
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Correo Electrónico *</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input
-                                    name="email" type="email" value={form.email} onChange={handleChange}
-                                    placeholder="tu@correo.com" autoComplete="email"
-                                    className="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }}
-                                />
-                            </div>
-                        </div>
+                        <TanstackFormInput
+                            form={form}
+                            name="email"
+                            label="Correo Electrónico *"
+                            type="email"
+                            placeholder="tu@correo.com"
+                            autoComplete="email"
+                            leftIcon={<Mail size={18} />}
+                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                            labelClassName="text-sm font-medium text-white/80"
+                        />
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Teléfono</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input
-                                    name="phone" type="tel" value={form.phone} onChange={handleChange}
-                                    placeholder="+1 (809) 000-0000"
-                                    className="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }}
-                                />
-                            </div>
-                        </div>
+                        <TanstackFormInput
+                            form={form}
+                            name="phone"
+                            label="Teléfono"
+                            type="tel"
+                            placeholder="+1 (809) 000-0000"
+                            leftIcon={<Phone size={18} />}
+                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                            labelClassName="text-sm font-medium text-white/80"
+                        />
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Contraseña *</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input
-                                    name="password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={handleChange}
-                                    placeholder="Mínimo 6 caracteres" autoComplete="new-password"
-                                    className="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }}
-                                />
+                        <TanstackFormInput
+                            form={form}
+                            name="password"
+                            label="Contraseña *"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Mínimo 6 caracteres"
+                            autoComplete="new-password"
+                            leftIcon={<Lock size={18} />}
+                            rightSlot={
                                 <button
-                                    type="button" onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-3 text-white/40 hover:text-white/70 transition-colors"
+                                    type="button"
+                                    onClick={() => setShowPassword((previous) => !previous)}
+                                    className="text-white/40 hover:text-white/70 transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
-                            </div>
-                        </div>
+                            }
+                            inputClassName="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                            labelClassName="text-sm font-medium text-white/80"
+                        />
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-white/80">Confirmar Contraseña *</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-3 text-white/40" size={18} />
-                                <input
-                                    name="confirmPassword" type={showPassword ? 'text' : 'password'} value={form.confirmPassword} onChange={handleChange}
-                                    placeholder="Repite tu contraseña" autoComplete="new-password"
-                                    className="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                                    style={{ borderColor: COLORS.border }}
-                                />
-                            </div>
-                        </div>
+                        <TanstackFormInput
+                            form={form}
+                            name="confirmPassword"
+                            label="Confirmar Contraseña *"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Repite tu contraseña"
+                            autoComplete="new-password"
+                            leftIcon={<Lock size={18} />}
+                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+                            inputStyle={{ borderColor: COLORS.border }}
+                            labelClassName="text-sm font-medium text-white/80"
+                        />
 
                         {error && (
                             <motion.div
