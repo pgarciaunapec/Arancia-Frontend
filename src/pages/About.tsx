@@ -113,21 +113,67 @@ const About: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
+            className="mb-10 sm:mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-foreground text-center">
               Nuestra Historia
             </h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed px-4">
-              Durante más de cuatro décadas, Arancia ha sido sinónimo de
-              excelencia gastronómica en Rabo Duro. Nuestra pasión por la
-              hospitalidad y la tradición se refleja en cada plato que servimos.
-              Combinamos técnicas culinarias contemporáneas con ingredientes
-              locales de la más alta calidad, creando experiencias memorables
-              para nuestros comensales que buscan algo más que una comida:
-              buscan un momento para recordar.
+            <p className="text-sm sm:text-base text-muted-foreground text-center max-w-3xl mx-auto">
+              Tradición, técnica y hospitalidad en equilibrio: así se construye
+              la experiencia Arancia.
             </p>
           </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch mb-12 sm:mb-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-7 rounded-2xl border border-border/50 bg-card p-6 sm:p-8"
+            >
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
+                Durante más de cuatro décadas, Arancia ha sido sinónimo de
+                excelencia gastronómica en Rabo Duro. Nuestra pasión por la
+                hospitalidad y la tradición se refleja en cada plato que
+                servimos. Combinamos técnicas culinarias contemporáneas con
+                ingredientes locales de alta calidad, creando experiencias
+                memorables para nuestros comensales.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+                {[
+                  { label: "Años", value: "40+" },
+                  { label: "Clientes", value: "18k" },
+                  { label: "Eventos", value: "1.2k" },
+                  { label: "Reseñas", value: "4.8/5" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-xl bg-muted/40 px-3 py-4 text-center"
+                  >
+                    <p className="text-xl font-bold text-foreground">
+                      {item.value}
+                    </p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-5 rounded-2xl overflow-hidden min-h-[280px]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
+                alt="Cocina y servicio de Arancia"
+                className="h-full w-full object-cover"
+              />
+            </motion.div>
+          </div>
 
           {/* Timeline */}
           <div className="space-y-6 sm:space-y-8">

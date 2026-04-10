@@ -8,7 +8,7 @@
 
 ## Task 1 - Estandarizacion de validacion y formularios
 ### Estado
-- En progreso (implementacion y pruebas locales completas)
+- Completada y mergeada a `dev`
 
 ### Cambios clave
 - Migracion de formularios a TanStack Form + Yup en:
@@ -37,3 +37,28 @@
 ## Riesgos observados
 - `src/main.tsx` mantiene providers duplicados en `contexts/` ademas de `App.tsx` (context). No bloquea Task 1, pero requiere normalizacion posterior.
 - Flujo de checkout y reservas depende de decisiones de Task 4/5 (store global y ajustes de reserva pagada).
+
+## Task 2 - Experiencia Amazon Style y refactor visual
+### Rama de trabajo
+- `task/2/amazon-ui-tracking`
+
+### Estado
+- Implementacion completada en rama, con build/tests exitosos
+
+### Cambios clave
+- Vista de seguimiento redisenada con fondo mapa y card flotante:
+  - `src/pages/OrderTracking.tsx`
+- Timeline dinamica de estados: `Recibido`, `Cocina`, `Camino`, `Entregado`
+- Seccion `Nosotros` alineada con layout de grilla profesional:
+  - `src/pages/About.tsx`
+- Contraste reforzado de botones en `Eventos`:
+  - `src/pages/Events.tsx`
+- Formularios de solicitud de informacion migrados a modal moderno:
+  - `src/pages/Events.tsx`
+  - Uso de `Dialog` + TanStack Form + Yup
+- Esquema de validacion de cotizacion de eventos extendido:
+  - `src/schemas/forms.schema.ts`
+
+### Verificacion
+- Build: OK (`pnpm run build`)
+- Tests: OK (`pnpm run test`)
