@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { Order, PaymentMethod, DeliveryType } from '../types';
+import type { Order, PaymentMethod, DeliveryType, CartItem } from '../types';
 import { apiRequest } from '../lib/api';
 import type { ApiEnvelope } from '../lib/api';
 import { mapBackendOrder } from '../lib/mappers';
@@ -17,6 +17,7 @@ interface OrdersContextValue {
 
 interface CreateOrderData {
   userId: string;
+  items: CartItem[];
   subtotal: number;
   tax: number;
   total: number;
@@ -29,6 +30,22 @@ interface CreateOrderData {
 
 const OrdersContext = createContext<OrdersContextValue | null>(null);
 
+const unpackArrayData = (payload: unknown): any[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    Array.isArray((payload as { data?: unknown }).data)
+  ) {
+    return (payload as { data: any[] }).data;
+  }
+
+  return [];
+};
+
 export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated, isAdmin } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -40,13 +57,15 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     if (isAdmin) {
-      const response = await apiRequest<ApiEnvelope<any[]>>('/admin/orders?limit=200', { auth: true });
-      setOrders((response.data || []).map((raw) => mapBackendOrder(raw, String(raw.user?._id || raw.user))));
+      const response = await apiRequest<ApiEnvelope<any>>('/orders/admin/all?limit=200', { auth: true });
+      const rawOrders = unpackArrayData(response.data);
+      setOrders(rawOrders.map((raw) => mapBackendOrder(raw, String(raw.user?._id || raw.user))));
       return;
     }
 
-    const response = await apiRequest<ApiEnvelope<any[]>>('/orders', { auth: true });
-    setOrders((response.data || []).map((raw) => mapBackendOrder(raw, user?.id)));
+    const response = await apiRequest<ApiEnvelope<any>>('/orders', { auth: true });
+    const rawOrders = unpackArrayData(response.data);
+    setOrders(rawOrders.map((raw) => mapBackendOrder(raw, user?.id)));
   }, [isAdmin, isAuthenticated, user?.id]);
 
   useEffect(() => {
@@ -54,12 +73,20 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [refreshOrders]);
 
   const createOrder = useCallback(async (data: CreateOrderData): Promise<Order> => {
+    if (!data.items.length) {
+      throw new Error('No hay items para procesar en la orden');
+    }
+
     const [address = 'Sin dirección', city = 'Santo Domingo'] = (data.deliveryAddress || 'Sin dirección,Santo Domingo').split(',').map((part) => part.trim());
 
     const orderResponse = await apiRequest<ApiEnvelope<any>>('/orders', {
       method: 'POST',
       auth: true,
       body: JSON.stringify({
+        items: data.items.map((item) => ({
+          menuItem: item.backendId || item.id,
+          quantity: item.quantity,
+        })),
         shippingAddress: {
           name: user?.name || 'Cliente',
           address,
@@ -101,8 +128,8 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    await apiRequest<ApiEnvelope<any>>(`/admin/orders/${orderId}/status`, {
-      method: 'PATCH',
+    await apiRequest<ApiEnvelope<any>>(`/orders/${orderId}/status`, {
+      method: 'PUT',
       auth: true,
       body: JSON.stringify({ status }),
     });
