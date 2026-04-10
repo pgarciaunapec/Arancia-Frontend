@@ -1,128 +1,172 @@
-import React, { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Lock, Mail, UtensilsCrossed, Eye, EyeOff, ShieldCheck } from 'lucide-react';
-import { useForm } from '@tanstack/react-form';
-import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
-import { useAuth } from '../../context/AuthContext';
-import { validateWithYup } from '../../lib/forms/yupTanstack';
-import { loginSchema } from '../../schemas/forms.schema';
-import { TanstackFormInput } from '../../components/forms/TanstackFormInput';
+import React, { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
+import {
+  Lock,
+  Mail,
+  UtensilsCrossed,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from "lucide-react";
+import { useForm } from "@tanstack/react-form";
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { useAuth } from "../../context/AuthContext";
+import { validateWithYup } from "../../lib/forms/yupTanstack";
+import { loginSchema } from "../../schemas/forms.schema";
+import { TanstackFormInput } from "../../components/forms/TanstackFormInput";
 
 const COLORS = {
-    primary: '#f5b400',
-    secondary: '#2d1f0f',
-    muted: 'rgba(255,255,255,0.6)',
-    border: 'rgba(245, 180, 0, 0.3)',
+  primary: "#f5b400",
+  secondary: "#2d1f0f",
+  muted: "rgba(255,255,255,0.6)",
+  border: "rgba(245, 180, 0, 0.3)",
 };
 
 const AdminLogin: React.FC = () => {
-    const navigate = useNavigate();
-    const { login, isAdmin, logout } = useAuth();
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login, isAdmin, logout } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const form = useForm({
-        defaultValues: {
-            email: '',
-            password: '',
-        },
-        validators: {
-            onChange: ({ value }) => validateWithYup(loginSchema, value),
-            onSubmit: ({ value }) => validateWithYup(loginSchema, value),
-        },
-        onSubmitInvalid: () => {
-            setError('Revisa los campos marcados antes de continuar.');
-        },
-        onSubmit: async ({ value }) => {
-            setLoading(true);
-            setError('');
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    validators: {
+      onChange: ({ value }) => validateWithYup(loginSchema, value),
+      onSubmit: ({ value }) => validateWithYup(loginSchema, value),
+    },
+    onSubmitInvalid: () => {
+      setError("Revisa los campos marcados antes de continuar.");
+    },
+    onSubmit: async ({ value }) => {
+      setLoading(true);
+      setError("");
 
-            const result = await login(value.email, value.password);
-            setLoading(false);
-            if (!result.success) {
-                setError(result.error || 'Error al iniciar sesión');
-                return;
-            }
-            if (result.user?.role !== 'admin' && result.user?.role !== 'staff') {
-                logout();
-                setError('No tienes permisos de administrador');
-                return;
-            }
-            navigate('/admin');
-        },
-    });
+      const result = await login(value.email, value.password);
+      setLoading(false);
+      if (!result.success) {
+        setError(result.error || "Error al iniciar sesión");
+        return;
+      }
+      if (result.user?.role !== "admin" && result.user?.role !== "staff") {
+        logout();
+        setError("No tienes permisos de administrador");
+        return;
+      }
+      navigate("/admin");
+    },
+  });
 
-    if (isAdmin) {
-        return <Navigate to="/admin" replace />;
-    }
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
 
-    return (
-        <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#1a0f06' }}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-                <div className="text-center mb-8">
-                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                        style={{ backgroundColor: COLORS.primary }}>
-                        <ShieldCheck size={36} style={{ color: COLORS.secondary }} />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Panel de Administración</h1>
-                    <p style={{ color: COLORS.muted }}>Acceso restringido al personal autorizado</p>
-                </div>
-
-                <Card className="p-8" style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}>
-                    <form onSubmit={(event) => {
-                        event.preventDefault();
-                        void form.handleSubmit();
-                    }} className="space-y-5">
-                        <TanstackFormInput
-                            form={form}
-                            name="email"
-                            label="Correo"
-                            type="email"
-                            placeholder="admin@restaurante.com"
-                            autoComplete="username"
-                            leftIcon={<Mail size={18} />}
-                            labelClassName="text-sm font-medium text-white/80"
-                            inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                            inputStyle={{ borderColor: COLORS.border }}
-                        />
-                        <TanstackFormInput
-                            form={form}
-                            name="password"
-                            label="Contraseña"
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
-                            autoComplete="current-password"
-                            leftIcon={<Lock size={18} />}
-                            rightSlot={
-                                <button type="button" onClick={() => setShowPassword((previous) => !previous)} className="text-white/40 hover:text-white/70">
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            }
-                            labelClassName="text-sm font-medium text-white/80"
-                            inputClassName="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
-                            inputStyle={{ borderColor: COLORS.border }}
-                        />
-
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">{error}</div>
-                        )}
-
-                        <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" /> : 'Ingresar al Panel'}
-                        </Button>
-                    </form>
-                </Card>
-
-                <p className="text-center mt-6 text-xs" style={{ color: COLORS.muted }}>
-                    <UtensilsCrossed className="inline mr-1" size={12} />
-                    Restaurante El Sabor · Panel Administrativo
-                </p>
-            </motion.div>
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ backgroundColor: "#1a0f06" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <div className="text-center mb-8">
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: COLORS.primary }}
+          >
+            <ShieldCheck size={36} style={{ color: COLORS.secondary }} />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Panel de Administración
+          </h1>
+          <p style={{ color: COLORS.muted }}>
+            Acceso restringido al personal autorizado
+          </p>
         </div>
-    );
+
+        <Card
+          className="p-8"
+          style={{
+            backgroundColor: COLORS.secondary,
+            border: `1px solid ${COLORS.border}`,
+          }}
+        >
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void form.handleSubmit();
+            }}
+            className="space-y-5"
+          >
+            <TanstackFormInput
+              form={form}
+              name="email"
+              label="Correo"
+              type="email"
+              placeholder="admin@restaurante.com"
+              autoComplete="username"
+              leftIcon={<Mail size={18} />}
+              labelClassName="text-sm font-medium text-white/80"
+              inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+              inputStyle={{ borderColor: COLORS.border }}
+            />
+            <TanstackFormInput
+              form={form}
+              name="password"
+              label="Contraseña"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              leftIcon={<Lock size={18} />}
+              rightSlot={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((previous) => !previous)}
+                  className="text-white/40 hover:text-white/70"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              }
+              labelClassName="text-sm font-medium text-white/80"
+              inputClassName="w-full bg-black/20 pl-10 pr-12 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
+              inputStyle={{ borderColor: COLORS.border }}
+            />
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
+              ) : (
+                "Ingresar al Panel"
+              )}
+            </Button>
+          </form>
+        </Card>
+
+        <p className="text-center mt-6 text-xs" style={{ color: COLORS.muted }}>
+          <UtensilsCrossed className="inline mr-1" size={12} />
+          Restaurante El Sabor · Panel Administrativo
+        </p>
+      </motion.div>
+    </div>
+  );
 };
 
 export default AdminLogin;

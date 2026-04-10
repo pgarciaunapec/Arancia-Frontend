@@ -94,7 +94,10 @@ export const reservationSchema = yup.object({
   time: yup
     .string()
     .required("Selecciona una hora para la reserva.")
-    .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "La hora debe estar en formato HH:MM."),
+    .matches(
+      /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      "La hora debe estar en formato HH:MM.",
+    ),
   guests: yup
     .number()
     .transform((value, originalValue) => Number(originalValue))
@@ -184,10 +187,7 @@ export const checkoutSchema = yup.object({
     .trim()
     .required("La dirección de entrega es obligatoria.")
     .min(5, "La dirección debe tener al menos 5 caracteres."),
-  city: yup
-    .string()
-    .trim()
-    .required("La ciudad es obligatoria."),
+  city: yup.string().trim().required("La ciudad es obligatoria."),
   cardNumber: yup.string().trim(),
   cardExp: yup.string().trim(),
   cardCvv: yup.string().trim(),
@@ -227,5 +227,8 @@ export const eventQuoteSchema = yup.object({
     .max(500, "No se permiten más de 500 invitados.")
     .required("La cantidad de invitados es obligatoria."),
   preferredDate: yup.string().trim().nullable(),
-  notes: yup.string().trim().max(1000, "Las notas no pueden superar 1000 caracteres."),
+  notes: yup
+    .string()
+    .trim()
+    .max(1000, "Las notas no pueden superar 1000 caracteres."),
 });
