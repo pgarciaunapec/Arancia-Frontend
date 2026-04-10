@@ -9,6 +9,7 @@ import { Input } from "../components/ui/input";
 import { useCart } from "../context/CartContext";
 import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
+import { getImageUrl } from "../services/api";
 import { mapBackendMenuItem } from "../lib/mappers";
 
 interface MenuPageProps {
@@ -17,7 +18,7 @@ interface MenuPageProps {
 
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  // categories are derived from the loaded menu items
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -125,7 +126,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
 
               {/* Category Filters */}
               <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
+                {allCategories.map((cat) => (
                   <Button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
@@ -173,7 +174,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredItems.map((item, index) => (
                 <motion.div
-                  key={item._id}
+                  key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
