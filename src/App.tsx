@@ -43,6 +43,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminTables from "./pages/admin/AdminTables";
+import AdminCollections from "./pages/admin/AdminCollections";
+import AdminCollectionView from "./pages/admin/AdminCollectionView";
 import AdminCashRegister from "./pages/admin/AdminCashRegister";
 import AdminInventory from "./pages/admin/AdminInventory";
 import AdminDelivery from "./pages/admin/AdminDelivery";
@@ -186,6 +188,26 @@ const RestaurantApp: React.FC = () => {
                       <AdminRoute>
                         <AdminLayout>
                           <AdminTableBills />
+                        </AdminLayout>
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/collections"
+                    element={
+                      <AdminRoute allowedRoles={["admin"]}>
+                        <AdminLayout>
+                          <AdminCollections />
+                        </AdminLayout>
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/collections/:collection"
+                    element={
+                      <AdminRoute allowedRoles={["admin"]}>
+                        <AdminLayout>
+                          <AdminCollectionView />
                         </AdminLayout>
                       </AdminRoute>
                     }
