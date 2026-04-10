@@ -1,8 +1,10 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-export const AUTH_TOKEN_KEY = 'restaurant_auth_token';
+export const AUTH_TOKEN_KEY = "restaurant_auth_token";
 
-export const getAuthToken = (): string | null => localStorage.getItem(AUTH_TOKEN_KEY);
+export const getAuthToken = (): string | null =>
+  localStorage.getItem(AUTH_TOKEN_KEY);
 
 export const setAuthToken = (token: string | null) => {
   if (token) {
@@ -18,15 +20,20 @@ interface ApiRequestOptions extends RequestInit {
 
 export async function apiRequest<T = unknown>(
   path: string,
-  options: ApiRequestOptions = {}
+  options: ApiRequestOptions = {},
 ): Promise<T> {
   const { auth = false, headers, ...rest } = options;
   const token = getAuthToken();
+  const isFormDataBody =
+    typeof FormData !== "undefined" && rest.body instanceof FormData;
 
   const requestHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
     ...(headers || {}),
   };
+
+  if (!isFormDataBody && !("Content-Type" in requestHeaders)) {
+    requestHeaders["Content-Type"] = "application/json";
+  }
 
   if (auth && token) {
     requestHeaders.Authorization = `Bearer ${token}`;
@@ -37,8 +44,8 @@ export async function apiRequest<T = unknown>(
     headers: requestHeaders,
   });
 
-  const contentType = response.headers.get('content-type') || '';
-  const isJson = contentType.includes('application/json');
+  const contentType = response.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
   const payload = isJson ? await response.json() : null;
 
   if (!response.ok) {
