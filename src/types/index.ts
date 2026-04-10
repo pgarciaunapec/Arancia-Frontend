@@ -87,6 +87,14 @@ export interface Order {
 // ─── Reservations ────────────────────────────────────────────────────────────
 export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
+export interface ReservationPricing {
+  coverPerGuest: number;
+  previousTotal: number;
+  newTotal: number;
+  delta: number;
+  additionalChargeApplied: boolean;
+}
+
 export interface Reservation {
   id: string;
   backendId?: string;
@@ -101,6 +109,7 @@ export interface Reservation {
   status: ReservationStatus;
   tableNumber?: number;
   location: string;
+  pricing?: ReservationPricing;
   createdAt: string;
 }
 
