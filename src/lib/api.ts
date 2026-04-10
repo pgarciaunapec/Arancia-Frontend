@@ -31,7 +31,8 @@ export async function apiRequest<T = unknown>(
     ...(headers || {}),
   };
 
-  if (!isFormDataBody && !("Content-Type" in requestHeaders)) {
+  // Only set Content-Type when there is a body and it's not FormData
+  if (!isFormDataBody && rest.body && !("Content-Type" in requestHeaders)) {
     requestHeaders["Content-Type"] = "application/json";
   }
 
@@ -39,10 +40,34 @@ export async function apiRequest<T = unknown>(
     requestHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  // Ensure GET requests bypass browser cache to avoid receiving 304 Not Modified
+  const method = (rest.method ? String(rest.method) : "GET").toUpperCase();
+  const fetchOptions: RequestInit = {
     ...rest,
     headers: requestHeaders,
-  });
+  };
+
+  if (method === "GET" && !(fetchOptions as any).cache) {
+    fetchOptions.cache = "no-store";
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, fetchOptions);
+
+  const cacheKey = `api_cache:${API_BASE_URL}${path}`;
+
+  // If server indicates resource not modified, try to return cached payload
+  if (response.status === 304) {
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        return JSON.parse(cached) as T;
+      }
+    } catch (e) {
+      // ignore parse errors and fall-through to empty response
+    }
+
+    return {} as unknown as T;
+  }
 
   const contentType = response.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
@@ -53,11 +78,22 @@ export async function apiRequest<T = unknown>(
       payload?.error ||
       payload?.message ||
       (payload?.details?.errors &&
-        (payload.details.errors[0]?.message || payload.details.errors[0]?.msg)) ||
+        (payload.details.errors[0]?.message ||
+          payload.details.errors[0]?.msg)) ||
       (payload?.errors && payload.errors[0]?.msg) ||
       (payload?.errors && payload.errors[0]?.message) ||
       `HTTP ${response.status}`;
     throw new Error(message);
+  }
+
+  // Persist successful JSON GET responses to sessionStorage so we can
+  // recover data when the server later responds with 304 Not Modified.
+  try {
+    if (method === "GET" && isJson && payload) {
+      sessionStorage.setItem(cacheKey, JSON.stringify(payload));
+    }
+  } catch (e) {
+    // ignore storage errors
   }
 
   return payload as T;
