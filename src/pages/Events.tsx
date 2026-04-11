@@ -443,7 +443,7 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
             <Button
               size="lg"
               onClick={() => openQuoteModal("privado")}
-              className="bg-amber-400 text-slate-900 hover:bg-amber-300 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all font-bold"
+              className="bg-amber-400 text-slate-950 hover:bg-amber-200 hover:text-slate-950 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-xl hover:scale-105 transition-all font-bold"
             >
               <Phone className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
               Contactar Ahora
