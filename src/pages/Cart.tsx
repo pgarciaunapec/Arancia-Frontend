@@ -34,7 +34,10 @@ const Cart: React.FC = () => {
 
   const freeDeliveryThreshold = 2000;
   const amountForFreeDelivery = Math.max(0, freeDeliveryThreshold - subtotal);
-  const freeDeliveryProgress = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
+  const freeDeliveryProgress = Math.min(
+    100,
+    (subtotal / freeDeliveryThreshold) * 100,
+  );
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
@@ -75,7 +78,8 @@ const Cart: React.FC = () => {
           </div>
 
           <p style={{ color: COLORS.muted }}>
-            Revisa, ajusta cantidades y confirma con un desglose transparente antes de pagar.
+            Revisa, ajusta cantidades y confirma con un desglose transparente
+            antes de pagar.
           </p>
 
           {items.length > 0 && (
@@ -94,10 +98,13 @@ const Cart: React.FC = () => {
                   </p>
                   {amountForFreeDelivery > 0 ? (
                     <p className="text-sm" style={{ color: COLORS.muted }}>
-                      Te faltan {formatCurrencyDOP(amountForFreeDelivery)} para envío gratis.
+                      Te faltan {formatCurrencyDOP(amountForFreeDelivery)} para
+                      envío gratis.
                     </p>
                   ) : (
-                    <p className="text-sm text-green-400">¡Ya desbloqueaste envío gratis!</p>
+                    <p className="text-sm text-green-400">
+                      ¡Ya desbloqueaste envío gratis!
+                    </p>
                   )}
                 </div>
                 <p className="text-xs" style={{ color: COLORS.muted }}>
@@ -110,7 +117,8 @@ const Cart: React.FC = () => {
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${freeDeliveryProgress}%`,
-                    background: "linear-gradient(90deg, #f5b400 0%, #ff8c6b 100%)",
+                    background:
+                      "linear-gradient(90deg, #f5b400 0%, #ff8c6b 100%)",
                   }}
                 />
               </div>
@@ -191,14 +199,16 @@ const Cart: React.FC = () => {
                           )}
 
                           <div className="flex flex-wrap gap-1.5">
-                            {(item.ingredients || []).slice(0, 4).map((ingredient) => (
-                              <span
-                                key={`${item.id}-${ingredient}`}
-                                className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-white/75"
-                              >
-                                {ingredient}
-                              </span>
-                            ))}
+                            {(item.ingredients || [])
+                              .slice(0, 4)
+                              .map((ingredient) => (
+                                <span
+                                  key={`${item.id}-${ingredient}`}
+                                  className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-white/75"
+                                >
+                                  {ingredient}
+                                </span>
+                              ))}
                           </div>
 
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
@@ -211,7 +221,9 @@ const Cart: React.FC = () => {
 
                             <div className="flex items-center gap-3 bg-black/20 rounded-xl p-1.5">
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                onClick={() =>
+                                  updateQuantity(item.id, item.quantity - 1)
+                                }
                                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
                               >
                                 <Minus size={14} />
@@ -220,7 +232,9 @@ const Cart: React.FC = () => {
                                 {item.quantity}
                               </span>
                               <button
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                onClick={() =>
+                                  updateQuantity(item.id, item.quantity + 1)
+                                }
                                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
                               >
                                 <Plus size={14} />
@@ -258,7 +272,9 @@ const Cart: React.FC = () => {
                     style={{ color: COLORS.muted }}
                   >
                     <span>Subtotal ({count} items)</span>
-                    <span className="text-white">{formatCurrencyDOP(subtotal)}</span>
+                    <span className="text-white">
+                      {formatCurrencyDOP(subtotal)}
+                    </span>
                   </div>
                   <div
                     className="flex justify-between text-sm"
@@ -289,12 +305,18 @@ const Cart: React.FC = () => {
                       border: `1px solid ${COLORS.border}`,
                     }}
                   >
-                    <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.muted }}>
+                    <p
+                      className="text-xs uppercase tracking-wide"
+                      style={{ color: COLORS.muted }}
+                    >
                       Total a pagar
                     </p>
                     <div className="mt-1 flex justify-between items-end font-bold">
                       <span className="text-white text-base">Total</span>
-                      <span className="text-2xl" style={{ color: COLORS.primary }}>
+                      <span
+                        className="text-2xl"
+                        style={{ color: COLORS.primary }}
+                      >
                         {formatCurrencyDOP(total)}
                       </span>
                     </div>
@@ -308,7 +330,10 @@ const Cart: React.FC = () => {
                   Proceder al Pago <ArrowRight size={18} />
                 </Button>
 
-                <div className="mt-4 space-y-2 text-xs" style={{ color: COLORS.muted }}>
+                <div
+                  className="mt-4 space-y-2 text-xs"
+                  style={{ color: COLORS.muted }}
+                >
                   <p className="flex items-center gap-2">
                     <ShieldCheck size={14} /> Pago cifrado y seguro.
                   </p>

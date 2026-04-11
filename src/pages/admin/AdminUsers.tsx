@@ -114,7 +114,10 @@ const AdminUsers: React.FC = () => {
 
       <Card
         className="p-4 flex gap-3 flex-wrap items-center"
-        style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}
+        style={{
+          backgroundColor: COLORS.secondary,
+          border: `1px solid ${COLORS.border}`,
+        }}
       >
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-2.5 text-white/30" size={16} />
@@ -151,7 +154,10 @@ const AdminUsers: React.FC = () => {
       )}
 
       <Card
-        style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}
+        style={{
+          backgroundColor: COLORS.secondary,
+          border: `1px solid ${COLORS.border}`,
+        }}
       >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
@@ -176,7 +182,10 @@ const AdminUsers: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs"
-                        style={{ backgroundColor: "rgba(245,180,0,0.15)", color: COLORS.primary }}
+                        style={{
+                          backgroundColor: "rgba(245,180,0,0.15)",
+                          color: COLORS.primary,
+                        }}
                       >
                         {user.name
                           .split(" ")
@@ -200,7 +209,10 @@ const AdminUsers: React.FC = () => {
                     <span
                       className={`inline-flex rounded-full px-2 py-1 text-xs font-bold ${roleBadgeClass[user.role]}`}
                     >
-                      {roleOptions.find((role) => role.value === user.role)?.label}
+                      {
+                        roleOptions.find((role) => role.value === user.role)
+                          ?.label
+                      }
                     </span>
                   </td>
 
@@ -224,7 +236,10 @@ const AdminUsers: React.FC = () => {
                         ))}
                       </select>
 
-                      <ShieldCheck size={14} style={{ color: COLORS.primary }} />
+                      <ShieldCheck
+                        size={14}
+                        style={{ color: COLORS.primary }}
+                      />
                     </div>
                   </td>
                 </motion.tr>
@@ -250,7 +265,10 @@ const AdminUsers: React.FC = () => {
         >
           <Card
             className="w-full max-w-lg p-6"
-            style={{ backgroundColor: COLORS.secondary, border: `1px solid ${COLORS.border}` }}
+            style={{
+              backgroundColor: COLORS.secondary,
+              border: `1px solid ${COLORS.border}`,
+            }}
             onClick={(event) => event.stopPropagation()}
           >
             <h2 className="text-xl font-bold text-white mb-4">Crear Usuario</h2>
@@ -271,7 +289,10 @@ const AdminUsers: React.FC = () => {
                 type="email"
                 value={formData.email}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, email: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    email: event.target.value,
+                  }))
                 }
                 placeholder="Correo electrónico"
                 required
@@ -283,7 +304,10 @@ const AdminUsers: React.FC = () => {
                 type="password"
                 value={formData.password}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, password: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    password: event.target.value,
+                  }))
                 }
                 placeholder="Contraseña (mínimo 6 caracteres)"
                 required

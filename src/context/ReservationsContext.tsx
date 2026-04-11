@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { Reservation, ReservationStatus } from '../types';
-import { apiRequest } from '../lib/api';
-import type { ApiEnvelope } from '../lib/api';
-import { mapBackendReservation } from '../lib/mappers';
-import { useAuth } from './AuthContext';
-import { normalizeDominicanPhone } from '../lib/phone';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import type { Reservation, ReservationStatus } from "../types";
+import { apiRequest } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
+import { mapBackendReservation } from "../lib/mappers";
+import { useAuth } from "./AuthContext";
+import { normalizeDominicanPhone } from "../lib/phone";
 
 interface ReservationsContextValue {
   reservations: Reservation[];
@@ -40,7 +46,9 @@ interface UpdateReservationData {
   acceptAdditionalCharge?: boolean;
 }
 
-const ReservationsContext = createContext<ReservationsContextValue | null>(null);
+const ReservationsContext = createContext<ReservationsContextValue | null>(
+  null,
+);
 
 const unpackArrayData = (payload: unknown): any[] => {
   if (Array.isArray(payload)) {
@@ -49,7 +57,7 @@ const unpackArrayData = (payload: unknown): any[] => {
 
   if (
     payload &&
-    typeof payload === 'object' &&
+    typeof payload === "object" &&
     Array.isArray((payload as { data?: unknown }).data)
   ) {
     return (payload as { data: any[] }).data;
@@ -58,7 +66,9 @@ const unpackArrayData = (payload: unknown): any[] => {
   return [];
 };
 
-export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { user, isAuthenticated } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
@@ -68,7 +78,9 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    const response = await apiRequest<ApiEnvelope<any>>('/reservations/my', { auth: true });
+    const response = await apiRequest<ApiEnvelope<any>>("/reservations/my", {
+      auth: true,
+    });
     const mapped = unpackArrayData(response.data).map((raw) =>
       mapBackendReservation(raw, user?.id),
     );
@@ -79,29 +91,32 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     refreshReservations().catch(() => setReservations([]));
   }, [refreshReservations]);
 
-  const createReservation = useCallback(async (data: CreateReservationData) => {
-    if (!isAuthenticated) {
-      throw new Error('Debes iniciar sesión para continuar con tu reserva.');
-    }
+  const createReservation = useCallback(
+    async (data: CreateReservationData) => {
+      if (!isAuthenticated) {
+        throw new Error("Debes iniciar sesión para continuar con tu reserva.");
+      }
 
-    const response = await apiRequest<ApiEnvelope<any>>('/reservations', {
-      method: 'POST',
-      auth: true,
-      body: JSON.stringify({
-        date: data.date,
-        time: data.time,
-        guests: data.guests,
-        name: data.name,
-        email: data.email,
-        phone: normalizeDominicanPhone(data.phone),
-        notes: data.notes,
-      }),
-    });
+      const response = await apiRequest<ApiEnvelope<any>>("/reservations", {
+        method: "POST",
+        auth: true,
+        body: JSON.stringify({
+          date: data.date,
+          time: data.time,
+          guests: data.guests,
+          name: data.name,
+          email: data.email,
+          phone: normalizeDominicanPhone(data.phone),
+          notes: data.notes,
+        }),
+      });
 
-    const mapped = mapBackendReservation(response.data, user?.id);
-    setReservations((prev) => [mapped, ...prev]);
-    return mapped;
-  }, [isAuthenticated, user?.id]);
+      const mapped = mapBackendReservation(response.data, user?.id);
+      setReservations((prev) => [mapped, ...prev]);
+      return mapped;
+    },
+    [isAuthenticated, user?.id],
+  );
 
   const updateReservation = useCallback(
     async (id: string, data: UpdateReservationData) => {
@@ -110,11 +125,14 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
         phone: data.phone ? normalizeDominicanPhone(data.phone) : data.phone,
       };
 
-      const response = await apiRequest<ApiEnvelope<any>>(`/reservations/${id}`, {
-        method: 'PUT',
-        auth: true,
-        body: JSON.stringify(payload),
-      });
+      const response = await apiRequest<ApiEnvelope<any>>(
+        `/reservations/${id}`,
+        {
+          method: "PUT",
+          auth: true,
+          body: JSON.stringify(payload),
+        },
+      );
 
       const mapped = mapBackendReservation(response.data, user?.id);
       setReservations((prev) =>
@@ -127,23 +145,47 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const cancelReservation = useCallback(async (id: string) => {
     await apiRequest(`/reservations/${id}/cancel`, {
-      method: 'POST',
+      method: "POST",
       auth: true,
     });
 
-    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status: 'cancelled' } : item)));
+    setReservations((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, status: "cancelled" } : item,
+      ),
+    );
   }, []);
 
-  const getReservationsByUser = useCallback((userId: string) => reservations.filter((item) => item.userId === userId || !item.userId), [reservations]);
+  const getReservationsByUser = useCallback(
+    (userId: string) =>
+      reservations.filter((item) => item.userId === userId || !item.userId),
+    [reservations],
+  );
 
   const getAllReservations = useCallback(() => reservations, [reservations]);
 
-  const updateReservationStatus = useCallback((id: string, status: ReservationStatus) => {
-    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
-  }, []);
+  const updateReservationStatus = useCallback(
+    (id: string, status: ReservationStatus) => {
+      setReservations((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status } : item)),
+      );
+    },
+    [],
+  );
 
   return (
-    <ReservationsContext.Provider value={{ reservations, createReservation, updateReservation, cancelReservation, getReservationsByUser, getAllReservations, updateReservationStatus, refreshReservations }}>
+    <ReservationsContext.Provider
+      value={{
+        reservations,
+        createReservation,
+        updateReservation,
+        cancelReservation,
+        getReservationsByUser,
+        getAllReservations,
+        updateReservationStatus,
+        refreshReservations,
+      }}
+    >
       {children}
     </ReservationsContext.Provider>
   );
@@ -151,6 +193,7 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
 export const useReservations = () => {
   const ctx = useContext(ReservationsContext);
-  if (!ctx) throw new Error('useReservations must be used within ReservationsProvider');
+  if (!ctx)
+    throw new Error("useReservations must be used within ReservationsProvider");
   return ctx;
 };

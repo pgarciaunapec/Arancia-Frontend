@@ -1,22 +1,43 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { User } from '../types';
-import { apiRequest, getAuthToken, setAuthToken } from '../lib/api';
-import type { ApiEnvelope } from '../lib/api';
-import { mapBackendUser } from '../lib/mappers';
-import { normalizeDominicanPhone } from '../lib/phone';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import type { User } from "../types";
+import { apiRequest, getAuthToken, setAuthToken } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
+import { mapBackendUser } from "../lib/mappers";
+import { normalizeDominicanPhone } from "../lib/phone";
 
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string; user?: User }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
+  register: (
+    data: RegisterData,
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
-  updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
-  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (
+    data: Partial<User>,
+  ) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   getAllUsers: () => User[];
-  createUser: (data: CreateUserData) => Promise<{ success: boolean; error?: string }>;
-  updateUser: (userId: string, data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  createUser: (
+    data: CreateUserData,
+  ) => Promise<{ success: boolean; error?: string }>;
+  updateUser: (
+    userId: string,
+    data: Partial<User>,
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface RegisterData {
@@ -30,39 +51,41 @@ interface CreateUserData {
   name: string;
   email: string;
   password: string;
-  role: User['role'];
+  role: User["role"];
   phone?: string;
   address?: string;
 }
 
-const CURRENT_USER_KEY = 'restaurant_current_user';
+const CURRENT_USER_KEY = "restaurant_current_user";
 
 const normalizeLoginError = (message: string): string => {
   const normalized = message.toLowerCase();
 
   if (
-    normalized.includes('illegal arguments') ||
-    normalized.includes('credenciales inválidas') ||
-    normalized.includes('credenciales invalidas')
+    normalized.includes("illegal arguments") ||
+    normalized.includes("credenciales inválidas") ||
+    normalized.includes("credenciales invalidas")
   ) {
-    return 'El correo o la contraseña no coinciden.';
+    return "El correo o la contraseña no coinciden.";
   }
 
   if (
-    normalized.includes('validación fallida') ||
-    normalized.includes('campos') ||
-    normalized.includes('email es requerido') ||
-    normalized.includes('contraseña es requerida')
+    normalized.includes("validación fallida") ||
+    normalized.includes("campos") ||
+    normalized.includes("email es requerido") ||
+    normalized.includes("contraseña es requerida")
   ) {
-    return 'Por favor, completa todos los campos.';
+    return "Por favor, completa todos los campos.";
   }
 
-  return message || 'El correo o la contraseña no coinciden.';
+  return message || "El correo o la contraseña no coinciden.";
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem(CURRENT_USER_KEY);
@@ -81,7 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const response = await apiRequest<ApiEnvelope<any>>('/auth/me', { auth: true });
+        const response = await apiRequest<ApiEnvelope<any>>("/auth/me", {
+          auth: true,
+        });
         const mapped = mapBackendUser(response.data);
         setUser(mapped);
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(mapped));
@@ -97,13 +122,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const loadUsers = async () => {
-      if (!user || (user.role !== 'admin' && user.role !== 'staff')) {
+      if (!user || (user.role !== "admin" && user.role !== "staff")) {
         setUsers([]);
         return;
       }
 
       try {
-        const response = await apiRequest<ApiEnvelope<any[]>>('/admin/users?limit=200', { auth: true });
+        const response = await apiRequest<ApiEnvelope<any[]>>(
+          "/admin/users?limit=200",
+          { auth: true },
+        );
         setUsers((response.data || []).map(mapBackendUser));
       } catch {
         setUsers([]);
@@ -116,14 +144,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (email: string, password: string) => {
     try {
       const safeEmail = email.trim().toLowerCase();
-      const safePassword = password || '';
+      const safePassword = password || "";
 
       if (!safeEmail || !safePassword) {
-        return { success: false, error: 'Por favor, completa todos los campos.' };
+        return {
+          success: false,
+          error: "Por favor, completa todos los campos.",
+        };
       }
 
-      const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/login', {
-        method: 'POST',
+      const response = await apiRequest<
+        ApiEnvelope<{ user: any; token: string }>
+      >("/auth/login", {
+        method: "POST",
         body: JSON.stringify({ email: safeEmail, password: safePassword }),
       });
 
@@ -136,16 +169,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true, user: mapped };
     } catch (error) {
-      const rawMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      const rawMessage =
+        error instanceof Error ? error.message : "Error al iniciar sesión";
       return { success: false, error: normalizeLoginError(rawMessage) };
     }
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {
     try {
-      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
-      const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/register', {
-        method: 'POST',
+      const normalizedPhone = data.phone
+        ? normalizeDominicanPhone(data.phone)
+        : undefined;
+      const response = await apiRequest<
+        ApiEnvelope<{ user: any; token: string }>
+      >("/auth/register", {
+        method: "POST",
         body: JSON.stringify({
           name: data.name,
           email: data.email,
@@ -163,7 +201,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true, user: mapped };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error al registrar usuario' };
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Error al registrar usuario",
+      };
     }
   }, []);
 
@@ -175,9 +217,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
     try {
-      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
-      const response = await apiRequest<ApiEnvelope<any>>('/users/profile', {
-        method: 'PUT',
+      const normalizedPhone = data.phone
+        ? normalizeDominicanPhone(data.phone)
+        : undefined;
+      const response = await apiRequest<ApiEnvelope<any>>("/users/profile", {
+        method: "PUT",
         auth: true,
         body: JSON.stringify({
           name: data.name,
@@ -193,31 +237,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'No se pudo actualizar el perfil' };
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo actualizar el perfil",
+      };
     }
   }, []);
 
-  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
-    try {
-      await apiRequest('/users/password', {
-        method: 'PUT',
-        auth: true,
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'No se pudo cambiar la contraseña' };
-    }
-  }, []);
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        await apiRequest("/users/password", {
+          method: "PUT",
+          auth: true,
+          body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : "No se pudo cambiar la contraseña",
+        };
+      }
+    },
+    [],
+  );
 
   const getAllUsers = useCallback(() => users, [users]);
 
   const createUser = useCallback(async (data: CreateUserData) => {
     try {
-      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
+      const normalizedPhone = data.phone
+        ? normalizeDominicanPhone(data.phone)
+        : undefined;
 
-      const response = await apiRequest<ApiEnvelope<any>>('/admin/users', {
-        method: 'POST',
+      const response = await apiRequest<ApiEnvelope<any>>("/admin/users", {
+        method: "POST",
         auth: true,
         body: JSON.stringify({
           name: data.name,
@@ -234,54 +295,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'No se pudo crear el usuario' };
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo crear el usuario",
+      };
     }
   }, []);
 
-  const updateUser = useCallback(async (userId: string, data: Partial<User>) => {
-    try {
-      const isVipPayload = typeof data.isVIP === 'boolean';
+  const updateUser = useCallback(
+    async (userId: string, data: Partial<User>) => {
+      try {
+        const isVipPayload = typeof data.isVIP === "boolean";
 
-      if (isVipPayload) {
-        await apiRequest(`/admin/users/${userId}/vip`, {
-          method: 'PATCH',
-          auth: true,
-          body: JSON.stringify({ isVip: data.isVIP, vipDiscount: data.isVIP ? 10 : 0 }),
-        });
-      } else {
-        const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
-        await apiRequest(`/admin/users/${userId}`, {
-          method: 'PUT',
-          auth: true,
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            phone: normalizedPhone || undefined,
-            role: data.role,
-          }),
-        });
+        if (isVipPayload) {
+          await apiRequest(`/admin/users/${userId}/vip`, {
+            method: "PATCH",
+            auth: true,
+            body: JSON.stringify({
+              isVip: data.isVIP,
+              vipDiscount: data.isVIP ? 10 : 0,
+            }),
+          });
+        } else {
+          const normalizedPhone = data.phone
+            ? normalizeDominicanPhone(data.phone)
+            : undefined;
+          await apiRequest(`/admin/users/${userId}`, {
+            method: "PUT",
+            auth: true,
+            body: JSON.stringify({
+              name: data.name,
+              email: data.email,
+              phone: normalizedPhone || undefined,
+              role: data.role,
+            }),
+          });
+        }
+
+        if (user?.id === userId) {
+          const merged = { ...user, ...data };
+          setUser(merged);
+          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(merged));
+        }
+
+        setUsers((prev) =>
+          prev.map((item) =>
+            item.id === userId ? { ...item, ...data } : item,
+          ),
+        );
+
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : "No se pudo actualizar el usuario",
+        };
       }
-
-      if (user?.id === userId) {
-        const merged = { ...user, ...data };
-        setUser(merged);
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(merged));
-      }
-
-      setUsers((prev) => prev.map((item) => (item.id === userId ? { ...item, ...data } : item)));
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'No se pudo actualizar el usuario' };
-    }
-  }, [user]);
+    },
+    [user],
+  );
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin' || user?.role === 'staff',
+        isAdmin: user?.role === "admin" || user?.role === "staff",
         login,
         register,
         logout,
@@ -299,6 +384,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 };

@@ -82,7 +82,8 @@ const Checkout: React.FC = () => {
       if (!normalizedCard) {
         fields.cardNumber = "El número de tarjeta es obligatorio.";
       } else if (normalizedCard.length < 13 || normalizedCard.length > 19) {
-        fields.cardNumber = "El número de tarjeta debe tener entre 13 y 19 dígitos.";
+        fields.cardNumber =
+          "El número de tarjeta debe tener entre 13 y 19 dígitos.";
       }
 
       if (!values.cardExp.trim()) {
@@ -121,7 +122,9 @@ const Checkout: React.FC = () => {
     onSubmit: async ({ value }) => {
       const validation = validateCheckoutByMode(value);
       if (validation) {
-        setSubmitError(validation.form || "Hay datos por corregir antes de pagar.");
+        setSubmitError(
+          validation.form || "Hay datos por corregir antes de pagar.",
+        );
         return;
       }
 
@@ -402,7 +405,10 @@ const Checkout: React.FC = () => {
                       name="cardNumber"
                       value={String(form.state.values.cardNumber)}
                       onChange={(event) =>
-                        form.setFieldValue("cardNumber", maskCardNumber(event.target.value))
+                        form.setFieldValue(
+                          "cardNumber",
+                          maskCardNumber(event.target.value),
+                        )
                       }
                       placeholder="Número de Tarjeta (1234 5678 9012 3456)"
                       inputMode="numeric"
@@ -415,7 +421,10 @@ const Checkout: React.FC = () => {
                         name="cardExp"
                         value={String(form.state.values.cardExp)}
                         onChange={(event) =>
-                          form.setFieldValue("cardExp", maskCardExp(event.target.value))
+                          form.setFieldValue(
+                            "cardExp",
+                            maskCardExp(event.target.value),
+                          )
                         }
                         placeholder="MM/AA"
                         inputMode="numeric"
@@ -427,7 +436,10 @@ const Checkout: React.FC = () => {
                         name="cardCvv"
                         value={String(form.state.values.cardCvv)}
                         onChange={(event) =>
-                          form.setFieldValue("cardCvv", maskCardCvv(event.target.value))
+                          form.setFieldValue(
+                            "cardCvv",
+                            maskCardCvv(event.target.value),
+                          )
                         }
                         placeholder="CVV"
                         inputMode="numeric"
@@ -506,12 +518,18 @@ const Checkout: React.FC = () => {
                       border: `1px solid ${COLORS.border}`,
                     }}
                   >
-                    <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.muted }}>
+                    <p
+                      className="text-xs uppercase tracking-wide"
+                      style={{ color: COLORS.muted }}
+                    >
                       Total a pagar
                     </p>
                     <div className="mt-1 flex justify-between items-end font-bold">
                       <span className="text-white text-base">Total</span>
-                      <span className="text-2xl" style={{ color: COLORS.primary }}>
+                      <span
+                        className="text-2xl"
+                        style={{ color: COLORS.primary }}
+                      >
                         {formatCurrencyDOP(total)}
                       </span>
                     </div>

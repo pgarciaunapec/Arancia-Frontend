@@ -70,7 +70,10 @@ const Home: React.FC<HomeProps> = () => {
 
     const nextIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
     if (nextIndex < sections.length) {
-      sections[nextIndex].scrollIntoView({ behavior: "smooth", block: "start" });
+      sections[nextIndex].scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   };
 

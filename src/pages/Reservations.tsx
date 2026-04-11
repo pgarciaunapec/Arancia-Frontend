@@ -140,11 +140,17 @@ const Reservations: React.FC = () => {
     setShowErrors(true);
 
     const stepFields =
-      step === 1 ? ["date", "time", "guests"] : ["name", "phone", "email", "notes"];
+      step === 1
+        ? ["date", "time", "guests"]
+        : ["name", "phone", "email", "notes"];
 
-    const hasErrors = stepFields.some((field) => Boolean(validationErrors[field]));
+    const hasErrors = stepFields.some((field) =>
+      Boolean(validationErrors[field]),
+    );
     if (hasErrors) {
-      setSubmissionError("Completa correctamente los campos requeridos antes de continuar.");
+      setSubmissionError(
+        "Completa correctamente los campos requeridos antes de continuar.",
+      );
       return;
     }
 
@@ -261,7 +267,9 @@ const Reservations: React.FC = () => {
                       />
                     </div>
                     {showErrors && validationErrors.date && (
-                      <p className="text-xs text-red-400">{validationErrors.date}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.date}
+                      </p>
                     )}
                   </div>
 
@@ -288,20 +296,73 @@ const Reservations: React.FC = () => {
                         <option
                           value=""
                           disabled
-                          style={{ color: "#d6d6d6", backgroundColor: "#2d1f0f" }}
+                          style={{
+                            color: "#d6d6d6",
+                            backgroundColor: "#2d1f0f",
+                          }}
                         >
                           Selecciona una hora
                         </option>
-                        <option value="12:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>12:00 PM</option>
-                        <option value="13:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>01:00 PM</option>
-                        <option value="14:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>02:00 PM</option>
-                        <option value="19:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>07:00 PM</option>
-                        <option value="20:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>08:00 PM</option>
-                        <option value="21:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>09:00 PM</option>
+                        <option
+                          value="12:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          12:00 PM
+                        </option>
+                        <option
+                          value="13:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          01:00 PM
+                        </option>
+                        <option
+                          value="14:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          02:00 PM
+                        </option>
+                        <option
+                          value="19:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          07:00 PM
+                        </option>
+                        <option
+                          value="20:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          08:00 PM
+                        </option>
+                        <option
+                          value="21:00"
+                          style={{
+                            color: "#ffffff",
+                            backgroundColor: "#2d1f0f",
+                          }}
+                        >
+                          09:00 PM
+                        </option>
                       </select>
                     </div>
                     {showErrors && validationErrors.time && (
-                      <p className="text-xs text-red-400">{validationErrors.time}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.time}
+                      </p>
                     )}
                   </div>
 
@@ -325,11 +386,17 @@ const Reservations: React.FC = () => {
                         className="w-full pl-10 pr-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 transition-all appearance-none"
                         style={reservationSelectStyle}
                       >
-                        {Array.from({ length: 20 }, (_, index) => index + 1).map((num) => (
+                        {Array.from(
+                          { length: 20 },
+                          (_, index) => index + 1,
+                        ).map((num) => (
                           <option
                             key={num}
                             value={num}
-                            style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}
+                            style={{
+                              color: "#ffffff",
+                              backgroundColor: "#2d1f0f",
+                            }}
                           >
                             {num} {num === 1 ? "Persona" : "Personas"}
                           </option>
@@ -337,7 +404,9 @@ const Reservations: React.FC = () => {
                       </select>
                     </div>
                     {showErrors && validationErrors.guests && (
-                      <p className="text-xs text-red-400">{validationErrors.guests}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.guests}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -386,7 +455,9 @@ const Reservations: React.FC = () => {
                       />
                     </div>
                     {showErrors && validationErrors.name && (
-                      <p className="text-xs text-red-400">{validationErrors.name}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.name}
+                      </p>
                     )}
                   </div>
 
@@ -418,7 +489,9 @@ const Reservations: React.FC = () => {
                       />
                     </div>
                     {showErrors && validationErrors.phone && (
-                      <p className="text-xs text-red-400">{validationErrors.phone}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.phone}
+                      </p>
                     )}
                   </div>
 
@@ -449,7 +522,9 @@ const Reservations: React.FC = () => {
                       />
                     </div>
                     {showErrors && validationErrors.email && (
-                      <p className="text-xs text-red-400">{validationErrors.email}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.email}
+                      </p>
                     )}
                   </div>
 
@@ -479,7 +554,9 @@ const Reservations: React.FC = () => {
                       />
                     </div>
                     {showErrors && validationErrors.notes && (
-                      <p className="text-xs text-red-400">{validationErrors.notes}</p>
+                      <p className="text-xs text-red-400">
+                        {validationErrors.notes}
+                      </p>
                     )}
                   </div>
                 </div>
