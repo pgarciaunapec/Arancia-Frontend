@@ -15,6 +15,7 @@ interface AuthContextValue {
   updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   getAllUsers: () => User[];
+  createUser: (data: CreateUserData) => Promise<{ success: boolean; error?: string }>;
   updateUser: (userId: string, data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -23,6 +24,15 @@ interface RegisterData {
   email: string;
   password: string;
   phone?: string;
+}
+
+interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+  role: User['role'];
+  phone?: string;
+  address?: string;
 }
 
 const CURRENT_USER_KEY = 'restaurant_current_user';
@@ -202,6 +212,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getAllUsers = useCallback(() => users, [users]);
 
+  const createUser = useCallback(async (data: CreateUserData) => {
+    try {
+      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
+
+      const response = await apiRequest<ApiEnvelope<any>>('/admin/users', {
+        method: 'POST',
+        auth: true,
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          role: data.role,
+          phone: normalizedPhone || undefined,
+          address: data.address,
+        }),
+      });
+
+      const mapped = mapBackendUser(response.data);
+      setUsers((prev) => [mapped, ...prev]);
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'No se pudo crear el usuario' };
+    }
+  }, []);
+
   const updateUser = useCallback(async (userId: string, data: Partial<User>) => {
     try {
       const isVipPayload = typeof data.isVIP === 'boolean';
@@ -252,6 +288,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         changePassword,
         getAllUsers,
+        createUser,
         updateUser,
       }}
     >
