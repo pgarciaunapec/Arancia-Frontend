@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   ShoppingBag,
@@ -18,6 +18,8 @@ import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../context/OrdersContext";
 import type { OrderStatus } from "../types";
 import { formatCurrencyDOP } from "../lib/currency";
+import { apiRequest } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
 
 const COLORS = {
   primary: "#f5b400",
@@ -55,8 +57,8 @@ const statusConfig: Record<
     bg: "bg-green-500",
     icon: <CheckCircle size={14} />,
   },
-  delivering: {
-    label: "En camino",
+  shipped: {
+    label: "Enviado",
     color: "text-purple-400",
     bg: "bg-purple-500",
     icon: <Truck size={14} />,
@@ -75,16 +77,74 @@ const statusConfig: Record<
   },
 };
 
+interface UserNotification {
+  _id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+}
+
 const MyOrders: React.FC = () => {
   const { user } = useAuth();
   const { getOrdersByUser } = useOrders();
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const orders = user ? getOrdersByUser(user.id) : [];
   const sorted = [...orders].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+
+  useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+
+    const loadNotifications = async () => {
+      try {
+        const response = await apiRequest<ApiEnvelope<UserNotification[]>>(
+          "/notifications?unread=true&limit=5",
+          { auth: true },
+        );
+
+        const payload = response as ApiEnvelope<UserNotification[]> & {
+          unreadCount?: number;
+        };
+
+        setNotifications(payload.data || []);
+        setUnreadCount(Number(payload.unreadCount || 0));
+      } catch {
+        // Keep existing data if notifications polling fails.
+      }
+    };
+
+    loadNotifications();
+
+    const intervalId = window.setInterval(() => {
+      loadNotifications();
+    }, 8000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [user]);
+
+  const markNotificationsAsRead = async () => {
+    try {
+      await apiRequest("/notifications/read-all", {
+        method: "PATCH",
+        auth: true,
+      });
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch {
+      // Ignore mark-as-read failure and keep notifications visible.
+    }
+  };
 
   return (
     <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
@@ -106,6 +166,36 @@ const MyOrders: React.FC = () => {
             <Link to="/menu">+ Nuevo Pedido</Link>
           </Button>
         </motion.div>
+
+        {unreadCount > 0 && (
+          <Card
+            className="p-4 mb-6"
+            style={{
+              backgroundColor: "rgba(245, 180, 0, 0.1)",
+              border: `1px solid ${COLORS.border}`,
+            }}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold text-white">
+                  Tienes {unreadCount} actualización
+                  {unreadCount !== 1 ? "es" : ""} nueva
+                  {unreadCount !== 1 ? "s" : ""} de pedidos
+                </p>
+                <div className="mt-2 space-y-1 text-sm" style={{ color: COLORS.muted }}>
+                  {notifications.map((notification) => (
+                    <p key={notification._id}>
+                      {notification.message}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <Button size="sm" variant="outline" onClick={markNotificationsAsRead}>
+                Marcar como leídas
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {sorted.length === 0 ? (
           <Card
@@ -261,7 +351,7 @@ const MyOrders: React.FC = () => {
 
                         {(order.status === "confirmed" ||
                           order.status === "preparing" ||
-                          order.status === "delivering") && (
+                          order.status === "shipped") && (
                           <Button
                             size="sm"
                             onClick={() => navigate(`/track/${order.id}`)}

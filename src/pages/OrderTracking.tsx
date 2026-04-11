@@ -46,7 +46,7 @@ const timelineSteps = [
     },
     {
         key: "on_the_way",
-        statuses: ["delivering"],
+        statuses: ["shipped"],
         label: "Camino",
         description: "Tu pedido salio y va en ruta.",
         icon: <Truck size={18} />,
@@ -88,7 +88,7 @@ const OrderTracking: React.FC = () => {
     const fallbackOrder = orderId ? getOrderById(orderId) : undefined;
 
     const mapDeliveryStatusToOrderStatus = (status?: string): OrderStatus | null => {
-        if (status === "in_transit") return "delivering";
+        if (status === "in_transit") return "shipped";
         if (status === "delivered") return "delivered";
         if (status === "pending" || status === "assigned") return "confirmed";
         return null;
@@ -100,18 +100,29 @@ const OrderTracking: React.FC = () => {
             return;
         }
 
-        const load = async () => {
+        let isMounted = true;
+
+        const load = async (showLoading = false) => {
+            if (showLoading && isMounted) {
+                setLoading(true);
+            }
+
             try {
                 const [orderResponse, deliveryResponse] = await Promise.allSettled([
                     apiRequest<ApiEnvelope<any>>(`/orders/${orderId}`, { auth: true }),
                     apiRequest<ApiEnvelope<any>>(`/delivery/${orderId}`, { auth: true }),
                 ]);
 
-                if (orderResponse.status === "fulfilled" && orderResponse.value?.data) {
+                if (
+                    isMounted &&
+                    orderResponse.status === "fulfilled" &&
+                    orderResponse.value?.data
+                ) {
                     setLiveOrder(mapBackendOrder(orderResponse.value.data));
                 }
 
                 if (
+                    isMounted &&
                     deliveryResponse.status === "fulfilled" &&
                     deliveryResponse.value?.data
                 ) {
@@ -131,11 +142,22 @@ const OrderTracking: React.FC = () => {
                     });
                 }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
-        load();
+        load(true);
+
+        const intervalId = window.setInterval(() => {
+            load(false);
+        }, 8000);
+
+        return () => {
+            isMounted = false;
+            window.clearInterval(intervalId);
+        };
     }, [orderId]);
 
     useEffect(() => {

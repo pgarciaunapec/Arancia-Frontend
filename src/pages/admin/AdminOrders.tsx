@@ -20,7 +20,7 @@ const STATUS_OPTIONS: { value: OrderStatus | "all"; label: string }[] = [
   { value: "confirmed", label: "Confirmados" },
   { value: "preparing", label: "Preparando" },
   { value: "ready", label: "Listos" },
-  { value: "delivering", label: "En camino" },
+  { value: "shipped", label: "Enviados" },
   { value: "delivered", label: "Entregados" },
   { value: "cancelled", label: "Cancelados" },
 ];
@@ -28,8 +28,8 @@ const STATUS_OPTIONS: { value: OrderStatus | "all"; label: string }[] = [
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   confirmed: "preparing",
   preparing: "ready",
-  ready: "delivering",
-  delivering: "delivered",
+  ready: "shipped",
+  shipped: "delivered",
 };
 
 const AdminOrders: React.FC = () => {
@@ -188,7 +188,7 @@ const AdminOrders: React.FC = () => {
                             ? "text-gray-400 bg-gray-500/10"
                             : order.status === "cancelled"
                               ? "text-red-400 bg-red-500/10"
-                              : order.status === "delivering"
+                              : order.status === "shipped"
                                 ? "text-purple-400 bg-purple-500/10"
                                 : "text-green-400 bg-green-500/10"
                         }`}
@@ -203,8 +203,8 @@ const AdminOrders: React.FC = () => {
                                 ? "Preparando"
                                 : order.status === "ready"
                                   ? "Listo"
-                                  : order.status === "delivering"
-                                    ? "En camino"
+                                  : order.status === "shipped"
+                                    ? "Enviado"
                                     : order.status}
                       </span>
                     </td>
@@ -223,7 +223,7 @@ const AdminOrders: React.FC = () => {
                             ? "Preparar"
                             : nextStatus === "ready"
                               ? "Listo"
-                              : nextStatus === "delivering"
+                              : nextStatus === "shipped"
                                 ? "Enviar"
                                 : "Entregar"}
                         </Button>
