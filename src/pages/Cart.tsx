@@ -16,6 +16,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
+import { formatCurrencyDOP } from "../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -93,14 +94,14 @@ const Cart: React.FC = () => {
                   </p>
                   {amountForFreeDelivery > 0 ? (
                     <p className="text-sm" style={{ color: COLORS.muted }}>
-                      Te faltan RD${amountForFreeDelivery.toFixed(0)} para envío gratis.
+                      Te faltan {formatCurrencyDOP(amountForFreeDelivery)} para envío gratis.
                     </p>
                   ) : (
                     <p className="text-sm text-green-400">¡Ya desbloqueaste envío gratis!</p>
                   )}
                 </div>
                 <p className="text-xs" style={{ color: COLORS.muted }}>
-                  Meta: RD${freeDeliveryThreshold}
+                  Meta: {formatCurrencyDOP(freeDeliveryThreshold)}
                 </p>
               </div>
 
@@ -205,7 +206,7 @@ const Cart: React.FC = () => {
                               className="text-sm font-semibold"
                               style={{ color: COLORS.primary }}
                             >
-                              RD${item.price.toLocaleString()} c/u
+                              {formatCurrencyDOP(item.price)} c/u
                             </p>
 
                             <div className="flex items-center gap-3 bg-black/20 rounded-xl p-1.5">
@@ -227,7 +228,7 @@ const Cart: React.FC = () => {
                             </div>
 
                             <p className="font-bold text-white text-lg">
-                              RD${(item.price * item.quantity).toLocaleString()}
+                              {formatCurrencyDOP(item.price * item.quantity)}
                             </p>
                           </div>
                         </div>
@@ -257,16 +258,14 @@ const Cart: React.FC = () => {
                     style={{ color: COLORS.muted }}
                   >
                     <span>Subtotal ({count} items)</span>
-                    <span className="text-white">
-                      RD${subtotal.toLocaleString()}
-                    </span>
+                    <span className="text-white">{formatCurrencyDOP(subtotal)}</span>
                   </div>
                   <div
                     className="flex justify-between text-sm"
                     style={{ color: COLORS.muted }}
                   >
                     <span>ITBIS (18%)</span>
-                    <span className="text-white">RD${tax.toFixed(0)}</span>
+                    <span className="text-white">{formatCurrencyDOP(tax)}</span>
                   </div>
                   <div
                     className="flex justify-between text-sm"
@@ -283,11 +282,22 @@ const Cart: React.FC = () => {
                     <span className="text-white">35 min</span>
                   </div>
                   <div className="h-px bg-white/10" />
-                  <div className="flex justify-between font-bold text-lg">
-                    <span className="text-white">Total</span>
-                    <span style={{ color: COLORS.primary }}>
-                      RD${total.toFixed(0)}
-                    </span>
+                  <div
+                    className="rounded-xl p-3"
+                    style={{
+                      backgroundColor: "rgba(245, 180, 0, 0.12)",
+                      border: `1px solid ${COLORS.border}`,
+                    }}
+                  >
+                    <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.muted }}>
+                      Total a pagar
+                    </p>
+                    <div className="mt-1 flex justify-between items-end font-bold">
+                      <span className="text-white text-base">Total</span>
+                      <span className="text-2xl" style={{ color: COLORS.primary }}>
+                        {formatCurrencyDOP(total)}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <Button

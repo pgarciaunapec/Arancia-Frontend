@@ -12,6 +12,7 @@ import type { DeliveryType } from "../types";
 import { checkoutSchema } from "../schemas/forms.schema";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { registerSuccessfulCheckout } from "../store/checkoutStore";
+import { formatCurrencyDOP } from "../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -470,7 +471,7 @@ const Checkout: React.FC = () => {
                         {item.name} x{item.quantity}
                       </span>
                       <span className="text-white">
-                        RD${(item.price * item.quantity).toLocaleString()}
+                        {formatCurrencyDOP(item.price * item.quantity)}
                       </span>
                     </div>
                   ))}
@@ -482,7 +483,7 @@ const Checkout: React.FC = () => {
                   >
                     <span>Subtotal</span>
                     <span className="text-white">
-                      RD${subtotal.toLocaleString()}
+                      {formatCurrencyDOP(subtotal)}
                     </span>
                   </div>
                   <div
@@ -490,7 +491,7 @@ const Checkout: React.FC = () => {
                     style={{ color: COLORS.muted }}
                   >
                     <span>ITBIS (18%)</span>
-                    <span className="text-white">RD${tax.toFixed(0)}</span>
+                    <span className="text-white">{formatCurrencyDOP(tax)}</span>
                   </div>
                   {deliveryType === "delivery" && (
                     <div className="flex justify-between text-sm text-green-400">
@@ -498,11 +499,22 @@ const Checkout: React.FC = () => {
                       <span>GRATIS</span>
                     </div>
                   )}
-                  <div className="flex justify-between font-bold text-lg border-t border-white/10 pt-2 mt-2">
-                    <span className="text-white">Total</span>
-                    <span style={{ color: COLORS.primary }}>
-                      RD${total.toFixed(0)}
-                    </span>
+                  <div
+                    className="mt-2 rounded-xl p-3"
+                    style={{
+                      backgroundColor: "rgba(245, 180, 0, 0.12)",
+                      border: `1px solid ${COLORS.border}`,
+                    }}
+                  >
+                    <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.muted }}>
+                      Total a pagar
+                    </p>
+                    <div className="mt-1 flex justify-between items-end font-bold">
+                      <span className="text-white text-base">Total</span>
+                      <span className="text-2xl" style={{ color: COLORS.primary }}>
+                        {formatCurrencyDOP(total)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -518,7 +530,7 @@ const Checkout: React.FC = () => {
                       Procesando...
                     </div>
                   ) : (
-                    `Pagar RD$${total.toFixed(0)}`
+                    `Pagar ${formatCurrencyDOP(total)}`
                   )}
                 </Button>
 
