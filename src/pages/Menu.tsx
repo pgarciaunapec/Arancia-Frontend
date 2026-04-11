@@ -3,9 +3,12 @@ import { motion } from "motion/react";
 import {
   Search,
   Plus,
+  Minus,
   ShoppingBag,
   SlidersHorizontal,
   Star,
+  ChevronDown,
+  ChevronUp,
   X,
 } from "lucide-react";
 import type { MenuItem } from "../types";
@@ -50,8 +53,9 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [popularOnly, setPopularOnly] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const { addItem, items: cartItems } = useCart();
+  const { addItem, updateQuantity, items: cartItems } = useCart();
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -174,9 +178,48 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     setPopularOnly(false);
   };
 
+  const toggleDetails = (itemId: string) => {
+    setExpandedItems((previous) =>
+      previous.includes(itemId)
+        ? previous.filter((value) => value !== itemId)
+        : [...previous, itemId],
+    );
+  };
+
   const handleAddItem = (item: MenuItem) => {
     addItem(item);
     onShowModal("¡Agregado!", `${item.name} ha sido agregado a tu carrito`);
+  };
+
+  const increaseQuantity = (item: MenuItem) => {
+    const current = getCartQty(item.id);
+    if (current === 0) {
+      handleAddItem(item);
+      return;
+    }
+
+    updateQuantity(item.id, current + 1);
+  };
+
+  const decreaseQuantity = (itemId: string) => {
+    const current = getCartQty(itemId);
+    if (current === 0) {
+      return;
+    }
+
+    updateQuantity(itemId, current - 1);
+  };
+
+  const getItemDescription = (item: MenuItem) => {
+    if (item.description && item.description.trim().length > 0) {
+      return item.description;
+    }
+
+    if (item.ingredients.length === 0) {
+      return "Especialidad de la casa preparada al momento por nuestro equipo.";
+    }
+
+    return `Preparado con ${item.ingredients.slice(0, 3).join(", ")} y terminado con el sello de Arancia.`;
   };
 
   return (
@@ -381,6 +424,11 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                     >
+                      {(() => {
+                        const quantity = getCartQty(item.id);
+                        const isExpanded = expandedItems.includes(item.id);
+
+                        return (
                       <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50 h-full flex flex-col">
                         <div className="relative h-52 overflow-hidden">
                           <img
@@ -396,6 +444,11 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                             {popularItemIds.has(item.id) && (
                               <Badge className="bg-primary text-primary-foreground">
                                 Popular
+                              </Badge>
+                            )}
+                            {quantity > 0 && (
+                              <Badge className="bg-white text-slate-900 border border-white/50">
+                                {quantity} en pedido
                               </Badge>
                             )}
                             <Badge className="bg-black/70 text-white border border-white/20">
@@ -431,24 +484,64 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                             )}
                           </div>
 
-                          <Button
-                            onClick={() => handleAddItem(item)}
-                            className="w-full mt-auto bg-gradient-warm text-white hover:shadow-lg transition-all text-sm py-5 flex items-center justify-center gap-2"
+                          <button
+                            type="button"
+                            onClick={() => toggleDetails(item.id)}
+                            className="w-full text-left mt-1 text-sm font-medium text-primary hover:text-primary/80 flex items-center justify-between"
                           >
-                            {getCartQty(item.id) > 0 ? (
-                              <>
-                                <ShoppingBag className="w-4 h-4" />
-                                En carrito ({getCartQty(item.id)})
-                              </>
-                            ) : (
-                              <>
-                                <Plus className="w-4 h-4" />
-                                Agregar al Carrito
-                              </>
-                            )}
-                          </Button>
+                            <span>{isExpanded ? "Ocultar detalles" : "Ver detalles"}</span>
+                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </button>
+
+                          {isExpanded && (
+                            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground space-y-2">
+                              <p>{getItemDescription(item)}</p>
+                              <p className="text-xs uppercase tracking-wide font-semibold text-foreground/80">
+                                Ingredientes completos
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {item.ingredients.map((ingredient) => (
+                                  <Badge
+                                    key={`${item.id}-${ingredient}`}
+                                    variant="outline"
+                                    className="text-xs border-border"
+                                  >
+                                    {ingredient}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="mt-auto rounded-xl border border-border bg-muted/25 p-2 flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => decreaseQuantity(item.id)}
+                              disabled={quantity === 0}
+                              className="h-10 w-10 rounded-lg bg-background hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                              <Minus size={16} />
+                            </button>
+
+                            <div className="text-center min-w-24">
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                                Cantidad
+                              </p>
+                              <p className="font-bold text-lg text-foreground">{quantity}</p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => increaseQuantity(item)}
+                              className="h-10 w-10 rounded-lg bg-primary text-primary-foreground hover:opacity-90 flex items-center justify-center"
+                            >
+                              {quantity === 0 ? <Plus size={16} /> : <ShoppingBag size={16} />}
+                            </button>
+                          </div>
                         </div>
                       </Card>
+                        );
+                      })()}
                     </motion.div>
                   ))}
                 </div>

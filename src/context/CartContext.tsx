@@ -126,6 +126,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             quantity: 1,
             image: menuItem.image,
             category: menuItem.category,
+            ingredients: menuItem.ingredients,
+            description: menuItem.description,
           },
         ];
       });
