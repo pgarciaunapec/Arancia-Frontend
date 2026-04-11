@@ -21,8 +21,11 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const from =
-    (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
+  const navigationState = location.state as
+    | { from?: { pathname: string }; message?: string }
+    | undefined;
+  const from = navigationState?.from?.pathname || "/";
+  const redirectMessage = navigationState?.message;
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -76,6 +79,12 @@ const Login: React.FC = () => {
             Ingresa a tu cuenta para continuar
           </p>
         </div>
+
+        {redirectMessage && (
+          <div className="mb-4 rounded-lg border border-blue-400/40 bg-blue-400/10 p-3 text-sm text-blue-200">
+            {redirectMessage}
+          </div>
+        )}
 
         <Card
           className="p-8"
