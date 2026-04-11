@@ -42,6 +42,11 @@ export const mapBackendMenuItem = (raw: any): MenuItem => ({
   category: raw.category,
   price: Number(raw.price || 0),
   ingredients: Array.isArray(raw.ingredients) ? raw.ingredients : [],
+  description:
+    typeof raw.description === 'string' && raw.description.trim().length > 0
+      ? raw.description
+      : undefined,
+  isPopular: Boolean(raw.isPopular),
   image: raw.image || '',
 });
 
@@ -55,6 +60,12 @@ export const mapBackendCartItem = (raw: any): CartItem => {
     quantity: Number(raw.quantity || 1),
     image: raw.image || raw.menuItem?.image || '',
     category: raw.category || raw.menuItem?.category || 'General',
+    description: raw.description || raw.menuItem?.description || undefined,
+    ingredients: Array.isArray(raw.ingredients)
+      ? raw.ingredients
+      : Array.isArray(raw.menuItem?.ingredients)
+        ? raw.menuItem.ingredients
+        : [],
   };
 };
 
@@ -94,6 +105,12 @@ export const mapBackendOrder = (raw: any, userId?: string): Order => {
       price: Number(item.price || item.menuItem?.price || 0),
       quantity: Number(item.quantity || 1),
       image: item.menuItem?.image || item.image || '',
+      description: item.description || item.menuItem?.description || undefined,
+      ingredients: Array.isArray(item.ingredients)
+        ? item.ingredients
+        : Array.isArray(item.menuItem?.ingredients)
+          ? item.menuItem.ingredients
+          : [],
     })),
     subtotal: Number(raw.subtotal || 0),
     tax: Number(raw.tax || 0),

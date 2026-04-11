@@ -5,6 +5,8 @@ export interface MenuItem {
   category: string;
   price: number;
   ingredients: string[];
+  description?: string;
+  isPopular?: boolean;
   image: string;
 }
 
@@ -37,6 +39,8 @@ export interface CartItem {
   quantity: number;
   image: string;
   category: string;
+  ingredients?: string[];
+  description?: string;
 }
 
 // ─── Orders / Payments ───────────────────────────────────────────────────────
@@ -64,6 +68,8 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  ingredients?: string[];
+  description?: string;
 }
 
 export interface Order {
