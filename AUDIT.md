@@ -192,3 +192,32 @@
 ## Observaciones de cierre Git
 - Todas las tareas cerradas con merge `--no-ff` a `dev`.
 - La eliminacion remota de ramas reporto `remote ref does not exist` cuando la rama no habia sido publicada previamente; limpieza local completada en todos los casos.
+
+## Ciclo 2026-04-11 - Backlog Admin de Ejecucion
+
+### Task 1 - Dashboard real y formateo financiero global
+#### Rama
+- `feature/task1-dashboard-currency`
+
+#### Cambios clave
+- Dashboard admin conectado a metricas reales ampliadas desde backend:
+  - `newUsersToday`
+  - `activeOrders`
+  - `totalRevenue`
+- Formateo monetario unificado con utilidad global `formatCurrencyDOP` en vistas Admin y Usuario.
+- Sustitucion de concatenaciones `RD$` manuales por formateo consistente para evitar divergencias visuales y de separadores.
+
+#### Archivos principales
+- `src/pages/admin/AdminDashboard.tsx`
+- `src/pages/admin/AdminCashRegister.tsx`
+- `src/pages/admin/AdminOrders.tsx`
+- `src/pages/admin/AdminClients.tsx`
+- `src/pages/admin/AdminInventory.tsx`
+- `src/pages/admin/AdminTableBills.tsx`
+- `src/pages/MyOrders.tsx`
+- `src/pages/MyReservations.tsx`
+- `src/pages/BookingConfirmation.tsx`
+- `src/pages/Menu.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)

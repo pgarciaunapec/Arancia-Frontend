@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { CheckCircle, Calendar, Clock, Users, ShoppingBag, CreditCard } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { formatCurrencyDOP } from '../lib/currency';
 
 const COLORS = {
     primary: '#f5b400',
@@ -59,7 +60,7 @@ const BookingConfirmation: React.FC = () => {
                             </div>
                             <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                                 <span className="text-white">Total</span>
-                                <span className="font-bold" style={{ color: COLORS.primary }}>RD${order.total?.toFixed?.(0) ?? order.total}</span>
+                                <span className="font-bold" style={{ color: COLORS.primary }}>{formatCurrencyDOP(Number(order.total || 0))}</span>
                             </div>
                         </div>
                     </Card>

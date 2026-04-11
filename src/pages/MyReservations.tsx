@@ -16,6 +16,7 @@ import { Card } from "../components/ui/card";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useReservations } from "../context/ReservationsContext";
+import { formatCurrencyDOP } from "../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -341,8 +342,7 @@ const MyReservations: React.FC = () => {
 
                         {res.status === "confirmed" && editDelta > 0 && (
                           <div className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-                            Este ajuste incrementa la reserva y requiere cobro adicional de RD$
-                            {editDelta.toLocaleString()}.
+                            Este ajuste incrementa la reserva y requiere cobro adicional de {formatCurrencyDOP(editDelta)}.
                           </div>
                         )}
 
