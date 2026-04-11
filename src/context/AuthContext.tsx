@@ -27,6 +27,29 @@ interface RegisterData {
 
 const CURRENT_USER_KEY = 'restaurant_current_user';
 
+const normalizeLoginError = (message: string): string => {
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes('illegal arguments') ||
+    normalized.includes('credenciales inválidas') ||
+    normalized.includes('credenciales invalidas')
+  ) {
+    return 'El correo o la contraseña no coinciden.';
+  }
+
+  if (
+    normalized.includes('validación fallida') ||
+    normalized.includes('campos') ||
+    normalized.includes('email es requerido') ||
+    normalized.includes('contraseña es requerida')
+  ) {
+    return 'Por favor, completa todos los campos.';
+  }
+
+  return message || 'El correo o la contraseña no coinciden.';
+};
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -82,9 +105,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = useCallback(async (email: string, password: string) => {
     try {
+      const safeEmail = email.trim().toLowerCase();
+      const safePassword = password || '';
+
+      if (!safeEmail || !safePassword) {
+        return { success: false, error: 'Por favor, completa todos los campos.' };
+      }
+
       const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: safeEmail, password: safePassword }),
       });
 
       const token = response.data.token;
@@ -96,7 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true, user: mapped };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Error al iniciar sesión' };
+      const rawMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      return { success: false, error: normalizeLoginError(rawMessage) };
     }
   }, []);
 

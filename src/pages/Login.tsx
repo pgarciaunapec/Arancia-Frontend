@@ -38,7 +38,7 @@ const Login: React.FC = () => {
       onSubmit: ({ value }) => validateWithYup(loginSchema, value),
     },
     onSubmitInvalid: () => {
-      setError("Revisa los campos marcados e intenta nuevamente.");
+      setError("Por favor, completa todos los campos.");
     },
     onSubmit: async ({ value }) => {
       setError("");
@@ -52,7 +52,7 @@ const Login: React.FC = () => {
         return;
       }
 
-      setError(result.error || "Error al iniciar sesión");
+      setError(result.error || "El correo o la contraseña no coinciden.");
     },
   });
 
