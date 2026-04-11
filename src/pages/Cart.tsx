@@ -1,12 +1,16 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   Trash2,
   Plus,
   Minus,
   ShoppingBag,
   ArrowRight,
+  Clock3,
+  ShieldCheck,
+  Truck,
+  ReceiptText,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +31,10 @@ const Cart: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const freeDeliveryThreshold = 2000;
+  const amountForFreeDelivery = Math.max(0, freeDeliveryThreshold - subtotal);
+  const freeDeliveryProgress = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
+
   const handleCheckout = () => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: { pathname: "/checkout" } } });
@@ -39,19 +47,22 @@ const Cart: React.FC = () => {
     <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
       <div className="max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 space-y-4"
         >
-          <h1 className="text-4xl font-bold mb-2 text-white flex items-center gap-3">
-            <ShoppingBag
-              className="w-8 h-8"
-              style={{ color: COLORS.primary }}
-            />
-            Tu Pedido
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-4xl font-bold text-white flex items-center gap-3">
+              <ShoppingBag
+                className="w-8 h-8"
+                style={{ color: COLORS.primary }}
+              />
+              Tu Pedido
+            </h1>
+
             {count > 0 && (
               <span
-                className="text-lg font-normal px-3 py-1 rounded-full text-sm"
+                className="text-sm font-semibold px-3 py-2 rounded-full"
                 style={{
                   backgroundColor: COLORS.primary,
                   color: COLORS.secondary,
@@ -60,10 +71,50 @@ const Cart: React.FC = () => {
                 {count} {count === 1 ? "artículo" : "artículos"}
               </span>
             )}
-          </h1>
+          </div>
+
           <p style={{ color: COLORS.muted }}>
-            Revisa tus platos seleccionados antes de confirmar.
+            Revisa, ajusta cantidades y confirma con un desglose transparente antes de pagar.
           </p>
+
+          {items.length > 0 && (
+            <Card
+              className="p-4"
+              style={{
+                backgroundColor: "rgba(255,255,255,0.03)",
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <p className="text-white font-semibold flex items-center gap-2">
+                    <Truck size={16} style={{ color: COLORS.primary }} />
+                    Beneficio de envío
+                  </p>
+                  {amountForFreeDelivery > 0 ? (
+                    <p className="text-sm" style={{ color: COLORS.muted }}>
+                      Te faltan RD${amountForFreeDelivery.toFixed(0)} para envío gratis.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-green-400">¡Ya desbloqueaste envío gratis!</p>
+                  )}
+                </div>
+                <p className="text-xs" style={{ color: COLORS.muted }}>
+                  Meta: RD${freeDeliveryThreshold}
+                </p>
+              </div>
+
+              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${freeDeliveryProgress}%`,
+                    background: "linear-gradient(90deg, #f5b400 0%, #ff8c6b 100%)",
+                  }}
+                />
+              </div>
+            </Card>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -88,70 +139,103 @@ const Cart: React.FC = () => {
                 </Button>
               </Card>
             ) : (
-              items.map((item) => (
-                <motion.div layout key={item.id}>
-                  <Card
-                    className="p-4 flex gap-4 items-center"
-                    style={{
-                      backgroundColor: COLORS.secondary,
-                      border: `1px solid ${COLORS.border}`,
-                    }}
+              <AnimatePresence>
+                {items.map((item, index) => (
+                  <motion.div
+                    layout
+                    key={item.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2, delay: index * 0.03 }}
                   >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-24 h-24 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-white mb-1">
-                        {item.name}
-                      </h3>
-                      <p className="text-xs text-white/40 mb-1">
-                        {item.category}
-                      </p>
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: COLORS.primary }}
-                      >
-                        RD${item.price.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 bg-black/20 rounded-lg p-1">
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        className="p-2 hover:bg-white/10 rounded-md transition-colors text-white"
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="font-bold text-white w-4 text-center">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="p-2 hover:bg-white/10 rounded-md transition-colors text-white"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                    <div className="text-right min-w-[80px]">
-                      <p className="font-bold text-white">
-                        RD${(item.price * item.quantity).toLocaleString()}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-3 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-colors ml-2"
-                      style={{ color: COLORS.muted }}
+                    <Card
+                      className="p-4 sm:p-5"
+                      style={{
+                        backgroundColor: COLORS.secondary,
+                        border: `1px solid ${COLORS.border}`,
+                      }}
                     >
-                      <Trash2 size={18} />
-                    </button>
-                  </Card>
-                </motion.div>
-              ))
+                      <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full sm:w-28 h-36 sm:h-28 rounded-xl object-cover"
+                        />
+
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <h3 className="font-bold text-lg text-white leading-tight">
+                                {item.name}
+                              </h3>
+                              <p className="text-xs text-white/50 mt-1">
+                                {item.category}
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors"
+                              style={{ color: COLORS.muted }}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+
+                          {item.description && (
+                            <p className="text-sm text-white/70 line-clamp-2">
+                              {item.description}
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-1.5">
+                            {(item.ingredients || []).slice(0, 4).map((ingredient) => (
+                              <span
+                                key={`${item.id}-${ingredient}`}
+                                className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-white/75"
+                              >
+                                {ingredient}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                            <p
+                              className="text-sm font-semibold"
+                              style={{ color: COLORS.primary }}
+                            >
+                              RD${item.price.toLocaleString()} c/u
+                            </p>
+
+                            <div className="flex items-center gap-3 bg-black/20 rounded-xl p-1.5">
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                              >
+                                <Minus size={14} />
+                              </button>
+                              <span className="font-bold text-white w-6 text-center">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                              >
+                                <Plus size={14} />
+                              </button>
+                            </div>
+
+                            <p className="font-bold text-white text-lg">
+                              RD${(item.price * item.quantity).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
 
@@ -184,6 +268,20 @@ const Cart: React.FC = () => {
                     <span>ITBIS (18%)</span>
                     <span className="text-white">RD${tax.toFixed(0)}</span>
                   </div>
+                  <div
+                    className="flex justify-between text-sm"
+                    style={{ color: COLORS.muted }}
+                  >
+                    <span>Cargo de servicio</span>
+                    <span className="text-green-400">Incluido</span>
+                  </div>
+                  <div
+                    className="flex justify-between text-sm"
+                    style={{ color: COLORS.muted }}
+                  >
+                    <span>Envío estimado</span>
+                    <span className="text-white">35 min</span>
+                  </div>
                   <div className="h-px bg-white/10" />
                   <div className="flex justify-between font-bold text-lg">
                     <span className="text-white">Total</span>
@@ -199,6 +297,19 @@ const Cart: React.FC = () => {
                 >
                   Proceder al Pago <ArrowRight size={18} />
                 </Button>
+
+                <div className="mt-4 space-y-2 text-xs" style={{ color: COLORS.muted }}>
+                  <p className="flex items-center gap-2">
+                    <ShieldCheck size={14} /> Pago cifrado y seguro.
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Clock3 size={14} /> Confirmación inmediata al procesar.
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <ReceiptText size={14} /> Recibirás comprobante de la orden.
+                  </p>
+                </div>
+
                 <Link
                   to="/menu"
                   className="block text-center mt-4 text-sm hover:underline"
