@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -25,44 +25,52 @@ interface HomeProps {}
 
 const Home: React.FC<HomeProps> = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
-  const sectionsRef = useRef<HTMLElement[]>([]);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
-  // Check if user is at bottom of page
+  // Track page bottom state for the floating scroll button.
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const windowHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
 
-      // Check if at bottom (within 100px)
+      // Consider near-bottom as bottom to keep mobile behavior smooth.
       setIsAtBottom(scrollTop + windowHeight >= docHeight - 100);
-
-      // Update current section index based on scroll position
-      const sections = document.querySelectorAll("section[data-section]");
-      sections.forEach((section, index) => {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= windowHeight / 2 && rect.bottom >= windowHeight / 2) {
-          setCurrentSectionIndex(index);
-        }
-      });
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleScrollClick = () => {
     if (isAtBottom) {
-      // Scroll to top
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      // Scroll to next section
-      const sections = document.querySelectorAll("section[data-section]");
-      const nextIndex = currentSectionIndex + 1;
-      if (nextIndex < sections.length) {
-        sections[nextIndex].scrollIntoView({ behavior: "smooth" });
-      }
+      return;
+    }
+
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("section[data-section]"),
+    );
+
+    if (sections.length === 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const viewportAnchor = window.scrollY + window.innerHeight * 0.45;
+    const currentIndex = sections.findIndex((section, index) => {
+      const top = section.offsetTop;
+      const nextTop =
+        index < sections.length - 1
+          ? sections[index + 1].offsetTop
+          : Number.POSITIVE_INFINITY;
+
+      return viewportAnchor >= top && viewportAnchor < nextTop;
+    });
+
+    const nextIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
+    if (nextIndex < sections.length) {
+      sections[nextIndex].scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -110,6 +118,7 @@ const Home: React.FC<HomeProps> = () => {
     <div className="w-full sm:pt-20 lg:pt-0">
       {/* Hero Section */}
       <motion.section
+        id="home-hero"
         data-section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -197,6 +206,7 @@ const Home: React.FC<HomeProps> = () => {
 
       {/* Features Section */}
       <section
+        id="home-features"
         data-section
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 w-full"
         style={{ backgroundColor: COLORS.secondary }}
@@ -248,6 +258,7 @@ const Home: React.FC<HomeProps> = () => {
 
       {/* Services Section */}
       <section
+        id="home-services"
         data-section
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 w-full"
         style={{ backgroundColor: "#0a0a0a" }}
@@ -321,6 +332,7 @@ const Home: React.FC<HomeProps> = () => {
 
       {/* Story Section */}
       <section
+        id="home-story"
         data-section
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 w-full"
         style={{ backgroundColor: COLORS.secondary }}
@@ -362,6 +374,7 @@ const Home: React.FC<HomeProps> = () => {
 
       {/* CTA Section */}
       <section
+        id="home-cta"
         data-section
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 w-full"
         style={{ backgroundColor: "#0a0a0a" }}
