@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { motion } from "motion/react";
-import { Search, ShieldCheck, UserPlus, Users } from "lucide-react";
+import {
+  CalendarRange,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { useAuth } from "../../context/AuthContext";
@@ -25,11 +33,17 @@ const roleBadgeClass: Record<User["role"], string> = {
   customer: "bg-emerald-500/20 text-emerald-300",
 };
 
+type MembershipFilter = "all" | "vip" | "regular";
+type DateFilter = "all" | "7d" | "30d" | "90d";
+
 const AdminUsers: React.FC = () => {
   const { getAllUsers, updateUser, createUser } = useAuth();
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | User["role"]>("all");
+  const [membershipFilter, setMembershipFilter] =
+    useState<MembershipFilter>("all");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -50,15 +64,40 @@ const AdminUsers: React.FC = () => {
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
 
+    const daysByFilter: Record<Exclude<DateFilter, "all">, number> = {
+      "7d": 7,
+      "30d": 30,
+      "90d": 90,
+    };
+
+    const now = Date.now();
+
     return users.filter((user) => {
       const matchesSearch =
         !q ||
         user.name.toLowerCase().includes(q) ||
         user.email.toLowerCase().includes(q);
+
       const matchesRole = roleFilter === "all" || user.role === roleFilter;
-      return matchesSearch && matchesRole;
+
+      const matchesMembership =
+        membershipFilter === "all" ||
+        (membershipFilter === "vip" ? user.isVIP : !user.isVIP);
+
+      const matchesDate =
+        dateFilter === "all" ||
+        (() => {
+          const createdAt = new Date(user.createdAt).getTime();
+          if (!Number.isFinite(createdAt)) {
+            return false;
+          }
+          const maxAgeMs = daysByFilter[dateFilter] * 24 * 60 * 60 * 1000;
+          return now - createdAt <= maxAgeMs;
+        })();
+
+      return matchesSearch && matchesRole && matchesMembership && matchesDate;
     });
-  }, [users, search, roleFilter]);
+  }, [users, search, roleFilter, membershipFilter, dateFilter]);
 
   const handleCreateUser = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -102,7 +141,8 @@ const AdminUsers: React.FC = () => {
         </div>
 
         <Button
-          className="flex items-center gap-2"
+          aria-label="Crear nuevo usuario"
+          className="flex items-center gap-2 border border-amber-300/40 bg-slate-800 text-white hover:bg-slate-700"
           onClick={() => {
             setFeedback("");
             setShowCreateModal(true);
@@ -113,38 +153,95 @@ const AdminUsers: React.FC = () => {
       </div>
 
       <Card
-        className="p-4 flex gap-3 flex-wrap items-center"
+        className="p-4"
         style={{
           backgroundColor: COLORS.secondary,
           border: `1px solid ${COLORS.border}`,
         }}
       >
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-2.5 text-white/30" size={16} />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por nombre o correo..."
-            className="w-full bg-black/20 pl-9 pr-4 py-2 rounded-lg border text-white text-sm focus:ring-2 outline-none"
-            style={{ borderColor: COLORS.border }}
-          />
-        </div>
-
-        <select
-          value={roleFilter}
-          onChange={(event) =>
-            setRoleFilter(event.target.value as "all" | User["role"])
-          }
-          className="bg-black/20 border rounded-lg px-4 py-2 text-sm text-white"
-          style={{ borderColor: COLORS.border }}
+        <div
+          role="toolbar"
+          aria-label="Filtros de usuarios"
+          className="flex flex-wrap items-center gap-3"
         >
-          <option value="all">Todos los roles</option>
-          {roleOptions.map((role) => (
-            <option key={role.value} value={role.value}>
-              {role.label}
-            </option>
-          ))}
-        </select>
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-2.5 text-white/30" size={16} />
+            <input
+              aria-label="Buscar usuarios"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar por nombre o correo..."
+              className="w-full bg-black/20 pl-9 pr-4 py-2 rounded-lg border text-white text-sm focus:ring-2 outline-none"
+              style={{ borderColor: COLORS.border }}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
+            <SlidersHorizontal size={14} className="text-white/60" />
+            <select
+              aria-label="Filtrar por rol"
+              value={roleFilter}
+              onChange={(event) =>
+                setRoleFilter(event.target.value as "all" | User["role"])
+              }
+              className="bg-transparent rounded-lg px-2 py-1 text-sm text-white outline-none"
+            >
+              <option value="all">Todos los roles</option>
+              {roleOptions.map((role) => (
+                <option key={role.value} value={role.value}>
+                  {role.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
+            <ShieldCheck size={14} className="text-white/60" />
+            <select
+              aria-label="Filtrar por estado"
+              value={membershipFilter}
+              onChange={(event) =>
+                setMembershipFilter(event.target.value as MembershipFilter)
+              }
+              className="bg-transparent rounded-lg px-2 py-1 text-sm text-white outline-none"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="vip">VIP</option>
+              <option value="regular">Regular</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5">
+            <CalendarRange size={14} className="text-white/60" />
+            <select
+              aria-label="Filtrar por fecha"
+              value={dateFilter}
+              onChange={(event) =>
+                setDateFilter(event.target.value as DateFilter)
+              }
+              className="bg-transparent rounded-lg px-2 py-1 text-sm text-white outline-none"
+            >
+              <option value="all">Todas las fechas</option>
+              <option value="7d">Ultimos 7 dias</option>
+              <option value="30d">Ultimos 30 dias</option>
+              <option value="90d">Ultimos 90 dias</option>
+            </select>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="border-white/20 text-white/80"
+            onClick={() => {
+              setSearch("");
+              setRoleFilter("all");
+              setMembershipFilter("all");
+              setDateFilter("all");
+            }}
+          >
+            <RotateCcw size={14} className="mr-2" /> Limpiar
+          </Button>
+        </div>
       </Card>
 
       {feedback && (
@@ -164,6 +261,7 @@ const AdminUsers: React.FC = () => {
             <thead>
               <tr className="border-b border-white/10 text-left text-white/60">
                 <th className="p-4">Usuario</th>
+                <th className="p-4">Alta</th>
                 <th className="p-4">Estado</th>
                 <th className="p-4">Rol Actual</th>
                 <th className="p-4">Asignar Rol</th>
@@ -199,6 +297,14 @@ const AdminUsers: React.FC = () => {
                         <p className="text-xs text-white/50">{user.email}</p>
                       </div>
                     </div>
+                  </td>
+
+                  <td className="p-4 text-white/80">
+                    {new Date(user.createdAt).toLocaleDateString("es-DO", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </td>
 
                   <td className="p-4 text-white/80">
@@ -247,7 +353,7 @@ const AdminUsers: React.FC = () => {
 
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-10 text-center text-white/40">
+                  <td colSpan={5} className="p-10 text-center text-white/40">
                     <Users size={28} className="mx-auto mb-2" />
                     No se encontraron usuarios para los filtros actuales.
                   </td>

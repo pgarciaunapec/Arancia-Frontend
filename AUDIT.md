@@ -243,3 +243,23 @@
 
 #### Verificacion
 - Build: OK (`pnpm run build`)
+
+### Task 3 - Modernizacion de filtros y UI de usuarios
+#### Rama
+- `feature/task3-admin-filters-toolbar`
+
+#### Cambios clave
+- `admin/users` redisenado con toolbar horizontal moderna y filtros avanzados:
+  - busqueda por texto
+  - filtro por rol
+  - filtro por estado (VIP/Regular)
+  - filtro por fecha de alta (7/30/90 dias)
+- `admin/orders` alineado al mismo patron de toolbar horizontal con filtros por estado, fecha y tipo de entrega.
+- Boton `Nuevo Usuario` reforzado con contraste accesible y `aria-label`.
+
+#### Archivos principales
+- `src/pages/admin/AdminUsers.tsx`
+- `src/pages/admin/AdminOrders.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)

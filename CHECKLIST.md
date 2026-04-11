@@ -116,3 +116,11 @@
 - [x] Panel de notificaciones de pedidos en `MyOrders`
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
+
+### Task 3 (Filtros modernos + accesibilidad)
+- [x] Toolbar horizontal moderna implementada en `admin/users`
+- [x] Filtros avanzados por rol/estado/fecha en usuarios
+- [x] Toolbar horizontal alineada en `admin/orders`
+- [x] Contraste y accesibilidad del boton `Nuevo Usuario` corregidos
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
