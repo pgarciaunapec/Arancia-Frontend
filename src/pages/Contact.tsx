@@ -11,6 +11,10 @@ import { contactSchema } from "../schemas/forms.schema";
 import { TanstackFormInput } from "../components/forms/TanstackFormInput";
 import { TanstackFormTextarea } from "../components/forms/TanstackFormTextarea";
 import { TanstackFormSelect } from "../components/forms/TanstackFormSelect";
+import {
+  formatDominicanPhoneInput,
+  normalizeDominicanPhone,
+} from "../lib/phone";
 
 interface ContactProps {
   onShowModal: (title: string, message: string) => void;
@@ -42,9 +46,13 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
       setError("");
 
       try {
+        const normalizedPhone = normalizeDominicanPhone(value.phone);
         await apiRequest("/contact", {
           method: "POST",
-          body: JSON.stringify(value),
+          body: JSON.stringify({
+            ...value,
+            phone: normalizedPhone || undefined,
+          }),
         });
 
         onShowModal(
@@ -56,7 +64,7 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
         if (isAuthenticated && user) {
           form.setFieldValue("name", user.name || "");
           form.setFieldValue("email", user.email || "");
-          form.setFieldValue("phone", user.phone || "");
+          form.setFieldValue("phone", formatDominicanPhoneInput(user.phone || ""));
         }
       } catch (submissionError) {
         setError(
@@ -82,7 +90,7 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
 
     form.setFieldValue("name", user.name || "");
     form.setFieldValue("email", user.email || "");
-    form.setFieldValue("phone", user.phone || "");
+    form.setFieldValue("phone", formatDominicanPhoneInput(user.phone || ""));
     didPrefillRef.current = true;
   }, [form, isAuthenticated, user]);
 
@@ -252,7 +260,9 @@ const Contact: React.FC<ContactProps> = ({ onShowModal }) => {
                     name="phone"
                     label="Teléfono"
                     type="tel"
-                    placeholder="(809) 555-0123"
+                    placeholder="+1 (809) 555-0123"
+                    autoComplete="tel"
+                    transformOnChange={formatDominicanPhoneInput}
                     labelClassName="block mb-2 font-medium text-sm sm:text-base text-foreground"
                     inputClassName="w-full bg-input-background border border-border text-sm sm:text-base py-5 sm:py-6 px-3 rounded-md"
                   />

@@ -11,6 +11,7 @@ interface TanstackFormInputProps {
   required?: boolean;
   leftIcon?: React.ReactNode;
   rightSlot?: React.ReactNode;
+  transformOnChange?: (value: string) => string;
   inputClassName?: string;
   inputStyle?: React.CSSProperties;
   labelClassName?: string;
@@ -27,6 +28,7 @@ export const TanstackFormInput: React.FC<TanstackFormInputProps> = ({
   required,
   leftIcon,
   rightSlot,
+  transformOnChange,
   inputClassName,
   inputStyle,
   labelClassName,
@@ -51,7 +53,13 @@ export const TanstackFormInput: React.FC<TanstackFormInputProps> = ({
                 name={field.name}
                 value={String(field.state.value ?? "")}
                 onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
+                onChange={(event) =>
+                  field.handleChange(
+                    transformOnChange
+                      ? transformOnChange(event.target.value)
+                      : event.target.value,
+                  )
+                }
                 placeholder={placeholder}
                 autoComplete={autoComplete}
                 required={required}

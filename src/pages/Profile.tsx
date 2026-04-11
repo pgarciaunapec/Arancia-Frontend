@@ -21,6 +21,10 @@ import { useReservations } from "../context/ReservationsContext";
 import { useNavigate, Link } from "react-router-dom";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { passwordUpdateSchema, profileSchema } from "../schemas/forms.schema";
+import {
+  formatDominicanPhoneInput,
+  normalizeDominicanPhone,
+} from "../lib/phone";
 
 const COLORS = {
   primary: "#f5b400",
@@ -47,7 +51,7 @@ const Profile: React.FC = () => {
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
-      phone: user?.phone || "",
+      phone: formatDominicanPhoneInput(user?.phone || ""),
       address: user?.address || "",
     },
     validators: {
@@ -59,7 +63,10 @@ const Profile: React.FC = () => {
     },
     onSubmit: async ({ value }) => {
       setProfileError("");
-      const result = await updateProfile(value);
+      const result = await updateProfile({
+        ...value,
+        phone: normalizeDominicanPhone(value.phone),
+      });
       if (!result.success) {
         setProfileError(result.error || "No se pudo actualizar el perfil.");
         return;
@@ -282,8 +289,13 @@ const Profile: React.FC = () => {
                     name="phone"
                     value={String(profileForm.state.values.phone)}
                     onChange={(event) =>
-                      profileForm.setFieldValue("phone", event.target.value)
+                      profileForm.setFieldValue(
+                        "phone",
+                        formatDominicanPhoneInput(event.target.value),
+                      )
                     }
+                    type="tel"
+                    autoComplete="tel"
                     className="w-full bg-black/20 pl-10 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />

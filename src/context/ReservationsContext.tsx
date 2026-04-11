@@ -4,6 +4,7 @@ import { apiRequest } from '../lib/api';
 import type { ApiEnvelope } from '../lib/api';
 import { mapBackendReservation } from '../lib/mappers';
 import { useAuth } from './AuthContext';
+import { normalizeDominicanPhone } from '../lib/phone';
 
 interface ReservationsContextValue {
   reservations: Reservation[];
@@ -89,7 +90,7 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
         guests: data.guests,
         name: data.name,
         email: data.email,
-        phone: data.phone,
+        phone: normalizeDominicanPhone(data.phone),
         notes: data.notes,
       }),
     });
@@ -101,10 +102,15 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const updateReservation = useCallback(
     async (id: string, data: UpdateReservationData) => {
+      const payload = {
+        ...data,
+        phone: data.phone ? normalizeDominicanPhone(data.phone) : data.phone,
+      };
+
       const response = await apiRequest<ApiEnvelope<any>>(`/reservations/${id}`, {
         method: 'PUT',
         auth: true,
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const mapped = mapBackendReservation(response.data, user?.id);

@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { registerSchema } from "../schemas/forms.schema";
 import { TanstackFormInput } from "../components/forms/TanstackFormInput";
+import { formatDominicanPhoneInput } from "../lib/phone";
 
 const COLORS = {
   primary: "#f5b400",
@@ -135,6 +136,8 @@ const Register: React.FC = () => {
               label="Teléfono"
               type="tel"
               placeholder="+1 (809) 000-0000"
+              autoComplete="tel"
+              transformOnChange={formatDominicanPhoneInput}
               leftIcon={<Phone size={18} />}
               inputClassName="w-full bg-black/20 pl-10 pr-4 py-3 rounded-lg border text-white placeholder-white/30 focus:ring-2 outline-none"
               inputStyle={{ borderColor: COLORS.border }}

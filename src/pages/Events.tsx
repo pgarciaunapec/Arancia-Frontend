@@ -26,6 +26,10 @@ import { TanstackFormSelect } from "../components/forms/TanstackFormSelect";
 import { TanstackFormTextarea } from "../components/forms/TanstackFormTextarea";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { eventQuoteSchema } from "../schemas/forms.schema";
+import {
+  formatDominicanPhoneInput,
+  normalizeDominicanPhone,
+} from "../lib/phone";
 
 interface EventsPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -61,12 +65,13 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
       setQuoteError("");
 
       try {
+        const normalizedPhone = normalizeDominicanPhone(value.phone);
         await apiRequest("/contact/event-quote", {
           method: "POST",
           body: JSON.stringify({
             name: value.name,
             email: value.email,
-            phone: value.phone,
+            phone: normalizedPhone,
             eventType: value.eventType,
             packageName: value.packageName || undefined,
             guests: Number(value.guests),
@@ -520,6 +525,10 @@ const Events: React.FC<EventsPageProps> = ({ onShowModal }) => {
                 name="phone"
                 label="Telefono"
                 required
+                type="tel"
+                placeholder="+1 (809) 555-0123"
+                autoComplete="tel"
+                transformOnChange={formatDominicanPhoneInput}
                 labelClassName="text-sm font-medium text-slate-200"
                 inputClassName="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-3 text-sm text-white"
               />

@@ -18,6 +18,10 @@ import { useAuth } from "../context/AuthContext";
 import { useReservations } from "../context/ReservationsContext";
 import { validateWithYup } from "../lib/forms/yupTanstack";
 import { reservationSchema } from "../schemas/forms.schema";
+import {
+  formatDominicanPhoneInput,
+  normalizeDominicanPhone,
+} from "../lib/phone";
 
 const COLORS = {
   primary: "#f5b400",
@@ -43,7 +47,7 @@ const Reservations: React.FC = () => {
       guests: "2",
       name: user?.name || "",
       email: user?.email || "",
-      phone: user?.phone || "",
+      phone: formatDominicanPhoneInput(user?.phone || ""),
       notes: "",
     },
     validators: {
@@ -63,7 +67,7 @@ const Reservations: React.FC = () => {
           userId: user?.id || "guest",
           name: value.name,
           email: value.email,
-          phone: value.phone,
+          phone: normalizeDominicanPhone(value.phone),
           date: value.date,
           time: value.time,
           guests: Number(value.guests),
@@ -102,7 +106,9 @@ const Reservations: React.FC = () => {
     >,
   ) => {
     const { name, value } = e.target;
-    form.setFieldValue(name as never, value as never);
+    const nextValue =
+      name === "phone" ? formatDominicanPhoneInput(value) : value;
+    form.setFieldValue(name as never, nextValue as never);
     if (submissionError) {
       setSubmissionError("");
     }
@@ -380,7 +386,8 @@ const Reservations: React.FC = () => {
                         required
                         value={String(form.state.values.phone)}
                         onChange={handleInputChange}
-                        placeholder="Ej. (809) 555-0123"
+                        placeholder="Ej. +1 (809) 555-0123"
+                        autoComplete="tel"
                         className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all"
                         style={{
                           borderColor: COLORS.border,
