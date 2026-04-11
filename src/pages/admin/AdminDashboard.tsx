@@ -14,6 +14,7 @@ import { useOrders } from "../../context/OrdersContext";
 import { useAdmin } from "../../context/AdminContext";
 import { apiRequest } from "../../lib/api";
 import type { ApiEnvelope } from "../../lib/api";
+import { formatCurrencyDOP } from "../../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -27,10 +28,13 @@ const AdminDashboard: React.FC = () => {
   const { inventory, cashSession, lowStockAlerts, refreshAlerts } = useAdmin();
   const [metrics, setMetrics] = useState({
     totalUsers: 0,
+    newUsersToday: 0,
     totalOrders: 0,
+    activeOrders: 0,
     pendingOrders: 0,
     todayOrders: 0,
     todayReservations: 0,
+    totalRevenue: 0,
     todayRevenue: 0,
     activeDeliveries: 0,
     occupiedTables: 0,
@@ -57,10 +61,13 @@ const AdminDashboard: React.FC = () => {
         const data = response.data || {};
         setMetrics({
           totalUsers: Number(data.totalUsers || 0),
+          newUsersToday: Number(data.newUsersToday || 0),
           totalOrders: Number(data.totalOrders || 0),
+          activeOrders: Number(data.activeOrders || 0),
           pendingOrders: Number(data.pendingOrders || 0),
           todayOrders: Number(data.todayOrders || 0),
           todayReservations: Number(data.todayReservations || 0),
+          totalRevenue: Number(data.totalRevenue || 0),
           todayRevenue: Number(data.todayRevenue || 0),
           activeDeliveries: Number(data.activeDeliveries || 0),
           occupiedTables: Number(data.occupiedTables || 0),
@@ -79,26 +86,26 @@ const AdminDashboard: React.FC = () => {
 
   const stats = [
     {
-      label: "Ingresos Hoy",
-      value: `RD$${metrics.todayRevenue.toLocaleString()}`,
+      label: "Ventas Totales",
+      value: formatCurrencyDOP(metrics.totalRevenue),
       icon: <DollarSign size={20} />,
       color: "#22c55e",
     },
     {
-      label: "Pedidos Hoy",
-      value: metrics.todayOrders,
+      label: "Pedidos Activos",
+      value: metrics.activeOrders,
       icon: <ShoppingBag size={20} />,
       color: COLORS.primary,
     },
     {
-      label: "Pedidos Activos",
-      value: metrics.pendingOrders,
+      label: "Ingresos Hoy",
+      value: formatCurrencyDOP(metrics.todayRevenue),
       icon: <Clock size={20} />,
       color: "#3b82f6",
     },
     {
-      label: "Clientes",
-      value: metrics.totalUsers,
+      label: "Nuevos Usuarios",
+      value: metrics.newUsersToday,
       icon: <Users size={20} />,
       color: "#a855f7",
     },
@@ -212,7 +219,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p style={{ color: COLORS.primary }} className="font-bold">
-                    RD${order.total.toFixed(0)}
+                    {formatCurrencyDOP(order.total)}
                   </p>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full ${
@@ -316,13 +323,13 @@ const AdminDashboard: React.FC = () => {
                 <div className="flex justify-between">
                   <span style={{ color: COLORS.muted }}>Balance inicial</span>
                   <span className="text-white">
-                    RD${cashSession.openingBalance.toLocaleString()}
+                    {formatCurrencyDOP(cashSession.openingBalance)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: COLORS.muted }}>Ventas totales</span>
                   <span style={{ color: COLORS.primary }}>
-                    RD${cashSession.totalSales.toLocaleString()}
+                    {formatCurrencyDOP(cashSession.totalSales)}
                   </span>
                 </div>
               </div>

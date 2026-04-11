@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useAuth } from '../../context/AuthContext';
 import { useOrders } from '../../context/OrdersContext';
 import type { User } from '../../types';
+import { formatCurrencyDOP } from '../../lib/currency';
 
 const COLORS = {
     primary: '#f5b400',
@@ -108,7 +109,7 @@ const AdminClients: React.FC = () => {
                                         <p className="text-xs" style={{ color: COLORS.muted }}>Pedidos</p>
                                     </div>
                                     <div>
-                                        <p className="font-bold" style={{ color: COLORS.primary }}>RD${spend.toFixed(0)}</p>
+                                        <p className="font-bold" style={{ color: COLORS.primary }}>{formatCurrencyDOP(spend)}</p>
                                         <p className="text-xs" style={{ color: COLORS.muted }}>Gastado</p>
                                     </div>
                                     <div>

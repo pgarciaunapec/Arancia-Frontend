@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../context/OrdersContext";
 import type { OrderStatus } from "../types";
+import { formatCurrencyDOP } from "../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -164,7 +165,7 @@ const MyOrders: React.FC = () => {
                           className="font-bold"
                           style={{ color: COLORS.primary }}
                         >
-                          RD${order.total.toFixed(0)}
+                          {formatCurrencyDOP(order.total)}
                         </span>
                         <span className="text-white/40">
                           {order.items.length}{" "}
@@ -205,10 +206,7 @@ const MyOrders: React.FC = () => {
                                     </span>
                                   </span>
                                   <span style={{ color: COLORS.primary }}>
-                                    RD$
-                                    {(
-                                      item.price * item.quantity
-                                    ).toLocaleString()}
+                                    {formatCurrencyDOP(item.price * item.quantity)}
                                   </span>
                                 </div>
                               ))}
@@ -255,7 +253,7 @@ const MyOrders: React.FC = () => {
                             <div className="flex justify-between border-t border-white/10 pt-2 mt-2 font-bold">
                               <span style={{ color: COLORS.muted }}>Total</span>
                               <span style={{ color: COLORS.primary }}>
-                                RD${order.total.toFixed(0)}
+                                {formatCurrencyDOP(order.total)}
                               </span>
                             </div>
                           </div>

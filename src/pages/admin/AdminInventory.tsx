@@ -14,6 +14,7 @@ import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { useAdmin } from "../../context/AdminContext";
 import type { InventoryItem } from "../../types";
+import { formatCurrencyDOP } from "../../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -252,7 +253,7 @@ const AdminInventory: React.FC = () => {
                     {item.minStock} {item.unit}
                   </td>
                   <td className="p-4" style={{ color: COLORS.primary }}>
-                    RD${item.costPerUnit}
+                    {formatCurrencyDOP(item.costPerUnit)}
                   </td>
                   <td className="p-4" style={{ color: COLORS.muted }}>
                     {item.supplier}

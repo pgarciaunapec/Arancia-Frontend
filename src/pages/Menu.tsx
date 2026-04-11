@@ -21,6 +21,7 @@ import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
 import { getImageUrl } from "../services/api";
 import { mapBackendMenuItem } from "../lib/mappers";
+import { formatCurrencyDOP } from "../lib/currency";
 
 interface MenuPageProps {
   onShowModal: (title: string, message: string) => void;
@@ -452,7 +453,7 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
                               </Badge>
                             )}
                             <Badge className="bg-black/70 text-white border border-white/20">
-                              RD${item.price}
+                              {formatCurrencyDOP(item.price)}
                             </Badge>
                           </div>
                         </div>

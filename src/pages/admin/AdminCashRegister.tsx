@@ -13,6 +13,7 @@ import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { useAdmin } from "../../context/AdminContext";
 import { useOrders } from "../../context/OrdersContext";
+import { formatCurrencyDOP } from "../../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -136,7 +137,7 @@ const AdminCashRegister: React.FC = () => {
                 type="number"
                 value={closeAmount}
                 onChange={(e) => setCloseAmount(e.target.value)}
-                placeholder={`Esperado: ${(cashSession.openingBalance + todayCash).toFixed(0)}`}
+                placeholder={`Esperado: ${formatCurrencyDOP(cashSession.openingBalance + todayCash)}`}
                 className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                 style={{ borderColor: COLORS.border }}
               />
@@ -169,7 +170,7 @@ const AdminCashRegister: React.FC = () => {
         {[
           {
             label: "Total Ventas",
-            value: `RD$${todayRevenue.toFixed(0)}`,
+            value: formatCurrencyDOP(todayRevenue),
             icon: <TrendingUp size={20} />,
             color: "#22c55e",
           },
@@ -181,13 +182,13 @@ const AdminCashRegister: React.FC = () => {
           },
           {
             label: "Tarjeta",
-            value: `RD$${todayCard.toFixed(0)}`,
+            value: formatCurrencyDOP(todayCard),
             icon: <CreditCard size={20} />,
             color: "#3b82f6",
           },
           {
             label: "Efectivo",
-            value: `RD$${todayCash.toFixed(0)}`,
+            value: formatCurrencyDOP(todayCash),
             icon: <Banknote size={20} />,
             color: "#22c55e",
           },
@@ -296,7 +297,7 @@ const AdminCashRegister: React.FC = () => {
                         className="p-3 font-bold"
                         style={{ color: COLORS.primary }}
                       >
-                        RD${order.total.toFixed(0)}
+                        {formatCurrencyDOP(order.total)}
                       </td>
                     </tr>
                   );
@@ -313,7 +314,7 @@ const AdminCashRegister: React.FC = () => {
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10 font-bold">
             <span className="text-white">Total del Día</span>
             <span style={{ color: COLORS.primary }} className="text-xl">
-              RD${todayRevenue.toFixed(0)}
+              {formatCurrencyDOP(todayRevenue)}
             </span>
           </div>
         )}

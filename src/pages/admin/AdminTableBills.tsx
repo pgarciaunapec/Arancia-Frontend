@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/button";
 import { apiRequest } from "../../lib/api";
 import type { ApiEnvelope } from "../../lib/api";
 import { useAdmin } from "../../context/AdminContext";
+import { formatCurrencyDOP } from "../../lib/currency";
 
 type TableBillStatus = "open" | "closed" | "cancelled";
 type PaymentMethod = "cash" | "card" | "transfer";
@@ -268,7 +269,7 @@ const AdminTableBills: React.FC = () => {
                       </td>
                       <td className="p-3">{bill.items?.length || 0}</td>
                       <td className="p-3">
-                        RD${Number(bill.total || 0).toFixed(0)}
+                        {formatCurrencyDOP(Number(bill.total || 0))}
                       </td>
                       <td className="p-3 capitalize">{bill.status}</td>
                       <td className="p-3">
@@ -337,7 +338,7 @@ const AdminTableBills: React.FC = () => {
                                     <option value="">Seleccionar...</option>
                                     {menuOptions.map((item) => (
                                       <option key={item._id} value={item._id}>
-                                        {item.name} · RD${item.price.toFixed(0)}
+                                        {item.name} · {formatCurrencyDOP(item.price)}
                                       </option>
                                     ))}
                                   </select>
@@ -381,8 +382,7 @@ const AdminTableBills: React.FC = () => {
                                     >
                                       <span>
                                         {item.name || "Ítem"} ·{" "}
-                                        {item.quantity || 0} × RD$
-                                        {Number(item.price || 0).toFixed(0)}
+                                        {item.quantity || 0} × {formatCurrencyDOP(Number(item.price || 0))}
                                       </span>
                                       {item.menuItem && (
                                         <Button
@@ -474,7 +474,7 @@ const AdminTableBills: React.FC = () => {
                               <p className="text-xs text-white/60">
                                 Total actual:{" "}
                                 <span className="text-white font-semibold">
-                                  RD${Number(bill.total || 0).toFixed(0)}
+                                  {formatCurrencyDOP(Number(bill.total || 0))}
                                 </span>
                               </p>
                             </div>

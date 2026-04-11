@@ -99,3 +99,12 @@
 ## Nota operativa
 - [x] Limpieza local de ramas completada por tarea
 - [x] Intento de borrado remoto ejecutado (si la rama no fue publicada, Git devolvio `remote ref does not exist`)
+
+## Ciclo 2026-04-11 - Backlog Admin
+
+### Task 1 (Dashboard real + moneda dominicana global)
+- [x] Dashboard admin conectado a metricas reales de backend
+- [x] Cards con `ventasTotales`, `pedidosActivos`, `nuevosUsuarios` consumidos desde API
+- [x] Formateo monetario unificado con `formatCurrencyDOP` en vistas admin/usuario
+- [x] Build exitoso
+- [x] Commit + merge --no-ff

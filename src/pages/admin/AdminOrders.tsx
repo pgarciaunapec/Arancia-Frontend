@@ -5,6 +5,7 @@ import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { useOrders } from "../../context/OrdersContext";
 import type { OrderStatus } from "../../types";
+import { formatCurrencyDOP } from "../../lib/currency";
 
 const COLORS = {
   primary: "#f5b400",
@@ -171,7 +172,7 @@ const AdminOrders: React.FC = () => {
                       className="p-4 font-bold"
                       style={{ color: COLORS.primary }}
                     >
-                      RD${order.total.toFixed(0)}
+                      {formatCurrencyDOP(order.total)}
                     </td>
                     <td className="p-4" style={{ color: COLORS.muted }}>
                       {order.deliveryType === "delivery"
