@@ -50,6 +50,52 @@
 - [x] Tests exitosos
 
 ## Cierre de tarea
-- [ ] Commit Task 3
-- [ ] Merge a `dev`
-- [ ] Borrado de rama local/remota Task 3
+- [x] Commit Task 3
+- [x] Merge a `dev`
+- [x] Borrado de rama local/remota Task 3
+
+## Ciclo 2026-04-10 - Backlog de Ejecucion
+
+### Task 1 (Checkout desbloqueado)
+- [x] Inputs de direccion y tarjeta operativos
+- [x] Validacion por metodo de pago
+- [x] Boton Pagar ejecuta flujo completo a backend
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 2 (Menu Amazon + filtros)
+- [x] Sidebar izquierda implementada
+- [x] Filtros por categoria/precio/ingredientes/populares funcionales
+- [x] Resultados reactivos en tiempo real
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 3 (Cards y flujo producto UI)
+- [x] Controles de cantidad `+/-` en cards
+- [x] Panel expandible con detalle e ingredientes
+- [x] Tipos/mappers/cart ajustados para metadata extendida
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 4 (Eventos UI)
+- [x] Contraste hover de `Contactar Ahora` corregido
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 5 (Telefonos RD)
+- [x] Mascara `+1 (XXX) XXX-XXXX` en formularios objetivo
+- [x] Saneo a digitos `1809XXXXXXX` antes de enviar al backend
+- [x] Validacion Yup alineada a formato dominicano
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 6 (Modernizacion Tu Pedido)
+- [x] Rediseño completo del layout del carrito
+- [x] Animaciones suaves y vista interactiva
+- [x] Desglose profesional de costos pre-pago
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+## Nota operativa
+- [x] Limpieza local de ramas completada por tarea
+- [x] Intento de borrado remoto ejecutado (si la rama no fue publicada, Git devolvio `remote ref does not exist`)

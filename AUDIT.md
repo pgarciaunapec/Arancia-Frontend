@@ -78,3 +78,117 @@
 ### Verificacion
 - Build: OK (`pnpm run build`)
 - Tests: OK (`pnpm run test`)
+
+## Ciclo 2026-04-10 - Backlog de Ejecucion (Protocolo Godmode)
+
+### Task 1 - Desbloqueo y reparacion de pago
+#### Rama
+- `feature/task1-checkout-unblock`
+
+#### Cambios clave
+- Checkout endurecido con validacion por modo de pago/envio y normalizacion de tarjeta.
+- Entradas de tarjeta (`numero`, `MM/AA`, `CVV`) con mascara y control de formato.
+- Error de submit centralizado para evitar bloqueos silenciosos.
+- Payload de orden/pago limpiado antes de backend.
+- Ajuste de `OrdersContext` para respetar contacto capturado en checkout.
+
+#### Archivos principales
+- `src/pages/Checkout.tsx`
+- `src/context/OrdersContext.tsx`
+- `src/schemas/forms.schema.ts`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+### Task 2 - Rediseño Menu Amazon Style con filtros dinamicos
+#### Rama
+- `feature/task2-amazon-menu-filters`
+
+#### Cambios clave
+- Layout de menu refactorizado a sidebar izquierda + area de resultados.
+- Filtros funcionales por categoria, precio, ingredientes y populares.
+- Chips activos y limpieza de filtros.
+- Skeleton de carga y experiencia responsive.
+
+#### Archivos principales
+- `src/pages/Menu.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+### Task 3 - Refactor cards y flujo de productos (UI)
+#### Rama
+- `feature/task3-product-cards-ui`
+
+#### Cambios clave
+- Cards de menu con controles inmediatos `+/-` por item.
+- Estado expandible por card para descripcion e ingredientes completos.
+- Badge de cantidad en pedido y mejor lectura por categoria/precio.
+- Tipos/mappers/cart frontend extendidos para detalle de producto.
+
+#### Archivos principales
+- `src/pages/Menu.tsx`
+- `src/types/index.ts`
+- `src/lib/mappers.ts`
+- `src/context/CartContext.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+### Task 4 - Correccion visual CTA Eventos
+#### Rama
+- `feature/task4-events-ui-contrast`
+
+#### Cambios clave
+- Correccion de contraste en hover del boton `Contactar Ahora`.
+
+#### Archivos principales
+- `src/pages/Events.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+### Task 5 - Mascara de telefono dominicano y limpieza antes de API
+#### Rama
+- `feature/task5-phone-mask` (reconstruida sin comandos destructivos para mantener protocolo)
+
+#### Cambios clave
+- Utilidad central de telefonia dominicana: mascara `+1 (XXX) XXX-XXXX` y normalizacion a `1809XXXXXXX`.
+- Aplicada en formularios de registro, contacto, eventos, reservas y perfil.
+- Payloads saneados antes de backend en `AuthContext` y `ReservationsContext`.
+- Validacion Yup alineada a telefono dominicano.
+
+#### Archivos principales
+- `src/lib/phone.ts`
+- `src/components/forms/TanstackFormInput.tsx`
+- `src/schemas/forms.schema.ts`
+- `src/pages/Register.tsx`
+- `src/pages/Contact.tsx`
+- `src/pages/Events.tsx`
+- `src/pages/Reservations.tsx`
+- `src/pages/Profile.tsx`
+- `src/context/AuthContext.tsx`
+- `src/context/ReservationsContext.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+### Task 6 - Modernizacion vista Tu Pedido
+#### Rama
+- `feature/task6-modern-cart-view`
+
+#### Cambios clave
+- Rediseño completo de `Cart` con jerarquia visual profesional.
+- Animaciones suaves de entrada/salida y layout interactivo.
+- Desglose de costos ampliado (subtotal, ITBIS, servicio, ETA).
+- Indicadores de confianza previos al pago y barra de progreso para envio gratis.
+
+#### Archivos principales
+- `src/pages/Cart.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
+## Observaciones de cierre Git
+- Todas las tareas cerradas con merge `--no-ff` a `dev`.
+- La eliminacion remota de ramas reporto `remote ref does not exist` cuando la rama no habia sido publicada previamente; limpieza local completada en todos los casos.
