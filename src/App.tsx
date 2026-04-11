@@ -42,6 +42,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminClients from "./pages/admin/AdminClients";
+import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTables from "./pages/admin/AdminTables";
 import AdminCollections from "./pages/admin/AdminCollections";
 import AdminCollectionView from "./pages/admin/AdminCollectionView";
@@ -149,6 +150,16 @@ const RestaurantApp: React.FC = () => {
                       <AdminRoute allowedRoles={["admin"]}>
                         <AdminLayout>
                           <AdminClients />
+                        </AdminLayout>
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/users"
+                    element={
+                      <AdminRoute allowedRoles={["admin"]}>
+                        <AdminLayout>
+                          <AdminUsers />
                         </AdminLayout>
                       </AdminRoute>
                     }

@@ -55,6 +55,12 @@ const navItems: AdminNavItem[] = [
     roles: ["admin"],
   },
   {
+    path: "/admin/users",
+    label: "Usuarios",
+    icon: <Users size={18} />,
+    roles: ["admin"],
+  },
+  {
     path: "/admin/tables",
     label: "Mesas",
     icon: <UtensilsCrossed size={18} />,
