@@ -1,6 +1,13 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "motion/react";
-import { Search, Plus, Filter, ShoppingBag } from "lucide-react";
+import {
+  Search,
+  Plus,
+  ShoppingBag,
+  SlidersHorizontal,
+  Star,
+  X,
+} from "lucide-react";
 import type { MenuItem } from "../types";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -16,12 +23,33 @@ interface MenuPageProps {
   onShowModal: (title: string, message: string) => void;
 }
 
+type PriceRange = "all" | "under-500" | "500-900" | "900-1400" | "over-1400";
+
+const PRICE_OPTIONS: { value: PriceRange; label: string }[] = [
+  { value: "all", label: "Todos los precios" },
+  { value: "under-500", label: "Menos de RD$500" },
+  { value: "500-900", label: "RD$500 a RD$900" },
+  { value: "900-1400", label: "RD$900 a RD$1,400" },
+  { value: "over-1400", label: "Más de RD$1,400" },
+];
+
+const matchesPriceRange = (price: number, range: PriceRange) => {
+  if (range === "all") return true;
+  if (range === "under-500") return price < 500;
+  if (range === "500-900") return price >= 500 && price <= 900;
+  if (range === "900-1400") return price > 900 && price <= 1400;
+  return price > 1400;
+};
+
 const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
-  const [menuData, setMenuData] = useState<MenuItem[]>([]);
-  // categories are derived from the loaded menu items
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedPriceRange, setSelectedPriceRange] =
+    useState<PriceRange>("all");
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [popularOnly, setPopularOnly] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const { addItem, items: cartItems } = useCart();
 
@@ -60,11 +88,50 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     return ["all", ...cats];
   }, [menuItems]);
 
+  const popularItemIds = useMemo(() => {
+    const sortedByPrice = [...menuItems].sort((a, b) => b.price - a.price);
+    const threshold = Math.max(3, Math.ceil(sortedByPrice.length * 0.25));
+    return new Set(sortedByPrice.slice(0, threshold).map((item) => item.id));
+  }, [menuItems]);
+
+  const ingredientOptions = useMemo(() => {
+    const frequency = new Map<string, number>();
+
+    for (const item of menuItems) {
+      for (const ingredient of item.ingredients) {
+        const normalized = ingredient.trim();
+        if (!normalized) continue;
+        frequency.set(normalized, (frequency.get(normalized) || 0) + 1);
+      }
+    }
+
+    return [...frequency.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 16)
+      .map(([ingredient]) => ingredient);
+  }, [menuItems]);
+
   const filteredItems = useMemo(() => {
     let items =
       selectedCategory === "all"
         ? [...menuItems]
         : menuItems.filter((item) => item.category === selectedCategory);
+
+    items = items.filter((item) => matchesPriceRange(item.price, selectedPriceRange));
+
+    if (selectedIngredients.length > 0) {
+      items = items.filter((item) =>
+        selectedIngredients.every((selected) =>
+          item.ingredients.some(
+            (ingredient) => ingredient.toLowerCase() === selected.toLowerCase(),
+          ),
+        ),
+      );
+    }
+
+    if (popularOnly) {
+      items = items.filter((item) => popularItemIds.has(item.id));
+    }
 
     if (searchQuery) {
       items = items.filter(
@@ -77,11 +144,34 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
     }
 
     return items;
-  }, [selectedCategory, searchQuery, menuItems]);
+  }, [
+    menuItems,
+    popularItemIds,
+    popularOnly,
+    searchQuery,
+    selectedCategory,
+    selectedIngredients,
+    selectedPriceRange,
+  ]);
 
   const getCartQty = (itemId: string) => {
     const found = cartItems.find((i) => i.id === itemId);
     return found ? found.quantity : 0;
+  };
+
+  const toggleIngredient = (ingredient: string) => {
+    setSelectedIngredients((previous) =>
+      previous.includes(ingredient)
+        ? previous.filter((value) => value !== ingredient)
+        : [...previous, ingredient],
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory("all");
+    setSelectedPriceRange("all");
+    setSelectedIngredients([]);
+    setPopularOnly(false);
   };
 
   const handleAddItem = (item: MenuItem) => {
@@ -90,182 +180,281 @@ const Menu: React.FC<MenuPageProps> = ({ onShowModal }) => {
   };
 
   return (
-    <div className="w-full min-h-full">
-      {/* Header */}
+    <div className="w-full min-h-full bg-background">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="text-center mb-2">
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mt-18 mb-3 sm:mb-4 text-foreground"
+              transition={{ delay: 0.15 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mt-18 mb-3 text-foreground"
             >
-              Nuestro Menú
+              Menú Arancia
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4"
+              transition={{ delay: 0.25 }}
+              className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto"
             >
-              Descubre nuestra selección de platillos preparados con
-              ingredientes frescos y de la más alta calidad
+              Navega por categorías, ajusta filtros en tiempo real y descubre los
+              platos más buscados con una experiencia tipo marketplace.
             </motion.p>
           </div>
 
-          {/* Search and Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="p-4 sm:p-6 bg-card border-border/50">
-              <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
-                  <Input
-                    type="text"
-                    placeholder="Buscar platillos o ingredientes..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 sm:pl-10 py-5 sm:py-6 bg-input-background border-border rounded-lg text-sm sm:text-base"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 px-4 sm:px-6 py-5 sm:py-6 border-border rounded-lg"
-                >
-                  <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-sm sm:text-base">Filtros</span>
-                </Button>
+          <Card className="p-4 sm:p-5 bg-card border-border/50">
+            <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por plato o ingrediente..."
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className="pl-9 py-5 bg-input-background border-border rounded-lg"
+                />
               </div>
 
-              {/* Category Filters */}
-              <div className="flex flex-wrap gap-2">
-                {allCategories.map((cat) => (
-                  <Button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    variant={selectedCategory === cat ? "default" : "outline"}
-                    className={`rounded-full px-3 sm:px-4 lg:px-6 py-2 transition-all text-xs sm:text-sm ${
-                      selectedCategory === cat
-                        ? "bg-gradient-warm text-white shadow-md hover:shadow-lg"
-                        : "border-border hover:border-primary/50"
-                    }`}
+              <Button
+                type="button"
+                variant="outline"
+                className="lg:hidden flex items-center gap-2"
+                onClick={() => setShowMobileFilters((previous) => !previous)}
+              >
+                {showMobileFilters ? <X size={16} /> : <SlidersHorizontal size={16} />}
+                {showMobileFilters ? "Cerrar filtros" : "Abrir filtros"}
+              </Button>
+
+              <div className="text-sm text-muted-foreground md:text-right">
+                <span className="font-semibold text-foreground">{filteredItems.length}</span> resultados
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] gap-6">
+            <aside className={`${showMobileFilters ? "block" : "hidden"} lg:block`}>
+              <Card className="p-5 bg-card border-border/50 lg:sticky lg:top-28 space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-lg text-foreground">Filtros</h3>
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="text-xs font-semibold text-primary hover:underline"
                   >
-                    {cat === "all" ? "Todos" : cat}
-                  </Button>
+                    Limpiar
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    Categorías
+                  </p>
+                  <div className="space-y-2">
+                    {allCategories.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => setSelectedCategory(category)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          selectedCategory === category
+                            ? "bg-primary text-primary-foreground font-semibold"
+                            : "hover:bg-muted text-foreground"
+                        }`}
+                      >
+                        {category === "all" ? "Todas" : category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    Precio
+                  </p>
+                  <div className="space-y-2">
+                    {PRICE_OPTIONS.map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex items-center gap-2 text-sm text-foreground cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="priceRange"
+                          value={option.value}
+                          checked={selectedPriceRange === option.value}
+                          onChange={() => setSelectedPriceRange(option.value)}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    Ingredientes
+                  </p>
+                  <div className="max-h-52 overflow-y-auto space-y-2 pr-1">
+                    {ingredientOptions.map((ingredient) => (
+                      <label
+                        key={ingredient}
+                        className="flex items-center gap-2 text-sm text-foreground cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedIngredients.includes(ingredient)}
+                          onChange={() => toggleIngredient(ingredient)}
+                        />
+                        <span>{ingredient}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-border bg-muted/40 p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={popularOnly}
+                      onChange={() => setPopularOnly((previous) => !previous)}
+                    />
+                    <Star size={14} className="text-primary" />
+                    Solo populares
+                  </label>
+                </div>
+              </Card>
+            </aside>
+
+            <section className="space-y-5">
+              <div className="flex flex-wrap gap-2">
+                {selectedCategory !== "all" && (
+                  <Badge className="bg-primary/15 text-primary border border-primary/30">
+                    Categoría: {selectedCategory}
+                  </Badge>
+                )}
+                {selectedPriceRange !== "all" && (
+                  <Badge className="bg-primary/15 text-primary border border-primary/30">
+                    {PRICE_OPTIONS.find((option) => option.value === selectedPriceRange)?.label}
+                  </Badge>
+                )}
+                {popularOnly && (
+                  <Badge className="bg-primary/15 text-primary border border-primary/30">
+                    Populares
+                  </Badge>
+                )}
+                {selectedIngredients.map((ingredient) => (
+                  <Badge
+                    key={ingredient}
+                    className="bg-primary/15 text-primary border border-primary/30"
+                  >
+                    {ingredient}
+                  </Badge>
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Mostrando{" "}
-                  <span className="font-semibold text-foreground">
-                    {filteredItems.length}
-                  </span>{" "}
-                  platillos
-                  {selectedCategory !== "all" && ` en ${selectedCategory}`}
-                </p>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Menu Grid */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 sm:pb-10 lg:pb-12">
-        <div className="max-w-7xl mx-auto">
-          {filteredItems.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-16 sm:py-20"
-            >
-              <p className="text-lg sm:text-xl text-muted-foreground">
-                No se encontraron platillos que coincidan con tu búsqueda
-              </p>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {filteredItems.map((item, index) => (
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="h-72 rounded-2xl border border-border/50 bg-muted/40 animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : filteredItems.length === 0 ? (
                 <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-16"
                 >
-                  <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50 h-full flex flex-col">
-                    <div className="relative h-48 sm:h-56 overflow-hidden">
-                      <img
-                        src={getImageUrl(item.image)}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://placehold.co/600x400?text=No+Image";
-                        }}
-                      />
-                      <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                        <Badge className="bg-accent text-accent-foreground shadow-lg text-xs sm:text-sm">
-                          RD${item.price}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="p-4 sm:p-6 flex-1 flex flex-col">
-                      <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-foreground group-hover:text-primary transition-colors">
-                        {item.name}
-                      </h3>
-
-                      <div className="mb-3 sm:mb-4 flex-1">
-                        <p className="text-xs font-semibold text-muted-foreground mb-2">
-                          Ingredientes:
-                        </p>
-                        <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                          {item.ingredients.slice(0, 4).map((ing, idx) => (
-                            <Badge
-                              key={idx}
-                              variant="outline"
-                              className="text-xs border-border bg-muted/50"
-                            >
-                              {ing}
-                            </Badge>
-                          ))}
-                          {item.ingredients.length > 4 && (
-                            <Badge
-                              variant="outline"
-                              className="text-xs border-border bg-muted/50"
-                            >
-                              +{item.ingredients.length - 4}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={() => handleAddItem(item)}
-                        className="w-full bg-gradient-warm text-white hover:shadow-lg transition-all group-hover:scale-105 text-sm sm:text-base py-5 flex items-center justify-center gap-2"
-                      >
-                        {getCartQty(item.id) > 0 ? (
-                          <>
-                            <ShoppingBag className="w-4 h-4" />
-                            En carrito ({getCartQty(item.id)}) · Agregar
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-4 h-4" />
-                            Agregar al Carrito
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </Card>
+                  <p className="text-lg text-muted-foreground">
+                    No encontramos platos con esta combinación de filtros.
+                  </p>
                 </motion.div>
-              ))}
-            </div>
-          )}
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                  {filteredItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                    >
+                      <Card className="overflow-hidden group hover:shadow-xl transition-all border-border/50 h-full flex flex-col">
+                        <div className="relative h-52 overflow-hidden">
+                          <img
+                            src={getImageUrl(item.image)}
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(event) => {
+                              (event.target as HTMLImageElement).src =
+                                "https://placehold.co/600x400?text=No+Image";
+                            }}
+                          />
+                          <div className="absolute top-3 right-3 flex gap-2">
+                            {popularItemIds.has(item.id) && (
+                              <Badge className="bg-primary text-primary-foreground">
+                                Popular
+                              </Badge>
+                            )}
+                            <Badge className="bg-black/70 text-white border border-white/20">
+                              RD${item.price}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="p-5 flex-1 flex flex-col gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                              {item.category}
+                            </p>
+                            <h3 className="text-xl font-bold text-foreground mt-1">
+                              {item.name}
+                            </h3>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.ingredients.slice(0, 4).map((ingredient) => (
+                              <Badge
+                                key={ingredient}
+                                variant="outline"
+                                className="text-xs border-border bg-muted/50"
+                              >
+                                {ingredient}
+                              </Badge>
+                            ))}
+                            {item.ingredients.length > 4 && (
+                              <Badge variant="outline" className="text-xs border-border bg-muted/50">
+                                +{item.ingredients.length - 4}
+                              </Badge>
+                            )}
+                          </div>
+
+                          <Button
+                            onClick={() => handleAddItem(item)}
+                            className="w-full mt-auto bg-gradient-warm text-white hover:shadow-lg transition-all text-sm py-5 flex items-center justify-center gap-2"
+                          >
+                            {getCartQty(item.id) > 0 ? (
+                              <>
+                                <ShoppingBag className="w-4 h-4" />
+                                En carrito ({getCartQty(item.id)})
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-4 h-4" />
+                                Agregar al Carrito
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
         </div>
       </div>
     </div>
