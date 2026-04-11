@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { useForm } from "@tanstack/react-form";
@@ -40,12 +40,24 @@ const reservationSelectStyle: React.CSSProperties = {
 
 const Reservations: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { createReservation } = useReservations();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login", {
+        replace: true,
+        state: {
+          from: { pathname: "/reservations" },
+          message: "Necesitas una cuenta para reservar una mesa.",
+        },
+      });
+    }
+  }, [isAuthenticated, navigate]);
 
   const form = useForm({
     defaultValues: {
@@ -71,7 +83,6 @@ const Reservations: React.FC = () => {
         setSubmissionError("");
 
         const reservation = await createReservation({
-          userId: user?.id || "guest",
           name: value.name,
           email: value.email,
           phone: normalizeDominicanPhone(value.phone),
@@ -106,6 +117,10 @@ const Reservations: React.FC = () => {
       string,
       string
     >) || {};
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleInputChange = (
     e: React.ChangeEvent<

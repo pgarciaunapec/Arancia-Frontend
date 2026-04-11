@@ -21,7 +21,6 @@ interface ReservationsContextValue {
 }
 
 interface CreateReservationData {
-  userId: string;
   name: string;
   email: string;
   phone: string;
@@ -81,9 +80,13 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [refreshReservations]);
 
   const createReservation = useCallback(async (data: CreateReservationData) => {
+    if (!isAuthenticated) {
+      throw new Error('Debes iniciar sesión para continuar con tu reserva.');
+    }
+
     const response = await apiRequest<ApiEnvelope<any>>('/reservations', {
       method: 'POST',
-      auth: isAuthenticated,
+      auth: true,
       body: JSON.stringify({
         date: data.date,
         time: data.time,
@@ -95,10 +98,10 @@ export const ReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }),
     });
 
-    const mapped = mapBackendReservation(response.data, data.userId);
+    const mapped = mapBackendReservation(response.data, user?.id);
     setReservations((prev) => [mapped, ...prev]);
     return mapped;
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.id]);
 
   const updateReservation = useCallback(
     async (id: string, data: UpdateReservationData) => {
