@@ -74,6 +74,22 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     refreshOrders().catch(() => setOrders([]));
   }, [refreshOrders]);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      refreshOrders().catch(() => {
+        // Keep current UI state if polling fails transiently.
+      });
+    }, 8000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isAuthenticated, refreshOrders]);
+
   const createOrder = useCallback(async (data: CreateOrderData): Promise<Order> => {
     if (!data.items.length) {
       throw new Error('No hay items para procesar en la orden');

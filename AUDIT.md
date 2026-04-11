@@ -221,3 +221,25 @@
 
 #### Verificacion
 - Build: OK (`pnpm run build`)
+
+### Task 2 - Sincronizacion de pedidos y notificaciones en tiempo real
+#### Rama
+- `feature/task2-orders-realtime-notifications`
+
+#### Cambios clave
+- Estado de orden migrado a `shipped` (visible como `Enviado`) en todo el frontend.
+- Polling eficiente de ordenes cada 8 segundos para sincronizacion admin/usuario sin refresco manual.
+- Vista `MyOrders` conectada a notificaciones persistidas del backend con marcado de leidas.
+- Seguimiento `OrderTracking` convertido a polling continuo para reflejo inmediato de cambios de estado.
+
+#### Archivos principales
+- `src/types/index.ts`
+- `src/lib/mappers.ts`
+- `src/context/OrdersContext.tsx`
+- `src/pages/admin/AdminOrders.tsx`
+- `src/pages/admin/AdminDashboard.tsx`
+- `src/pages/MyOrders.tsx`
+- `src/pages/OrderTracking.tsx`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)

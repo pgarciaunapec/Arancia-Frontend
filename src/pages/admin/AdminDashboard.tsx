@@ -238,8 +238,8 @@ const AdminDashboard: React.FC = () => {
                           ? "Confirmado"
                           : order.status === "preparing"
                             ? "Preparando"
-                            : order.status === "delivering"
-                              ? "En camino"
+                              : order.status === "shipped"
+                                ? "Enviado"
                               : order.status}
                   </span>
                 </div>

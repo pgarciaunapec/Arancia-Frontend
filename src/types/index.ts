@@ -44,7 +44,7 @@ export interface CartItem {
 }
 
 // ─── Orders / Payments ───────────────────────────────────────────────────────
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivering' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'shipped' | 'delivered' | 'cancelled';
 export type PaymentMethod = 'card' | 'cash' | 'transfer';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type DeliveryType = 'delivery' | 'pickup' | 'dine-in';

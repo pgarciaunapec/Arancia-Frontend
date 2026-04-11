@@ -108,3 +108,11 @@
 - [x] Formateo monetario unificado con `formatCurrencyDOP` en vistas admin/usuario
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
+
+### Task 2 (Pedidos en tiempo real + notificaciones)
+- [x] Estado `Enviado` implementado como `shipped` en frontend
+- [x] Polling eficiente de ordenes en `OrdersContext`
+- [x] Seguimiento de pedido (`OrderTracking`) sincronizado en tiempo real
+- [x] Panel de notificaciones de pedidos en `MyOrders`
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
