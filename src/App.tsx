@@ -1,5 +1,5 @@
-import React, { useReducer, useCallback } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useReducer, useCallback, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { MobileSidebar } from "./components/MobileSidebar";
 import { TopNav } from "./components/TopNav";
 import { Footer } from "./components/Footer";
@@ -82,6 +82,16 @@ const initialPopupState: PopupInfo = {
   bodyContent: "",
 };
 
+const RouteScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
+};
+
 const RestaurantApp: React.FC = () => {
   const [popupInfo, dispatchPopupAction] = useReducer(
     popupReducerFunction,
@@ -104,6 +114,7 @@ const RestaurantApp: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <RouteScrollToTop />
       <AuthProvider>
         <CartProvider>
           <OrdersProvider>
