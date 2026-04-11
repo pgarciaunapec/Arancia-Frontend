@@ -188,9 +188,28 @@ export const checkoutSchema = yup.object({
     .required("La dirección de entrega es obligatoria.")
     .min(5, "La dirección debe tener al menos 5 caracteres."),
   city: yup.string().trim().required("La ciudad es obligatoria."),
-  cardNumber: yup.string().trim(),
-  cardExp: yup.string().trim(),
-  cardCvv: yup.string().trim(),
+  cardNumber: yup
+    .string()
+    .trim()
+    .test("card-number-format", "El número de tarjeta no es válido.", (value) => {
+      if (!value) return true;
+      const digits = value.replace(/\s/g, "");
+      return /^[0-9]{13,19}$/.test(digits);
+    }),
+  cardExp: yup
+    .string()
+    .trim()
+    .test("card-exp-format", "La fecha debe tener formato MM/AA.", (value) => {
+      if (!value) return true;
+      return /^(0[1-9]|1[0-2])\/[0-9]{2}$/.test(value);
+    }),
+  cardCvv: yup
+    .string()
+    .trim()
+    .test("card-cvv-format", "El CVV debe tener 3 o 4 dígitos.", (value) => {
+      if (!value) return true;
+      return /^[0-9]{3,4}$/.test(value);
+    }),
 });
 
 export const eventQuoteSchema = yup.object({
