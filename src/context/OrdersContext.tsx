@@ -17,6 +17,8 @@ interface OrdersContextValue {
 
 interface CreateOrderData {
   userId: string;
+  contactName?: string;
+  contactEmail?: string;
   items: CartItem[];
   subtotal: number;
   tax: number;
@@ -88,7 +90,7 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           quantity: item.quantity,
         })),
         shippingAddress: {
-          name: user?.name || 'Cliente',
+          name: data.contactName || user?.name || 'Cliente',
           address,
           city,
           zip: '00000',

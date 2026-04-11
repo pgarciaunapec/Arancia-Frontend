@@ -23,6 +23,25 @@ const COLORS = {
 
 type PaymentMethod = "cash" | "card" | "transfer";
 
+const maskCardNumber = (value: string) =>
+  value
+    .replace(/\D/g, "")
+    .slice(0, 19)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+
+const maskCardExp = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) {
+    return digits;
+  }
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+};
+
+const maskCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 4);
+
+const normalizeCardNumber = (value: string) => value.replace(/\s/g, "").trim();
+
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { items, subtotal, tax, total, clearCart, refreshCart } = useCart();
@@ -30,6 +49,7 @@ const Checkout: React.FC = () => {
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("delivery");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
 
@@ -57,16 +77,23 @@ const Checkout: React.FC = () => {
       delete fields.cardExp;
       delete fields.cardCvv;
     } else {
-      if (!values.cardNumber.trim()) {
+      const normalizedCard = normalizeCardNumber(values.cardNumber);
+      if (!normalizedCard) {
         fields.cardNumber = "El número de tarjeta es obligatorio.";
+      } else if (normalizedCard.length < 13 || normalizedCard.length > 19) {
+        fields.cardNumber = "El número de tarjeta debe tener entre 13 y 19 dígitos.";
       }
 
       if (!values.cardExp.trim()) {
         fields.cardExp = "La fecha de expiración es obligatoria.";
+      } else if (!/^(0[1-9]|1[0-2])\/[0-9]{2}$/.test(values.cardExp.trim())) {
+        fields.cardExp = "La fecha debe tener formato MM/AA.";
       }
 
       if (!values.cardCvv.trim()) {
         fields.cardCvv = "El CVV es obligatorio.";
+      } else if (!/^[0-9]{3,4}$/.test(values.cardCvv.trim())) {
+        fields.cardCvv = "El CVV debe tener 3 o 4 dígitos.";
       }
     }
 
@@ -90,22 +117,33 @@ const Checkout: React.FC = () => {
       cardExp: "",
       cardCvv: "",
     },
-    validators: {
-      onChange: ({ value }) => validateCheckoutByMode(value),
-      onSubmit: ({ value }) => validateCheckoutByMode(value),
-    },
-    onSubmit: async () => {
-      await submitPayment();
+    onSubmit: async ({ value }) => {
+      const validation = validateCheckoutByMode(value);
+      if (validation) {
+        setSubmitError(validation.form || "Hay datos por corregir antes de pagar.");
+        return;
+      }
+
+      setSubmitError("");
+      await submitPayment(value);
     },
   });
 
-  const submitPayment = async () => {
+  const submitPayment = async (values: {
+    name: string;
+    email: string;
+    address: string;
+    city: string;
+    cardNumber: string;
+    cardExp: string;
+    cardCvv: string;
+  }) => {
     if (items.length === 0) return;
     setLoading(true);
 
     try {
-      const cardLast4 =
-          form.state.values.cardNumber.replace(/\s/g, "").slice(-4) || "0000";
+      const cleanCardNumber = normalizeCardNumber(values.cardNumber);
+      const cardLast4 = cleanCardNumber.slice(-4) || "0000";
       const order = await createOrder({
         userId: user?.id || "guest",
         items,
@@ -113,13 +151,15 @@ const Checkout: React.FC = () => {
         tax,
         total,
         deliveryType,
+        contactName: values.name,
+        contactEmail: values.email,
         deliveryAddress:
           deliveryType === "delivery"
-              ? `${form.state.values.address}, ${form.state.values.city}`
+            ? `${values.address}, ${values.city}`
             : undefined,
         paymentMethod,
         cardLast4: paymentMethod === "card" ? cardLast4 : undefined,
-          cardNumber: paymentMethod === "card" ? form.state.values.cardNumber : undefined,
+        cardNumber: paymentMethod === "card" ? cleanCardNumber : undefined,
       });
 
       clearCart();
@@ -223,7 +263,10 @@ const Checkout: React.FC = () => {
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() => setDeliveryType(opt.value)}
+                      onClick={() => {
+                        setSubmitError("");
+                        setDeliveryType(opt.value);
+                      }}
                       className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all"
                       style={{
                         borderColor:
@@ -267,7 +310,6 @@ const Checkout: React.FC = () => {
                       form.setFieldValue("name", event.target.value)
                     }
                     placeholder="Nombre Completo"
-                    required
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -278,7 +320,6 @@ const Checkout: React.FC = () => {
                       form.setFieldValue("address", event.target.value)
                     }
                     placeholder="Dirección de Envío"
-                    required
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -300,7 +341,6 @@ const Checkout: React.FC = () => {
                     }
                     type="email"
                     placeholder="Correo (para confirmar)"
-                    required
                     className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                     style={{ borderColor: COLORS.border }}
                   />
@@ -330,7 +370,10 @@ const Checkout: React.FC = () => {
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() => setPaymentMethod(opt.value)}
+                      onClick={() => {
+                        setSubmitError("");
+                        setPaymentMethod(opt.value);
+                      }}
                       className="py-3 px-4 rounded-lg border-2 text-sm font-medium transition-all"
                       style={{
                         borderColor:
@@ -358,10 +401,11 @@ const Checkout: React.FC = () => {
                       name="cardNumber"
                       value={String(form.state.values.cardNumber)}
                       onChange={(event) =>
-                        form.setFieldValue("cardNumber", event.target.value)
+                        form.setFieldValue("cardNumber", maskCardNumber(event.target.value))
                       }
                       placeholder="Número de Tarjeta (1234 5678 9012 3456)"
-                      required
+                      inputMode="numeric"
+                      autoComplete="cc-number"
                       className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                       style={{ borderColor: COLORS.border }}
                     />
@@ -370,10 +414,11 @@ const Checkout: React.FC = () => {
                         name="cardExp"
                         value={String(form.state.values.cardExp)}
                         onChange={(event) =>
-                          form.setFieldValue("cardExp", event.target.value)
+                          form.setFieldValue("cardExp", maskCardExp(event.target.value))
                         }
                         placeholder="MM/AA"
-                        required
+                        inputMode="numeric"
+                        autoComplete="cc-exp"
                         className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                         style={{ borderColor: COLORS.border }}
                       />
@@ -381,10 +426,11 @@ const Checkout: React.FC = () => {
                         name="cardCvv"
                         value={String(form.state.values.cardCvv)}
                         onChange={(event) =>
-                          form.setFieldValue("cardCvv", event.target.value)
+                          form.setFieldValue("cardCvv", maskCardCvv(event.target.value))
                         }
                         placeholder="CVV"
-                        required
+                        inputMode="numeric"
+                        autoComplete="cc-csc"
                         className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
                         style={{ borderColor: COLORS.border }}
                       />
@@ -475,6 +521,12 @@ const Checkout: React.FC = () => {
                     `Pagar RD$${total.toFixed(0)}`
                   )}
                 </Button>
+
+                {submitError && (
+                  <p className="mt-3 text-sm text-red-300 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2">
+                    {submitError}
+                  </p>
+                )}
 
                 <div
                   className="flex items-center justify-center gap-2 mt-4 text-xs"
