@@ -31,6 +31,13 @@ const COLORS = {
   border: "rgba(245, 180, 0, 0.3)",
 };
 
+const reservationSelectStyle: React.CSSProperties = {
+  borderColor: "rgba(245, 180, 0, 0.7)",
+  color: COLORS.white,
+  backgroundColor: "rgba(0, 0, 0, 0.45)",
+  outlineColor: COLORS.primary,
+};
+
 const Reservations: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -260,22 +267,22 @@ const Reservations: React.FC = () => {
                         required
                         value={String(form.state.values.time)}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all appearance-none"
-                        style={{
-                          borderColor: COLORS.border,
-                          color: COLORS.white,
-                          outlineColor: COLORS.primary,
-                        }}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 transition-all appearance-none"
+                        style={reservationSelectStyle}
                       >
-                        <option value="" disabled>
+                        <option
+                          value=""
+                          disabled
+                          style={{ color: "#d6d6d6", backgroundColor: "#2d1f0f" }}
+                        >
                           Selecciona una hora
                         </option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">01:00 PM</option>
-                        <option value="14:00">02:00 PM</option>
-                        <option value="19:00">07:00 PM</option>
-                        <option value="20:00">08:00 PM</option>
-                        <option value="21:00">09:00 PM</option>
+                        <option value="12:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>12:00 PM</option>
+                        <option value="13:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>01:00 PM</option>
+                        <option value="14:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>02:00 PM</option>
+                        <option value="19:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>07:00 PM</option>
+                        <option value="20:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>08:00 PM</option>
+                        <option value="21:00" style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}>09:00 PM</option>
                       </select>
                     </div>
                     {showErrors && validationErrors.time && (
@@ -300,15 +307,15 @@ const Reservations: React.FC = () => {
                         required
                         value={String(form.state.values.guests)}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg bg-black/20 border focus:outline-none focus:ring-2 transition-all appearance-none"
-                        style={{
-                          borderColor: COLORS.border,
-                          color: COLORS.white,
-                          outlineColor: COLORS.primary,
-                        }}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 transition-all appearance-none"
+                        style={reservationSelectStyle}
                       >
                         {Array.from({ length: 20 }, (_, index) => index + 1).map((num) => (
-                          <option key={num} value={num}>
+                          <option
+                            key={num}
+                            value={num}
+                            style={{ color: "#ffffff", backgroundColor: "#2d1f0f" }}
+                          >
                             {num} {num === 1 ? "Persona" : "Personas"}
                           </option>
                         ))}
