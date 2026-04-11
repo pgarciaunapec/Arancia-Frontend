@@ -1,6 +1,5 @@
 import * as yup from "yup";
-
-const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s0-9]*$/;
+import { isValidDominicanPhone } from "../lib/phone";
 
 export const loginSchema = yup.object({
   email: yup
@@ -34,7 +33,7 @@ export const registerSchema = yup.object({
     .test(
       "is-valid-phone",
       "Ingresa un teléfono válido.",
-      (value) => !value || phoneRegex.test(value),
+      (value) => !value || isValidDominicanPhone(value),
     ),
   password: yup
     .string()
@@ -65,7 +64,7 @@ export const contactSchema = yup.object({
     .test(
       "is-valid-phone",
       "Ingresa un teléfono válido.",
-      (value) => !value || phoneRegex.test(value),
+      (value) => !value || isValidDominicanPhone(value),
     ),
   subject: yup
     .string()
@@ -120,7 +119,7 @@ export const reservationSchema = yup.object({
     .trim()
     .required("El teléfono de contacto es obligatorio.")
     .test("is-valid-phone", "Ingresa un teléfono válido.", (value) =>
-      value ? phoneRegex.test(value) : false,
+      value ? isValidDominicanPhone(value) : false,
     ),
   notes: yup
     .string()
@@ -149,7 +148,7 @@ export const profileSchema = yup.object({
     .test(
       "is-valid-phone",
       "Ingresa un teléfono válido.",
-      (value) => !value || phoneRegex.test(value),
+      (value) => !value || isValidDominicanPhone(value),
     ),
   address: yup
     .string()
@@ -236,7 +235,7 @@ export const eventQuoteSchema = yup.object({
     .trim()
     .required("El teléfono es obligatorio.")
     .test("is-valid-phone", "Ingresa un teléfono válido.", (value) =>
-      value ? phoneRegex.test(value) : false,
+      value ? isValidDominicanPhone(value) : false,
     ),
   guests: yup
     .number()

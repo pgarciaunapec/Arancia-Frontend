@@ -3,6 +3,7 @@ import type { User } from '../types';
 import { apiRequest, getAuthToken, setAuthToken } from '../lib/api';
 import type { ApiEnvelope } from '../lib/api';
 import { mapBackendUser } from '../lib/mappers';
+import { normalizeDominicanPhone } from '../lib/phone';
 
 interface AuthContextValue {
   user: User | null;
@@ -101,13 +102,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = useCallback(async (data: RegisterData) => {
     try {
+      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
       const response = await apiRequest<ApiEnvelope<{ user: any; token: string }>>('/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           name: data.name,
           email: data.email,
           password: data.password,
-          phone: data.phone,
+          phone: normalizedPhone || undefined,
         }),
       });
 
@@ -132,13 +134,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
     try {
+      const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
       const response = await apiRequest<ApiEnvelope<any>>('/users/profile', {
         method: 'PUT',
         auth: true,
         body: JSON.stringify({
           name: data.name,
           email: data.email,
-          phone: data.phone,
+          phone: normalizedPhone || undefined,
           address: data.address,
         }),
       });
@@ -179,13 +182,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           body: JSON.stringify({ isVip: data.isVIP, vipDiscount: data.isVIP ? 10 : 0 }),
         });
       } else {
+        const normalizedPhone = data.phone ? normalizeDominicanPhone(data.phone) : undefined;
         await apiRequest(`/admin/users/${userId}`, {
           method: 'PUT',
           auth: true,
           body: JSON.stringify({
             name: data.name,
             email: data.email,
-            phone: data.phone,
+            phone: normalizedPhone || undefined,
             role: data.role,
           }),
         });
