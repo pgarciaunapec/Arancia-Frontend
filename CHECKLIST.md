@@ -149,11 +149,11 @@
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
 
-### Task 6 (Comprobantes QR + Collections)
-- [x] Tipos `Invoice` agregados para orden/cuenta de mesa
-- [x] `mapBackendInvoice` implementado
-- [x] `MyOrders` con boton de comprobante y modal QR descargable
-- [x] `admin/table-bills` muestra comprobante QR al cerrar cuenta
-- [x] `admin/collections` con filtro local y ordenamiento estable
-- [x] `admin/collection-view` robustecido (claves estables, serializacion segura, limpieza de seleccion)
+### Task 6 (Facturacion + QR + colecciones hardening)
+- [x] UI de `admin/collections` alineada con el lenguaje visual del panel Admin
+- [x] Resolucion robusta de ID en `AdminCollectionView` (`_id`, `id`, `$oid`)
+- [x] Accion `Editar` corregida para usar ID estable y evitar crear registros nuevos por error
+- [x] Accion `Eliminar` corregida con validacion de identificador
 - [x] Build exitoso
+- [x] Tests de hooks admin exitosos
+- [x] Commit + merge --no-ff

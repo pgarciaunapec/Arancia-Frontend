@@ -47,17 +47,19 @@ const AdminCollections: React.FC = () => {
   }, [collections, query]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Colecciones de BD</h2>
-      <p className="mb-4 text-sm text-slate-600">
-        AdminConfig define las columnas, validaciones y campos editables de cada
-        colección.
-      </p>
+    <div className="space-y-5">
+      <header className="rounded-2xl border border-amber-400/30 bg-[#2d1f0f]/75 p-5 text-amber-50 shadow-lg shadow-black/20">
+        <h2 className="text-2xl font-bold text-amber-300">Colecciones</h2>
+        <p className="mt-2 text-sm text-amber-100/80">
+          Controla configuraciones, registros y mantenimiento dinámico de MongoDB
+          desde una vista unificada.
+        </p>
+      </header>
 
-      <div className="mb-4">
-        <div className="flex gap-2 flex-wrap">
+      <section className="rounded-2xl border border-amber-500/20 bg-[#1f140a]/80 p-4 shadow-lg shadow-black/20">
+        <div className="flex flex-wrap items-center gap-2">
           <button
-            className="rounded border border-slate-300 px-3 py-1 text-sm"
+            className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-[#2d1f0f] transition hover:bg-amber-400"
             onClick={() => void load()}
           >
             Recargar
@@ -65,62 +67,66 @@ const AdminCollections: React.FC = () => {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Filtrar colecciones..."
-            className="rounded border border-slate-300 px-3 py-1 text-sm min-w-[220px]"
+            placeholder="Filtrar por nombre de colección"
+            className="min-w-60 flex-1 rounded-lg border border-amber-300/30 bg-[#120d08] px-3 py-2 text-sm text-amber-50 placeholder:text-amber-200/50"
           />
         </div>
-      </div>
+      </section>
 
       {error && (
-        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="rounded-lg border border-rose-400/40 bg-rose-900/20 px-3 py-2 text-sm text-rose-200">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div>Cargando...</div>
+        <div className="rounded-2xl border border-amber-500/20 bg-[#1f140a]/80 p-6 text-sm text-amber-100/80">
+          Cargando colecciones...
+        </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto border-collapse">
-            <thead>
+        <div className="overflow-x-auto rounded-2xl border border-amber-500/20 bg-[#1f140a]/80 shadow-lg shadow-black/20">
+          <table className="w-full table-auto border-collapse text-sm">
+            <thead className="bg-[#2d1f0f]/90 text-amber-200">
               <tr>
-                <th className="text-left p-2">Colección</th>
-                <th className="text-left p-2">Registros</th>
-                <th className="text-left p-2">Acciones</th>
+                <th className="p-3 text-left font-semibold">Colección</th>
+                <th className="p-3 text-left font-semibold">Registros</th>
+                <th className="p-3 text-left font-semibold">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-amber-50/90">
               {filteredCollections.map((c) => (
-                <tr key={c.name} className="border-t">
-                  <td className="p-2">{c.name}</td>
-                  <td className="p-2">{c.count}</td>
-                  <td className="p-2">
-                    <button
-                      className="mr-2 px-3 py-1 bg-slate-600 text-white rounded"
-                      onClick={() =>
-                        navigate(
-                          `/admin/collections/${encodeURIComponent(c.name)}`,
-                        )
-                      }
-                    >
-                      Abrir
-                    </button>
-                    <button
-                      className="px-3 py-1 bg-amber-600 text-white rounded"
-                      onClick={() =>
-                        navigate(
-                          `/admin/collections/${encodeURIComponent(c.name)}?config=1`,
-                        )
-                      }
-                    >
-                      Configurar
-                    </button>
+                <tr key={c.name} className="border-t border-amber-400/15">
+                  <td className="p-3 font-medium">{c.name}</td>
+                  <td className="p-3">{c.count}</td>
+                  <td className="p-3">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        className="rounded-lg border border-amber-300/40 px-3 py-1.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/20"
+                        onClick={() =>
+                          navigate(
+                            `/admin/collections/${encodeURIComponent(c.name)}`,
+                          )
+                        }
+                      >
+                        Abrir
+                      </button>
+                      <button
+                        className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-[#2d1f0f] transition hover:bg-amber-400"
+                        onClick={() =>
+                          navigate(
+                            `/admin/collections/${encodeURIComponent(c.name)}?config=1`,
+                          )
+                        }
+                      >
+                        Configurar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {filteredCollections.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="p-4 text-sm text-slate-500">
+                  <td colSpan={3} className="p-6 text-center text-sm text-amber-100/70">
                     No se encontraron colecciones para el filtro aplicado.
                   </td>
                 </tr>
