@@ -10,16 +10,18 @@ import {
   ChevronDown,
   ChevronUp,
   MapPin,
+  Receipt,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../context/OrdersContext";
-import type { OrderStatus } from "../types";
+import type { Invoice, OrderStatus } from "../types";
 import { formatCurrencyDOP } from "../lib/currency";
 import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
+import { mapBackendInvoice } from "../lib/mappers";
 
 const COLORS = {
   primary: "#f5b400",
@@ -91,6 +93,12 @@ const MyOrders: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [invoiceByOrder, setInvoiceByOrder] = useState<
+    Record<string, Invoice | undefined>
+  >({});
+  const [invoiceLoadingId, setInvoiceLoadingId] = useState<string | null>(null);
+  const [invoiceError, setInvoiceError] = useState("");
+  const [activeInvoice, setActiveInvoice] = useState<Invoice | null>(null);
 
   const orders = user ? getOrdersByUser(user.id) : [];
   const sorted = [...orders].sort(
@@ -146,6 +154,38 @@ const MyOrders: React.FC = () => {
     }
   };
 
+  const openInvoiceForOrder = async (orderId: string) => {
+    setInvoiceError("");
+
+    const cached = invoiceByOrder[orderId];
+    if (cached) {
+      setActiveInvoice(cached);
+      return;
+    }
+
+    setInvoiceLoadingId(orderId);
+    try {
+      const response = await apiRequest<ApiEnvelope<any>>(
+        `/invoices/order/${orderId}`,
+        { auth: true },
+      );
+      const mapped = mapBackendInvoice(response.data);
+      setInvoiceByOrder((prev) => ({
+        ...prev,
+        [orderId]: mapped,
+      }));
+      setActiveInvoice(mapped);
+    } catch (error) {
+      setInvoiceError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo cargar el comprobante.",
+      );
+    } finally {
+      setInvoiceLoadingId(null);
+    }
+  };
+
   return (
     <div className="w-full pt-20 sm:pt-28 pb-20 px-4 min-h-screen bg-background">
       <div className="max-w-4xl mx-auto">
@@ -194,6 +234,12 @@ const MyOrders: React.FC = () => {
                 Marcar como leídas
               </Button>
             </div>
+          </Card>
+        )}
+
+        {invoiceError && (
+          <Card className="p-3 mb-4 border border-red-500/30 bg-red-500/10 text-red-200 text-sm">
+            {invoiceError}
           </Card>
         )}
 
@@ -349,23 +395,93 @@ const MyOrders: React.FC = () => {
                           </div>
                         </div>
 
-                        {(order.status === "confirmed" ||
-                          order.status === "preparing" ||
-                          order.status === "shipped") && (
+                        <div className="grid gap-2 sm:grid-cols-2">
                           <Button
                             size="sm"
-                            onClick={() => navigate(`/track/${order.id}`)}
+                            variant="outline"
+                            onClick={() => void openInvoiceForOrder(order.id)}
+                            disabled={invoiceLoadingId === order.id}
                             className="w-full"
                           >
-                            <Truck size={16} className="mr-2" /> Rastrear Pedido
+                            <Receipt size={16} className="mr-2" />
+                            {invoiceLoadingId === order.id
+                              ? "Cargando comprobante..."
+                              : "Ver Comprobante"}
                           </Button>
-                        )}
+
+                          {(order.status === "confirmed" ||
+                            order.status === "preparing" ||
+                            order.status === "shipped") && (
+                            <Button
+                              size="sm"
+                              onClick={() => navigate(`/track/${order.id}`)}
+                              className="w-full"
+                            >
+                              <Truck size={16} className="mr-2" /> Rastrear Pedido
+                            </Button>
+                          )}
+                        </div>
                       </motion.div>
                     )}
                   </Card>
                 </motion.div>
               );
             })}
+          </div>
+        )}
+
+        {activeInvoice && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <Card
+              className="w-full max-w-md p-6"
+              style={{
+                backgroundColor: COLORS.secondary,
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <h3 className="text-xl font-bold text-white">Comprobante</h3>
+              <p className="text-sm mt-1" style={{ color: COLORS.muted }}>
+                Código: {activeInvoice.code}
+              </p>
+              <p className="text-xs mt-1" style={{ color: COLORS.muted }}>
+                Emitido: {new Date(activeInvoice.issuedAt).toLocaleString("es-DO")}
+              </p>
+
+              <div className="mt-4 rounded-lg bg-white p-4 flex items-center justify-center">
+                <img
+                  src={activeInvoice.qrImageDataUrl}
+                  alt={`QR ${activeInvoice.code}`}
+                  className="w-52 h-52 object-contain"
+                />
+              </div>
+
+              <div className="mt-4 text-sm text-white flex justify-between">
+                <span>Total</span>
+                <span style={{ color: COLORS.primary }}>
+                  {formatCurrencyDOP(activeInvoice.total)}
+                </span>
+              </div>
+
+              <div className="mt-5 flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setActiveInvoice(null)}
+                >
+                  Cerrar
+                </Button>
+                <a
+                  href={activeInvoice.qrImageDataUrl}
+                  download={`${activeInvoice.code}.png`}
+                  className="flex-1"
+                >
+                  <Button type="button" className="w-full">
+                    Descargar QR
+                  </Button>
+                </a>
+              </div>
+            </Card>
           </div>
         )}
       </div>

@@ -10,9 +10,15 @@ import type { AuditLogEntry } from "../../types/admin";
 const serializeCell = (value: unknown) => {
   if (value === undefined || value === null) return "-";
   if (typeof value === "object") {
-    return JSON.stringify(value);
+    try {
+      const text = JSON.stringify(value);
+      return text.length > 140 ? `${text.slice(0, 140)}...` : text;
+    } catch {
+      return "[Objeto]";
+    }
   }
-  return String(value);
+  const text = String(value);
+  return text.length > 140 ? `${text.slice(0, 140)}...` : text;
 };
 
 const downloadBlob = (blob: Blob, fileName: string) => {
@@ -24,6 +30,39 @@ const downloadBlob = (blob: Blob, fileName: string) => {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+};
+
+const normalizeRecordId = (value: unknown): string => {
+  if (typeof value === "string" && value.trim()) {
+    return value;
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (value && typeof value === "object") {
+    const oid = (value as { $oid?: unknown }).$oid;
+    if (typeof oid === "string" && oid.trim()) {
+      return oid;
+    }
+
+    const maybeString = String(value);
+    if (maybeString && maybeString !== "[object Object]") {
+      return maybeString;
+    }
+  }
+
+  return "";
+};
+
+const resolveRecordId = (row: Record<string, unknown>): string => {
+  const fromMongo = normalizeRecordId(row._id);
+  if (fromMongo) {
+    return fromMongo;
+  }
+
+  return normalizeRecordId(row.id);
 };
 
 const AdminCollectionView: React.FC = () => {
@@ -100,10 +139,19 @@ const AdminCollectionView: React.FC = () => {
   }, [config, records]);
 
   const toggleSelection = (id: string) => {
+    if (!id) return;
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
+
+  const selectableIds = useMemo(
+    () =>
+      records
+        .map((row) => resolveRecordId(row))
+        .filter((id) => id.length > 0),
+    [records],
+  );
 
   const submitRecord = async (payload: Record<string, unknown>) => {
     if (!collection) return;
@@ -124,12 +172,13 @@ const AdminCollectionView: React.FC = () => {
         return acc;
       }, {});
 
-      const editedId = editingRecord?._id ? String(editingRecord._id) : null;
+      const editedId = editingRecord ? resolveRecordId(editingRecord) : "";
       const saved = editedId
         ? await adminService.updateRecord(collection, editedId, cleanPayload)
         : await adminService.createRecord(collection, cleanPayload);
 
-      const targetId = String(saved.data._id || editedId || "");
+      const targetId =
+        resolveRecordId(saved.data as Record<string, unknown>) || editedId;
 
       if (targetId && fileEntries.length > 0) {
         for (const [fieldName, value] of fileEntries) {
@@ -161,6 +210,10 @@ const AdminCollectionView: React.FC = () => {
 
   const deleteOne = async (id: string) => {
     if (!collection) return;
+    if (!id) {
+      setMessage("No se pudo identificar el registro a eliminar");
+      return;
+    }
     if (
       !window.confirm("Esta acción eliminará el registro. ¿Deseas continuar?")
     ) {
@@ -294,34 +347,34 @@ const AdminCollectionView: React.FC = () => {
 
   if (!collection) {
     return (
-      <div className="rounded border border-amber-200 bg-amber-50 p-4 text-sm">
+      <div className="rounded-xl border border-amber-400/30 bg-[#2d1f0f]/70 p-4 text-sm text-amber-100">
         Colección no definida
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 text-amber-50">
       <header className="space-y-2">
-        <h2 className="text-2xl font-bold text-slate-900">
+        <h2 className="text-2xl font-bold text-amber-300">
           Colección: {collection}
         </h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-amber-100/80">
           Vista dinámica basada en AdminConfig. Puedes crear, editar, borrar,
           importar, exportar y revisar auditoría.
         </p>
       </header>
 
       {(error || configError || message) && (
-        <div className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+        <div className="rounded-lg border border-amber-500/30 bg-[#2d1f0f]/75 px-3 py-2 text-sm text-amber-100">
           {message || error || configError}
         </div>
       )}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-3">
+      <section className="rounded-2xl border border-amber-500/20 bg-[#1f140a]/80 p-4 shadow-lg shadow-black/20">
         <div className="flex flex-wrap gap-2">
           <button
-            className="rounded bg-emerald-700 px-3 py-2 text-sm text-white"
+            className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-[#2d1f0f] transition hover:bg-amber-400"
             onClick={() => {
               setEditingRecord(null);
               setFormVisible(true);
@@ -330,33 +383,33 @@ const AdminCollectionView: React.FC = () => {
             Nuevo
           </button>
           <button
-            className="rounded bg-slate-800 px-3 py-2 text-sm text-white"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={() => setConfigEditorVisible(true)}
           >
             Editar configuración
           </button>
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={openAudit}
           >
             Ver auditoría
           </button>
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={runBulkUpdate}
             disabled={selectedIds.length === 0}
           >
             Bulk update
           </button>
           <button
-            className="rounded border border-red-300 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg border border-rose-400/40 px-3 py-2 text-sm text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={runBulkDelete}
             disabled={selectedIds.length === 0}
           >
             Bulk delete
           </button>
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={() => void refresh()}
           >
             Recargar
@@ -368,21 +421,21 @@ const AdminCollectionView: React.FC = () => {
             value={query.q || ""}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Búsqueda de texto"
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/30 bg-[#120d08] px-3 py-2 text-sm text-amber-50 placeholder:text-amber-200/50"
           />
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={() => void handleExport("csv")}
           >
             Exportar CSV
           </button>
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={() => void handleExport("json")}
           >
             Exportar JSON
           </button>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-amber-100/70">
             Seleccionados: {selectedIds.length}
           </div>
         </div>
@@ -401,14 +454,14 @@ const AdminCollectionView: React.FC = () => {
                 event.target.value as "skip" | "replace" | "merge",
               )
             }
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/30 bg-[#120d08] px-3 py-2 text-sm text-amber-50"
           >
             <option value="skip">onConflict: skip</option>
             <option value="replace">onConflict: replace</option>
             <option value="merge">onConflict: merge</option>
           </select>
           <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-amber-300/35 px-3 py-2 text-sm text-amber-100 transition hover:bg-amber-500/20"
             onClick={() => void handleImport()}
           >
             Importar archivo
@@ -417,35 +470,31 @@ const AdminCollectionView: React.FC = () => {
             value={importMappingText}
             onChange={(event) => setImportMappingText(event.target.value)}
             rows={2}
-            className="rounded border border-slate-300 bg-slate-50 px-3 py-2 text-xs"
+            className="rounded-lg border border-amber-300/30 bg-[#120d08] px-3 py-2 text-xs text-amber-50"
           />
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <section className="overflow-hidden rounded-2xl border border-amber-500/20 bg-[#1f140a]/80 shadow-lg shadow-black/20">
         {loading || configLoading ? (
-          <div className="p-4 text-sm text-slate-600">
+          <div className="p-4 text-sm text-amber-100/80">
             Cargando registros...
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-slate-700">
+            <table className="min-w-full divide-y divide-amber-400/20 text-sm">
+              <thead className="bg-[#2d1f0f]/90 text-amber-200">
                 <tr>
                   <th className="px-3 py-2 text-left">
                     <input
                       type="checkbox"
                       checked={
-                        records.length > 0 &&
-                        selectedIds.length === records.length
+                        selectableIds.length > 0 &&
+                        selectedIds.length === selectableIds.length
                       }
                       onChange={(event) =>
                         setSelectedIds(
-                          event.target.checked
-                            ? records.map((row) =>
-                                String(row._id || row.id || ""),
-                              )
-                            : [],
+                          event.target.checked ? selectableIds : [],
                         )
                       }
                     />
@@ -461,22 +510,23 @@ const AdminCollectionView: React.FC = () => {
                   <th className="px-3 py-2 text-left">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {records.map((row) => {
-                  const id = String(row._id || row.id || "");
+              <tbody className="divide-y divide-amber-400/15 text-amber-50/90">
+                {records.map((row, rowIndex) => {
+                  const id = resolveRecordId(row);
                   return (
-                    <tr key={id || Math.random()}>
+                    <tr key={id || `${collection}-${rowIndex}`}>
                       <td className="px-3 py-2">
                         <input
                           type="checkbox"
-                          checked={selectedIds.includes(id)}
+                          checked={id.length > 0 && selectedIds.includes(id)}
+                          disabled={id.length === 0}
                           onChange={() => toggleSelection(id)}
                         />
                       </td>
                       {visibleFields.map((field) => (
                         <td
                           key={field.name}
-                          className="px-3 py-2 text-slate-700"
+                          className="px-3 py-2"
                         >
                           {serializeCell(row[field.name])}
                         </td>
@@ -484,7 +534,8 @@ const AdminCollectionView: React.FC = () => {
                       <td className="px-3 py-2">
                         <div className="flex gap-2">
                           <button
-                            className="rounded border border-slate-300 px-2 py-1 text-xs"
+                            className="rounded border border-amber-300/35 px-2 py-1 text-xs text-amber-100 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!id}
                             onClick={() => {
                               setEditingRecord(row);
                               setFormVisible(true);
@@ -493,7 +544,8 @@ const AdminCollectionView: React.FC = () => {
                             Editar
                           </button>
                           <button
-                            className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
+                            className="rounded border border-rose-400/40 px-2 py-1 text-xs text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={!id}
                             onClick={() => void deleteOne(id)}
                           >
                             Eliminar
@@ -508,21 +560,21 @@ const AdminCollectionView: React.FC = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <div className="flex items-center justify-between border-t border-amber-400/20 bg-[#2d1f0f]/70 px-3 py-2 text-xs text-amber-100/80">
           <span>
             Página {pagination.page} de {pagination.totalPages} · Total{" "}
             {pagination.total}
           </span>
           <div className="flex gap-2">
             <button
-              className="rounded border border-slate-300 px-2 py-1"
+              className="rounded border border-amber-300/35 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={pagination.page <= 1}
               onClick={() => setPage(pagination.page - 1)}
             >
               Anterior
             </button>
             <button
-              className="rounded border border-slate-300 px-2 py-1"
+              className="rounded border border-amber-300/35 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => setPage(pagination.page + 1)}
             >

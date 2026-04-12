@@ -148,3 +148,12 @@
 - [x] `AdminContext` y mappers sincronizados para nuevos campos
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
+
+### Task 6 (Facturacion + QR + colecciones hardening)
+- [x] UI de `admin/collections` alineada con el lenguaje visual del panel Admin
+- [x] Resolucion robusta de ID en `AdminCollectionView` (`_id`, `id`, `$oid`)
+- [x] Accion `Editar` corregida para usar ID estable y evitar crear registros nuevos por error
+- [x] Accion `Eliminar` corregida con validacion de identificador
+- [x] Build exitoso
+- [x] Tests de hooks admin exitosos
+- [x] Commit + merge --no-ff

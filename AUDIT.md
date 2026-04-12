@@ -100,6 +100,24 @@
 #### Verificacion
 - Build: OK (`pnpm run build`)
 
+### Task 6 - Facturacion, recibos QR y colecciones (hardening)
+#### Rama
+- `feature/task6-invoices-qr-collections`
+
+#### Cambios clave
+- Vista `admin/collections` modernizada para alinearse visualmente con el panel Admin.
+- `AdminCollectionView` endurecida con resolucion robusta de identificador de registro (`_id`, `id`, `$oid`).
+- Flujo de `Editar` corregido para evitar creacion accidental de registros cuando `_id` esta oculto en `AdminConfig`.
+- Flujo de `Eliminar` corregido con validacion de identificador y controles deshabilitados cuando no existe ID valido.
+
+#### Archivos principales
+- `src/pages/admin/AdminCollections.tsx`
+- `src/pages/admin/AdminCollectionView.tsx`
+
+#### Verificacion
+- Tests: OK (`pnpm test -- src/hooks/admin.hooks.test.tsx`)
+- Build: OK (`pnpm run build`)
+
 ### Task 5 - Gestion de empleados, asignaciones y selector de delivery
 #### Rama
 - `feature/task5-employee-fleet-assignment`
