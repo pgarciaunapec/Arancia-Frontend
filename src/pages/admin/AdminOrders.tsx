@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import {
   CalendarRange,
@@ -13,6 +13,10 @@ import { Button } from "../../components/ui/button";
 import { useOrders } from "../../context/OrdersContext";
 import type { OrderStatus } from "../../types";
 import { formatCurrencyDOP } from "../../lib/currency";
+import { useAuth } from "../../context/AuthContext";
+import { useAdmin } from "../../context/AdminContext";
+import { apiRequest } from "../../lib/api";
+import type { ApiEnvelope } from "../../lib/api";
 
 const COLORS = {
   primary: "#f5b400",
@@ -39,7 +43,24 @@ const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   shipped: "delivered",
 };
 
+type FleetVehicle = {
+  id: string;
+  plate: string;
+  vehicleModel: string;
+  type: string;
+  status: string;
+};
+
+type AssignmentDraft = {
+  staffId: string;
+  tableId: string;
+  vehicleId: string;
+  notes: string;
+};
+
 const AdminOrders: React.FC = () => {
+  const { getAllUsers } = useAuth();
+  const { tables } = useAdmin();
   const { getAllOrders, updateOrderStatus } = useOrders();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
@@ -47,8 +68,151 @@ const AdminOrders: React.FC = () => {
   const [deliveryTypeFilter, setDeliveryTypeFilter] = useState<
     "all" | "delivery" | "pickup" | "dine-in"
   >("all");
+  const [vehicles, setVehicles] = useState<FleetVehicle[]>([]);
+  const [assignmentDrafts, setAssignmentDrafts] = useState<
+    Record<string, AssignmentDraft>
+  >({});
+  const [savingOrderId, setSavingOrderId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState("");
 
   const orders = getAllOrders();
+
+  const employees = useMemo(
+    () =>
+      getAllUsers().filter(
+        (user) => user.role === "staff" || user.role === "admin",
+      ),
+    [getAllUsers],
+  );
+
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        const response = await apiRequest<ApiEnvelope<any[]>>("/admin/fleet", {
+          auth: true,
+        });
+        const mapped = (response.data || []).map((vehicle) => ({
+          id: String(vehicle._id || vehicle.id),
+          plate: String(vehicle.plate || "").toUpperCase(),
+          vehicleModel: vehicle.vehicleModel || "",
+          type: vehicle.type || "motorbike",
+          status: vehicle.status || "available",
+        }));
+        setVehicles(mapped);
+      } catch {
+        setVehicles([]);
+      }
+    };
+
+    void loadVehicles();
+  }, []);
+
+  useEffect(() => {
+    setAssignmentDrafts((prev) => {
+      const next = { ...prev };
+      for (const order of orders) {
+        if (!next[order.id]) {
+          next[order.id] = {
+            staffId: order.assignedStaffId || "",
+            tableId: order.assignedTableId || "",
+            vehicleId: order.assignedVehicleId || "",
+            notes: order.assignmentNotes || "",
+          };
+        }
+      }
+      return next;
+    });
+  }, [orders]);
+
+  const setDraftField = (
+    orderId: string,
+    field: keyof AssignmentDraft,
+    value: string,
+  ) => {
+    setAssignmentDrafts((prev) => ({
+      ...prev,
+      [orderId]: {
+        staffId: "",
+        tableId: "",
+        vehicleId: "",
+        notes: "",
+        ...(prev[orderId] || {}),
+        [field]: value,
+      },
+    }));
+  };
+
+  const saveAssignment = async (orderId: string) => {
+    const draft = assignmentDrafts[orderId];
+    if (!draft) {
+      return;
+    }
+
+    setSavingOrderId(orderId);
+    setFeedback("");
+
+    try {
+      await apiRequest(`/admin/orders/${orderId}/assignment`, {
+        method: "PATCH",
+        auth: true,
+        body: JSON.stringify({
+          staffId: draft.staffId || undefined,
+          tableId: draft.tableId || undefined,
+          notes: draft.notes || undefined,
+        }),
+      });
+      setFeedback("Asignación actualizada.");
+    } catch (error) {
+      setFeedback(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar la asignación.",
+      );
+    } finally {
+      setSavingOrderId(null);
+    }
+  };
+
+  const handleAdvanceStatus = async (
+    orderId: string,
+    nextStatus: OrderStatus,
+    deliveryType: "delivery" | "pickup" | "dine-in",
+  ) => {
+    const draft = assignmentDrafts[orderId];
+
+    if (nextStatus === "shipped" && deliveryType === "delivery") {
+      if (!draft?.staffId) {
+        setFeedback("Debes seleccionar repartidor antes de enviar un delivery.");
+        return;
+      }
+    }
+
+    setSavingOrderId(orderId);
+    setFeedback("");
+
+    try {
+      await updateOrderStatus(orderId, nextStatus, {
+        deliveryAgentId:
+          nextStatus === "shipped" && deliveryType === "delivery"
+            ? draft?.staffId || undefined
+            : undefined,
+        vehicleId:
+          nextStatus === "shipped" && deliveryType === "delivery"
+            ? draft?.vehicleId || undefined
+            : undefined,
+      });
+      setFeedback("Estado de pedido actualizado.");
+    } catch (error) {
+      setFeedback(
+        error instanceof Error
+          ? error.message
+          : "No se pudo actualizar el estado.",
+      );
+    } finally {
+      setSavingOrderId(null);
+    }
+  };
+
   const filtered = orders
     .filter((o) => {
       const createdAt = new Date(o.createdAt);
@@ -89,6 +253,12 @@ const AdminOrders: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {feedback && (
+        <Card className="p-3 border border-white/15 bg-white/5 text-sm text-white/90">
+          {feedback}
+        </Card>
+      )}
 
       {/* Filters */}
       <Card
@@ -203,7 +373,7 @@ const AdminOrders: React.FC = () => {
         }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[1120px] text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: COLORS.border }}>
                 {[
@@ -213,6 +383,7 @@ const AdminOrders: React.FC = () => {
                   "Total",
                   "Tipo",
                   "Estado",
+                  "Asignaciones",
                   "Acción",
                 ].map((h) => (
                   <th
@@ -228,6 +399,12 @@ const AdminOrders: React.FC = () => {
             <tbody>
               {filtered.map((order) => {
                 const nextStatus = NEXT_STATUS[order.status as OrderStatus];
+                const draft = assignmentDrafts[order.id] || {
+                  staffId: "",
+                  tableId: "",
+                  vehicleId: "",
+                  notes: "",
+                };
                 return (
                   <motion.tr
                     layout
@@ -295,14 +472,92 @@ const AdminOrders: React.FC = () => {
                                     : order.status}
                       </span>
                     </td>
+                              <td className="p-4">
+                                <div className="space-y-2 min-w-[260px]">
+                                  <select
+                                    value={draft.staffId}
+                                    onChange={(event) =>
+                                      setDraftField(order.id, "staffId", event.target.value)
+                                    }
+                                    className="w-full bg-black/20 border border-white/20 rounded px-2 py-1.5 text-xs text-white"
+                                  >
+                                    <option value="">Sin responsable</option>
+                                    {employees.map((employee) => (
+                                      <option key={employee.id} value={employee.id}>
+                                        {employee.name}
+                                      </option>
+                                    ))}
+                                  </select>
+
+                                  {order.deliveryType === "dine-in" && (
+                                    <select
+                                      value={draft.tableId}
+                                      onChange={(event) =>
+                                        setDraftField(order.id, "tableId", event.target.value)
+                                      }
+                                      className="w-full bg-black/20 border border-white/20 rounded px-2 py-1.5 text-xs text-white"
+                                    >
+                                      <option value="">Sin mesa asignada</option>
+                                      {tables.map((table) => (
+                                        <option key={table.id} value={table.id}>
+                                          Mesa #{table.number} · {table.section}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  )}
+
+                                  {order.deliveryType === "delivery" && (
+                                    <select
+                                      value={draft.vehicleId}
+                                      onChange={(event) =>
+                                        setDraftField(order.id, "vehicleId", event.target.value)
+                                      }
+                                      className="w-full bg-black/20 border border-white/20 rounded px-2 py-1.5 text-xs text-white"
+                                    >
+                                      <option value="">Sin vehículo</option>
+                                      {vehicles
+                                        .filter((vehicle) => vehicle.status !== "inactive")
+                                        .map((vehicle) => (
+                                          <option key={vehicle.id} value={vehicle.id}>
+                                            {vehicle.plate} · {vehicle.vehicleModel}
+                                          </option>
+                                        ))}
+                                    </select>
+                                  )}
+
+                                  <input
+                                    value={draft.notes}
+                                    onChange={(event) =>
+                                      setDraftField(order.id, "notes", event.target.value)
+                                    }
+                                    placeholder="Notas internas"
+                                    className="w-full bg-black/20 border border-white/20 rounded px-2 py-1.5 text-xs text-white"
+                                  />
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs border-white/20 text-white/70 hover:text-white"
+                                    disabled={savingOrderId === order.id}
+                                    onClick={() => void saveAssignment(order.id)}
+                                  >
+                                    Guardar asignación
+                                  </Button>
+                                </div>
+                              </td>
                     <td className="p-4">
                       {nextStatus && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() =>
-                            updateOrderStatus(order.id, nextStatus)
-                          }
+                                    onClick={() =>
+                                      void handleAdvanceStatus(
+                                        order.id,
+                                        nextStatus,
+                                        order.deliveryType,
+                                      )
+                                    }
+                                    disabled={savingOrderId === order.id}
                           className="text-xs border-white/20 text-white/70 hover:text-white whitespace-nowrap"
                         >
                           →{" "}
