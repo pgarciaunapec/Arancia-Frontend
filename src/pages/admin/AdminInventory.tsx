@@ -6,6 +6,7 @@ import {
   Search,
   AlertTriangle,
   Edit2,
+  History,
   Trash2,
   X,
   Save,
@@ -15,6 +16,8 @@ import { Button } from "../../components/ui/button";
 import { useAdmin } from "../../context/AdminContext";
 import type { InventoryItem } from "../../types";
 import { formatCurrencyDOP } from "../../lib/currency";
+import { apiRequest } from "../../lib/api";
+import type { ApiEnvelope } from "../../lib/api";
 
 const COLORS = {
   primary: "#f5b400",
@@ -46,6 +49,30 @@ const blankForm = {
   supplier: "",
 };
 
+interface InventoryMovementEntry {
+  _id: string;
+  action:
+    | "create"
+    | "restock"
+    | "adjustment_in"
+    | "adjustment_out"
+    | "deactivate";
+  quantity: number;
+  previousStock: number;
+  newStock: number;
+  reason?: string;
+  createdAt: string;
+  performedBy?: { name?: string; email?: string };
+}
+
+const movementLabel: Record<InventoryMovementEntry["action"], string> = {
+  create: "Creación",
+  restock: "Reabastecimiento",
+  adjustment_in: "Ajuste +",
+  adjustment_out: "Ajuste -",
+  deactivate: "Desactivación",
+};
+
 const AdminInventory: React.FC = () => {
   const {
     inventory,
@@ -62,6 +89,10 @@ const AdminInventory: React.FC = () => {
   const [editItem, setEditItem] = useState<InventoryItem | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState(blankForm);
+  const [historyItemName, setHistoryItemName] = useState("");
+  const [historyRows, setHistoryRows] = useState<InventoryMovementEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const filtered = inventory.filter((item) => {
     const q = search.toLowerCase();
@@ -92,6 +123,24 @@ const AdminInventory: React.FC = () => {
     addInventoryItem(newItem);
     setNewItem(blankForm);
     setShowAddForm(false);
+  };
+
+  const openHistory = async (item: InventoryItem) => {
+    setLoadingHistory(true);
+    setHistoryItemName(item.name);
+    setShowHistory(true);
+
+    try {
+      const response = await apiRequest<ApiEnvelope<InventoryMovementEntry[]>>(
+        `/admin/inventory/${item.id}/movements`,
+        { auth: true },
+      );
+      setHistoryRows(response.data || []);
+    } catch {
+      setHistoryRows([]);
+    } finally {
+      setLoadingHistory(false);
+    }
   };
 
   const totals = {
@@ -292,6 +341,16 @@ const AdminInventory: React.FC = () => {
                           +
                         </button>
                       )}
+                      <button
+                        onClick={() => {
+                          void openHistory(item);
+                        }}
+                        className="p-1.5 rounded hover:bg-white/10 transition-colors"
+                        style={{ color: COLORS.muted }}
+                        title="Ver historial"
+                      >
+                        <History size={14} />
+                      </button>
                       <button
                         onClick={() => setEditItem({ ...item })}
                         className="p-1.5 rounded hover:bg-white/10 transition-colors"
@@ -555,6 +614,81 @@ const AdminInventory: React.FC = () => {
                 Cancelar
               </Button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showHistory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+          onClick={() => setShowHistory(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-3xl p-6 rounded-2xl"
+            style={{
+              backgroundColor: COLORS.secondary,
+              border: `1px solid ${COLORS.border}`,
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">
+                Trazabilidad de Inventario · {historyItemName}
+              </h2>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="text-white/40 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingHistory ? (
+              <p className="text-sm" style={{ color: COLORS.muted }}>
+                Cargando historial...
+              </p>
+            ) : historyRows.length === 0 ? (
+              <p className="text-sm" style={{ color: COLORS.muted }}>
+                Sin movimientos registrados para este item.
+              </p>
+            ) : (
+              <div className="max-h-[60vh] overflow-auto space-y-2">
+                {historyRows.map((entry) => (
+                  <div
+                    key={entry._id}
+                    className="rounded-lg border border-white/10 bg-black/20 p-3"
+                  >
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <span className="text-xs font-semibold text-amber-300">
+                        {movementLabel[entry.action]}
+                      </span>
+                      <span className="text-xs" style={{ color: COLORS.muted }}>
+                        {new Date(entry.createdAt).toLocaleString("es-DO")}
+                      </span>
+                    </div>
+                    <p className="text-sm text-white mt-1">
+                      Cantidad: {entry.quantity} · Stock: {entry.previousStock}{" "}
+                      → {entry.newStock}
+                    </p>
+                    {entry.reason && (
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: COLORS.muted }}
+                      >
+                        Motivo: {entry.reason}
+                      </p>
+                    )}
+                    {entry.performedBy?.name && (
+                      <p className="text-xs" style={{ color: COLORS.muted }}>
+                        Ejecutado por: {entry.performedBy.name}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       )}

@@ -16,7 +16,7 @@ export interface FilterState {
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
-export type UserRole = 'customer' | 'staff' | 'admin';
+export type UserRole = "customer" | "staff" | "admin";
 
 export interface User {
   id: string;
@@ -44,10 +44,17 @@ export interface CartItem {
 }
 
 // ─── Orders / Payments ───────────────────────────────────────────────────────
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentMethod = 'card' | 'cash' | 'transfer';
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
-export type DeliveryType = 'delivery' | 'pickup' | 'dine-in';
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+export type PaymentMethod = "card" | "cash" | "transfer";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type DeliveryType = "delivery" | "pickup" | "dine-in";
 
 export interface PaymentTransaction {
   id: string;
@@ -91,7 +98,11 @@ export interface Order {
 }
 
 // ─── Reservations ────────────────────────────────────────────────────────────
-export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+export type ReservationStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "completed";
 
 export interface ReservationPricing {
   coverPerGuest: number;
@@ -120,7 +131,12 @@ export interface Reservation {
 }
 
 // ─── Delivery ────────────────────────────────────────────────────────────────
-export type DeliveryStep = 'confirmed' | 'preparing' | 'ready' | 'on_the_way' | 'delivered';
+export type DeliveryStep =
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "on_the_way"
+  | "delivered";
 
 export interface DeliveryTracking {
   orderId: string;
@@ -131,7 +147,7 @@ export interface DeliveryTracking {
 }
 
 // ─── Admin – Tables ──────────────────────────────────────────────────────────
-export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning';
+export type TableStatus = "available" | "occupied" | "reserved" | "maintenance";
 
 export interface RestaurantTable {
   id: string;
@@ -139,12 +155,14 @@ export interface RestaurantTable {
   capacity: number;
   status: TableStatus;
   section: string;
+  image?: string;
+  description?: string;
   currentOrderId?: string;
   reservationId?: string;
 }
 
 // ─── Admin – Inventory ───────────────────────────────────────────────────────
-export type StockStatus = 'ok' | 'low' | 'out';
+export type StockStatus = "ok" | "low" | "out";
 
 export interface InventoryItem {
   id: string;

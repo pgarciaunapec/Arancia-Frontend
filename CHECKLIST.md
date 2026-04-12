@@ -124,3 +124,15 @@
 - [x] Contraste y accesibilidad del boton `Nuevo Usuario` corregidos
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
+
+### Task 4 (Mesas + Inventario CRUD sincronizados)
+- [x] `admin/tables` refactorizado a CRUD completo con alta/edicion/eliminacion
+- [x] Soporte de `imagen` y `descripcion` en mesas
+- [x] Estados de mesa alineados a backend (`maintenance` incluido)
+- [x] `AdminContext` extendido con `createTable`, `updateTable`, `deleteTable`
+- [x] Reserva conectada a disponibilidad real (`/api/reservations/availability`)
+- [x] Confirmacion de reserva muestra `tableNumber` asignado
+- [x] `admin/inventory` con modal de trazabilidad por item
+- [x] Mappers/tipos sincronizados para metadata de mesa y reservation table
+- [x] Build exitoso
+- [x] Commit + merge --no-ff

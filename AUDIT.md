@@ -100,6 +100,33 @@
 #### Verificacion
 - Build: OK (`pnpm run build`)
 
+### Task 4 - Modulo de Mesas e Inventario CRUD con sincronizacion de reservas
+#### Rama
+- `feature/task4-tables-inventory-sync`
+
+#### Cambios clave
+- `admin/tables` refactorizado a CRUD completo con:
+  - alta/edicion/eliminacion de mesa
+  - soporte de `imagen` y `descripcion`
+  - control de estado (`available`, `reserved`, `occupied`, `maintenance`)
+- `AdminContext` extendido con operaciones de mesas (`createTable`, `updateTable`, `deleteTable`).
+- `Reservations` conectado a disponibilidad real por comensales usando `GET /api/reservations/availability`.
+- `BookingConfirmation` actualizado para mostrar numero de mesa asignada cuando aplica.
+- `admin/inventory` ampliado con modal de trazabilidad por item consumiendo historial de movimientos.
+- Tipos y mappers sincronizados para propagar metadata de mesa y `tableNumber` desde backend.
+
+#### Archivos principales
+- `src/pages/admin/AdminTables.tsx`
+- `src/context/AdminContext.tsx`
+- `src/pages/Reservations.tsx`
+- `src/pages/BookingConfirmation.tsx`
+- `src/pages/admin/AdminInventory.tsx`
+- `src/lib/mappers.ts`
+- `src/types/index.ts`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
 ### Task 2 - Rediseño Menu Amazon Style con filtros dinamicos
 #### Rama
 - `feature/task2-amazon-menu-filters`
