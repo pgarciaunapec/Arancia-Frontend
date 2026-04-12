@@ -28,6 +28,7 @@ interface AdminContextValue {
     zone: string;
     image?: string;
     description?: string;
+    assignedStaff?: string;
   }) => Promise<void>;
   updateTable: (
     tableId: string,
@@ -38,6 +39,7 @@ interface AdminContextValue {
       status?: TableStatus;
       image?: string;
       description?: string;
+      assignedStaff?: string | null;
     },
   ) => Promise<void>;
   deleteTable: (tableId: string) => Promise<void>;
@@ -164,6 +166,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       zone: string;
       image?: string;
       description?: string;
+      assignedStaff?: string;
     }) => {
       await apiRequest("/admin/tables", {
         method: "POST",
@@ -186,6 +189,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
         status?: TableStatus;
         image?: string;
         description?: string;
+        assignedStaff?: string | null;
       },
     ) => {
       await apiRequest(`/admin/tables/${tableId}`, {

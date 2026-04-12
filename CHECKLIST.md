@@ -136,3 +136,15 @@
 - [x] Mappers/tipos sincronizados para metadata de mesa y reservation table
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
+
+### Task 5 (Empleados + asignaciones + flota)
+- [x] `admin/orders` con panel de asignaciones (empleado/mesa/vehiculo/notas)
+- [x] Selector de delivery al enviar pedido (`shipped`) conectado a backend
+- [x] `admin/delivery` con asignacion real de repartidor y vehiculo
+- [x] CRUD de flota conectado a `/api/admin/fleet`
+- [x] `admin/table-bills` con selector de mesero al abrir cuenta
+- [x] `admin/tables` con empleado responsable por mesa
+- [x] `OrdersContext` migrado a endpoints admin para staff/admin
+- [x] `AdminContext` y mappers sincronizados para nuevos campos
+- [x] Build exitoso
+- [x] Commit + merge --no-ff

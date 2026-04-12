@@ -95,6 +95,13 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
   tableNumber?: number;
+  assignedStaffId?: string;
+  assignedStaffName?: string;
+  assignedTableId?: string;
+  assignedTableNumber?: number;
+  assignedVehicleId?: string;
+  assignedVehiclePlate?: string;
+  assignmentNotes?: string;
 }
 
 // ─── Reservations ────────────────────────────────────────────────────────────
@@ -157,8 +164,23 @@ export interface RestaurantTable {
   section: string;
   image?: string;
   description?: string;
+  assignedStaffId?: string;
+  assignedStaffName?: string;
   currentOrderId?: string;
   reservationId?: string;
+}
+
+export type VehicleType = "motorbike" | "car" | "van" | "bicycle";
+export type VehicleStatus = "available" | "in_use" | "maintenance" | "inactive";
+
+export interface Vehicle {
+  id: string;
+  plate: string;
+  type: VehicleType;
+  vehicleModel: string;
+  capacityOrders: number;
+  status: VehicleStatus;
+  notes?: string;
 }
 
 // ─── Admin – Inventory ───────────────────────────────────────────────────────

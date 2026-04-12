@@ -100,6 +100,39 @@
 #### Verificacion
 - Build: OK (`pnpm run build`)
 
+### Task 5 - Gestion de empleados, asignaciones y selector de delivery
+#### Rama
+- `feature/task5-employee-fleet-assignment`
+
+#### Cambios clave
+- `admin/orders` ampliado con panel de asignaciones por pedido:
+  - responsable (empleado)
+  - mesa para flujo dine-in
+  - vehiculo para delivery
+  - notas de asignacion
+- Selector de delivery integrado al avance de estado a `shipped` con envio de repartidor/vehiculo al backend.
+- `admin/delivery` refactorizado para operar asignaciones reales y gestionar flota en la misma vista.
+- CRUD de flota frontend conectado a `/api/admin/fleet`.
+- `admin/table-bills` ampliado con selector de mesero al abrir cuenta y visualizacion de responsable.
+- `admin/tables` actualizado para asignar empleado responsable por mesa.
+- Contextos y mappers sincronizados para nuevas entidades y campos:
+  - `OrdersContext` hacia endpoints admin
+  - `AdminContext` con `assignedStaff` en CRUD de mesas
+  - `mapBackendOrder`, `mapBackendTable`, `mapBackendVehicle`
+
+#### Archivos principales
+- `src/pages/admin/AdminOrders.tsx`
+- `src/pages/admin/AdminDelivery.tsx`
+- `src/pages/admin/AdminTableBills.tsx`
+- `src/pages/admin/AdminTables.tsx`
+- `src/context/OrdersContext.tsx`
+- `src/context/AdminContext.tsx`
+- `src/lib/mappers.ts`
+- `src/types/index.ts`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)
+
 ### Task 4 - Modulo de Mesas e Inventario CRUD con sincronizacion de reservas
 #### Rama
 - `feature/task4-tables-inventory-sync`

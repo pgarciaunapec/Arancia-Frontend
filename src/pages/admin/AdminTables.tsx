@@ -12,6 +12,7 @@ import {
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { useAdmin } from "../../context/AdminContext";
+import { useAuth } from "../../context/AuthContext";
 import type { TableStatus, RestaurantTable } from "../../types";
 import { getImageUrl } from "../../services/api";
 
@@ -56,6 +57,7 @@ type TableFormValues = {
   capacity: string;
   zone: string;
   status: TableStatus;
+  assignedStaff: string;
   image: string;
   description: string;
 };
@@ -65,11 +67,13 @@ const blankForm: TableFormValues = {
   capacity: "4",
   zone: "Salón Principal",
   status: "available",
+  assignedStaff: "",
   image: "",
   description: "",
 };
 
 const AdminTables: React.FC = () => {
+  const { getAllUsers } = useAuth();
   const { tables, updateTableStatus, createTable, updateTable, deleteTable } =
     useAdmin();
   const [selectedSection, setSelectedSection] = useState<string>("all");
@@ -90,6 +94,14 @@ const AdminTables: React.FC = () => {
     selectedSection === "all"
       ? tables
       : tables.filter((t) => t.section === selectedSection);
+
+  const employees = useMemo(
+    () =>
+      getAllUsers().filter(
+        (user) => user.role === "staff" || user.role === "admin",
+      ),
+    [getAllUsers],
+  );
 
   const counts = {
     available: tables.filter((t) => t.status === "available").length,
@@ -118,6 +130,7 @@ const AdminTables: React.FC = () => {
       capacity: String(table.capacity),
       zone: table.section,
       status: table.status,
+      assignedStaff: table.assignedStaffId || "",
       image: table.image || "",
       description: table.description || "",
     });
@@ -149,6 +162,7 @@ const AdminTables: React.FC = () => {
           capacity,
           zone: formValues.zone,
           status: formValues.status,
+          assignedStaff: formValues.assignedStaff || null,
           image: formValues.image || undefined,
           description: formValues.description || undefined,
         });
@@ -157,6 +171,7 @@ const AdminTables: React.FC = () => {
           number,
           capacity,
           zone: formValues.zone,
+          assignedStaff: formValues.assignedStaff || undefined,
           image: formValues.image || undefined,
           description: formValues.description || undefined,
         });
@@ -323,6 +338,11 @@ const AdminTables: React.FC = () => {
                 <p className="text-xs mt-1 opacity-50 text-white">
                   {table.section}
                 </p>
+                {table.assignedStaffName && (
+                  <p className="text-[11px] mt-1 text-amber-200/90">
+                    Responsable: {table.assignedStaffName}
+                  </p>
+                )}
 
                 <div className="mt-2 flex items-center justify-center gap-2">
                   <button
@@ -462,6 +482,31 @@ const AdminTables: React.FC = () => {
                   {Object.entries(statusConfig).map(([value, config]) => (
                     <option key={value} value={value}>
                       {config.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-white/60 block mb-1">
+                  Empleado Responsable
+                </label>
+                <select
+                  value={formValues.assignedStaff}
+                  onChange={(event) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      assignedStaff: event.target.value,
+                    }))
+                  }
+                  className="w-full bg-black/20 border rounded-lg px-3 py-2 text-white"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <option value="">Sin asignar</option>
+                  {employees.map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.name} (
+                      {employee.role === "admin" ? "Admin" : "Staff"})
                     </option>
                   ))}
                 </select>

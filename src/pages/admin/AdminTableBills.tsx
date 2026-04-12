@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/button";
 import { apiRequest } from "../../lib/api";
 import type { ApiEnvelope } from "../../lib/api";
 import { useAdmin } from "../../context/AdminContext";
+import { useAuth } from "../../context/AuthContext";
 import { formatCurrencyDOP } from "../../lib/currency";
 
 type TableBillStatus = "open" | "closed" | "cancelled";
@@ -16,6 +17,7 @@ interface TableBill {
   discount?: number;
   paymentMethod?: PaymentMethod;
   table?: { _id: string; number?: number; zone?: string };
+  waiter?: { _id?: string; name?: string; email?: string };
   items?: Array<{
     menuItem?: string;
     name?: string;
@@ -32,10 +34,12 @@ interface MenuOption {
 }
 
 const AdminTableBills: React.FC = () => {
+  const { getAllUsers } = useAuth();
   const { tables } = useAdmin();
   const [bills, setBills] = useState<TableBill[]>([]);
   const [menuOptions, setMenuOptions] = useState<MenuOption[]>([]);
   const [tableId, setTableId] = useState("");
+  const [waiterId, setWaiterId] = useState("");
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
   const [selectedMenuItemByBill, setSelectedMenuItemByBill] = useState<
     Record<string, string>
@@ -55,6 +59,14 @@ const AdminTableBills: React.FC = () => {
   const availableTables = useMemo(
     () => tables.filter((table) => table.status === "available"),
     [tables],
+  );
+
+  const employees = useMemo(
+    () =>
+      getAllUsers().filter(
+        (user) => user.role === "staff" || user.role === "admin",
+      ),
+    [getAllUsers],
   );
 
   const loadBills = async () => {
@@ -103,9 +115,13 @@ const AdminTableBills: React.FC = () => {
       await apiRequest("/admin/table-bills", {
         method: "POST",
         auth: true,
-        body: JSON.stringify({ tableId }),
+        body: JSON.stringify({
+          tableId,
+          waiterId: waiterId || undefined,
+        }),
       });
       setTableId("");
+      setWaiterId("");
       await loadBills();
     } catch {
       setError("No se pudo abrir la cuenta de mesa");
@@ -224,6 +240,23 @@ const AdminTableBills: React.FC = () => {
               ))}
             </select>
           </div>
+          <div>
+            <label className="text-xs text-white/60 block mb-1">
+              Mesero responsable
+            </label>
+            <select
+              value={waiterId}
+              onChange={(event) => setWaiterId(event.target.value)}
+              className="bg-black/20 border border-white/20 rounded px-3 py-2 text-white max-w-full"
+            >
+              <option value="">Asignar al usuario actual</option>
+              {employees.map((employee) => (
+                <option key={employee.id} value={employee.id}>
+                  {employee.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <Button onClick={openBill} className="w-full sm:w-auto">
             Abrir Cuenta
           </Button>
@@ -250,6 +283,7 @@ const AdminTableBills: React.FC = () => {
                   <th className="text-left p-3">Cuenta</th>
                   <th className="text-left p-3">Mesa</th>
                   <th className="text-left p-3">Items</th>
+                  <th className="text-left p-3">Mesero</th>
                   <th className="text-left p-3">Total</th>
                   <th className="text-left p-3">Estado</th>
                   <th className="text-left p-3">Acción</th>
@@ -268,6 +302,7 @@ const AdminTableBills: React.FC = () => {
                           : "N/A"}
                       </td>
                       <td className="p-3">{bill.items?.length || 0}</td>
+                      <td className="p-3">{bill.waiter?.name || "Sin asignar"}</td>
                       <td className="p-3">
                         {formatCurrencyDOP(Number(bill.total || 0))}
                       </td>
@@ -312,7 +347,7 @@ const AdminTableBills: React.FC = () => {
                         key={`${bill._id}-editor`}
                         className="border-b border-white/5 bg-black/10"
                       >
-                        <td colSpan={6} className="p-3">
+                        <td colSpan={7} className="p-3">
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                               <p className="text-xs uppercase tracking-wide text-white/60">
@@ -338,7 +373,8 @@ const AdminTableBills: React.FC = () => {
                                     <option value="">Seleccionar...</option>
                                     {menuOptions.map((item) => (
                                       <option key={item._id} value={item._id}>
-                                        {item.name} · {formatCurrencyDOP(item.price)}
+                                        {item.name} ·{" "}
+                                        {formatCurrencyDOP(item.price)}
                                       </option>
                                     ))}
                                   </select>
@@ -382,7 +418,10 @@ const AdminTableBills: React.FC = () => {
                                     >
                                       <span>
                                         {item.name || "Ítem"} ·{" "}
-                                        {item.quantity || 0} × {formatCurrencyDOP(Number(item.price || 0))}
+                                        {item.quantity || 0} ×{" "}
+                                        {formatCurrencyDOP(
+                                          Number(item.price || 0),
+                                        )}
                                       </span>
                                       {item.menuItem && (
                                         <Button

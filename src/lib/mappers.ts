@@ -13,6 +13,7 @@ import type {
   RestaurantTable,
   StockStatus,
   User,
+  Vehicle,
 } from "../types";
 
 const strHash = (value: string): number => {
@@ -137,6 +138,29 @@ export const mapBackendOrder = (raw: any, userId?: string): Order => {
       : undefined,
     estimatedMinutes: raw.estimatedMinutes || 35,
     transaction,
+    assignedStaffId: raw.assignedStaff
+      ? String(raw.assignedStaff._id || raw.assignedStaff)
+      : undefined,
+    assignedStaffName:
+      typeof raw.assignedStaff === "object"
+        ? raw.assignedStaff.name
+        : undefined,
+    assignedTableId: raw.assignedTable
+      ? String(raw.assignedTable._id || raw.assignedTable)
+      : undefined,
+    assignedTableNumber:
+      typeof raw.assignedTable === "object" && raw.assignedTable.number
+        ? Number(raw.assignedTable.number)
+        : undefined,
+    assignedVehicleId: raw.assignedVehicle
+      ? String(raw.assignedVehicle._id || raw.assignedVehicle)
+      : undefined,
+    assignedVehiclePlate:
+      typeof raw.assignedVehicle === "object"
+        ? raw.assignedVehicle.plate
+        : undefined,
+    assignmentNotes:
+      typeof raw.assignmentNotes === "string" ? raw.assignmentNotes : undefined,
     createdAt: raw.createdAt || new Date().toISOString(),
     updatedAt: raw.updatedAt || raw.createdAt || new Date().toISOString(),
   };
@@ -211,5 +235,20 @@ export const mapBackendTable = (raw: any): RestaurantTable => ({
   section: raw.zone || "General",
   image: raw.image || undefined,
   description: raw.description || undefined,
+  assignedStaffId: raw.assignedStaff
+    ? String(raw.assignedStaff._id || raw.assignedStaff)
+    : undefined,
+  assignedStaffName:
+    typeof raw.assignedStaff === "object" ? raw.assignedStaff.name : undefined,
   currentOrderId: raw.activeBill ? String(raw.activeBill) : undefined,
+});
+
+export const mapBackendVehicle = (raw: any): Vehicle => ({
+  id: String(raw._id || raw.id),
+  plate: String(raw.plate || "").toUpperCase(),
+  type: raw.type || "motorbike",
+  vehicleModel: raw.vehicleModel || "",
+  capacityOrders: Number(raw.capacityOrders || 1),
+  status: raw.status || "available",
+  notes: raw.notes || undefined,
 });
