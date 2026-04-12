@@ -22,6 +22,8 @@ import {
   formatDominicanPhoneInput,
   normalizeDominicanPhone,
 } from "../lib/phone";
+import { apiRequest } from "../lib/api";
+import type { ApiEnvelope } from "../lib/api";
 
 const COLORS = {
   primary: "#f5b400",
@@ -38,6 +40,13 @@ const reservationSelectStyle: React.CSSProperties = {
   outlineColor: COLORS.primary,
 };
 
+interface AvailableTable {
+  _id: string;
+  number: number;
+  capacity: number;
+  zone: string;
+}
+
 const Reservations: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -46,6 +55,7 @@ const Reservations: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+  const [availableTables, setAvailableTables] = useState<AvailableTable[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -97,6 +107,7 @@ const Reservations: React.FC = () => {
             booking: {
               ...value,
               reservationId: reservation.id,
+              tableNumber: reservation.tableNumber,
             },
           },
         });
@@ -117,6 +128,45 @@ const Reservations: React.FC = () => {
       string,
       string
     >) || {};
+
+  useEffect(() => {
+    const guests = Number(form.state.values.guests || 0);
+    if (!isAuthenticated || !Number.isFinite(guests) || guests < 1) {
+      setAvailableTables([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadAvailability = async () => {
+      try {
+        const response = await apiRequest<ApiEnvelope<any>>(
+          `/reservations/availability?guests=${guests}`,
+          { auth: true },
+        );
+
+        const payload = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.data)
+            ? response.data.data
+            : [];
+
+        if (!cancelled) {
+          setAvailableTables(payload as AvailableTable[]);
+        }
+      } catch {
+        if (!cancelled) {
+          setAvailableTables([]);
+        }
+      }
+    };
+
+    void loadAvailability();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.state.values.guests, isAuthenticated]);
 
   if (!isAuthenticated) {
     return null;
@@ -408,6 +458,21 @@ const Reservations: React.FC = () => {
                         {validationErrors.guests}
                       </p>
                     )}
+
+                    <div className="mt-2 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs">
+                      <p style={{ color: COLORS.muted }}>
+                        Mesas disponibles ahora: {availableTables.length}
+                      </p>
+                      {availableTables.length > 0 && (
+                        <p className="text-white mt-1">
+                          Ejemplo:{" "}
+                          {availableTables
+                            .slice(0, 3)
+                            .map((table) => `#${table.number}`)
+                            .join(", ")}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
 

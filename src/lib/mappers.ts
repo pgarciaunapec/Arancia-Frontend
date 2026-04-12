@@ -13,7 +13,7 @@ import type {
   RestaurantTable,
   StockStatus,
   User,
-} from '../types';
+} from "../types";
 
 const strHash = (value: string): number => {
   let hash = 0;
@@ -25,11 +25,11 @@ const strHash = (value: string): number => {
 
 export const mapBackendUser = (raw: any): User => ({
   id: String(raw.id || raw._id),
-  name: raw.name || '',
-  email: raw.email || '',
-  phone: raw.phone || '',
-  address: raw.address || '',
-  role: raw.role || 'customer',
+  name: raw.name || "",
+  email: raw.email || "",
+  phone: raw.phone || "",
+  address: raw.address || "",
+  role: raw.role || "customer",
   isVIP: !!raw.isVip,
   createdAt: raw.createdAt || new Date().toISOString(),
   loyaltyPoints: raw.loyaltyPoints || 0,
@@ -43,23 +43,25 @@ export const mapBackendMenuItem = (raw: any): MenuItem => ({
   price: Number(raw.price || 0),
   ingredients: Array.isArray(raw.ingredients) ? raw.ingredients : [],
   description:
-    typeof raw.description === 'string' && raw.description.trim().length > 0
+    typeof raw.description === "string" && raw.description.trim().length > 0
       ? raw.description
       : undefined,
   isPopular: Boolean(raw.isPopular),
-  image: raw.image || '',
+  image: raw.image || "",
 });
 
 export const mapBackendCartItem = (raw: any): CartItem => {
-  const backendId = String(raw.menuItem?._id || raw.menuItem || raw._id || raw.id);
+  const backendId = String(
+    raw.menuItem?._id || raw.menuItem || raw._id || raw.id,
+  );
   return {
     id: backendId,
     backendId,
-    name: raw.name || raw.menuItem?.name || 'Item',
+    name: raw.name || raw.menuItem?.name || "Item",
     price: Number(raw.price || raw.menuItem?.price || 0),
     quantity: Number(raw.quantity || 1),
-    image: raw.image || raw.menuItem?.image || '',
-    category: raw.category || raw.menuItem?.category || 'General',
+    image: raw.image || raw.menuItem?.image || "",
+    category: raw.category || raw.menuItem?.category || "General",
     description: raw.description || raw.menuItem?.description || undefined,
     ingredients: Array.isArray(raw.ingredients)
       ? raw.ingredients
@@ -70,26 +72,34 @@ export const mapBackendCartItem = (raw: any): CartItem => {
 };
 
 const mapOrderStatus = (status: string): OrderStatus => {
-  if (status === 'pending' || status === 'confirmed' || status === 'preparing' || status === 'ready' || status === 'shipped' || status === 'delivered' || status === 'cancelled') {
+  if (
+    status === "pending" ||
+    status === "confirmed" ||
+    status === "preparing" ||
+    status === "ready" ||
+    status === "shipped" ||
+    status === "delivered" ||
+    status === "cancelled"
+  ) {
     return status;
   }
-  return 'pending';
+  return "pending";
 };
 
 export const mapBackendOrder = (raw: any, userId?: string): Order => {
   const backendId = String(raw._id || raw.id);
-  const deliveryType: DeliveryType = raw.isDelivery ? 'delivery' : 'pickup';
+  const deliveryType: DeliveryType = raw.isDelivery ? "delivery" : "pickup";
 
   const transaction: PaymentTransaction | undefined = raw.latestPayment
     ? {
         id: String(raw.latestPayment._id),
         orderId: backendId,
-        userId: String(raw.user || userId || ''),
+        userId: String(raw.user || userId || ""),
         amount: Number(raw.latestPayment.amount || raw.subtotal || 0),
         tax: Number(raw.tax || 0),
         total: Number(raw.total || 0),
-        method: (raw.latestPayment.method || 'cash') as PaymentMethod,
-        status: raw.latestPayment.status === 'completed' ? 'paid' : 'pending',
+        method: (raw.latestPayment.method || "cash") as PaymentMethod,
+        status: raw.latestPayment.status === "completed" ? "paid" : "pending",
         cardLast4: raw.latestPayment.last4Digits,
         createdAt: raw.latestPayment.createdAt || raw.createdAt,
       }
@@ -98,13 +108,18 @@ export const mapBackendOrder = (raw: any, userId?: string): Order => {
   return {
     id: backendId,
     backendId,
-    userId: String(raw.user || userId || ''),
+    userId: String(raw.user || userId || ""),
     items: (raw.items || []).map((item: any) => ({
-      id: String(item.menuItem?._id || item.menuItem || item._id || strHash(item.name || 'item')),
-      name: item.name || item.menuItem?.name || 'Item',
+      id: String(
+        item.menuItem?._id ||
+          item.menuItem ||
+          item._id ||
+          strHash(item.name || "item"),
+      ),
+      name: item.name || item.menuItem?.name || "Item",
       price: Number(item.price || item.menuItem?.price || 0),
       quantity: Number(item.quantity || 1),
-      image: item.menuItem?.image || item.image || '',
+      image: item.menuItem?.image || item.image || "",
       description: item.description || item.menuItem?.description || undefined,
       ingredients: Array.isArray(item.ingredients)
         ? item.ingredients
@@ -127,12 +142,17 @@ export const mapBackendOrder = (raw: any, userId?: string): Order => {
   };
 };
 
-export const mapBackendReservation = (raw: any, userId?: string): Reservation => {
-  const status = ['pending', 'confirmed', 'cancelled', 'completed'].includes(raw.status)
+export const mapBackendReservation = (
+  raw: any,
+  userId?: string,
+): Reservation => {
+  const status = ["pending", "confirmed", "cancelled", "completed"].includes(
+    raw.status,
+  )
     ? (raw.status as ReservationStatus)
-    : 'pending';
+    : "pending";
 
-  const date = raw.date ? new Date(raw.date).toISOString().split('T')[0] : '';
+  const date = raw.date ? new Date(raw.date).toISOString().split("T")[0] : "";
   const pricing: ReservationPricing | undefined = raw.pricing
     ? {
         coverPerGuest: Number(raw.pricing.coverPerGuest || 0),
@@ -146,16 +166,17 @@ export const mapBackendReservation = (raw: any, userId?: string): Reservation =>
   return {
     id: String(raw._id || raw.id),
     backendId: String(raw._id || raw.id),
-    userId: String(raw.user || userId || ''),
-    name: raw.name || '',
-    email: raw.email || '',
-    phone: raw.phone || '',
+    userId: String(raw.user || userId || ""),
+    name: raw.name || "",
+    email: raw.email || "",
+    phone: raw.phone || "",
     date,
-    time: raw.time || '',
+    time: raw.time || "",
     guests: Number(raw.guests || 1),
-    notes: raw.notes || '',
+    notes: raw.notes || "",
     status,
-    location: raw.location || 'Restaurante Principal',
+    location: raw.location || "Restaurante Principal",
+    tableNumber: raw.table?.number ? Number(raw.table.number) : undefined,
     pricing,
     createdAt: raw.createdAt || new Date().toISOString(),
   };
@@ -164,9 +185,9 @@ export const mapBackendReservation = (raw: any, userId?: string): Reservation =>
 const mapStockStatus = (raw: any): StockStatus => {
   const quantity = Number(raw.currentStock || 0);
   const minimum = Number(raw.minimumStock || 0);
-  if (quantity === 0) return 'out';
-  if (quantity <= minimum) return 'low';
-  return 'ok';
+  if (quantity === 0) return "out";
+  if (quantity <= minimum) return "low";
+  return "ok";
 };
 
 export const mapBackendInventoryItem = (raw: any): InventoryItem => ({
@@ -174,10 +195,10 @@ export const mapBackendInventoryItem = (raw: any): InventoryItem => ({
   name: raw.name,
   category: raw.category,
   quantity: Number(raw.currentStock || 0),
-  unit: raw.unit || 'unidad',
+  unit: raw.unit || "unidad",
   minStock: Number(raw.minimumStock || 0),
   costPerUnit: Number(raw.costPerUnit || 0),
-  supplier: raw.supplier || 'N/A',
+  supplier: raw.supplier || "N/A",
   lastUpdated: raw.updatedAt || new Date().toISOString(),
   status: mapStockStatus(raw),
 });
@@ -186,7 +207,9 @@ export const mapBackendTable = (raw: any): RestaurantTable => ({
   id: String(raw._id || raw.id),
   number: Number(raw.number || 0),
   capacity: Number(raw.capacity || 0),
-  status: raw.status || 'available',
-  section: raw.zone || 'General',
+  status: raw.status || "available",
+  section: raw.zone || "General",
+  image: raw.image || undefined,
+  description: raw.description || undefined,
   currentOrderId: raw.activeBill ? String(raw.activeBill) : undefined,
 });
