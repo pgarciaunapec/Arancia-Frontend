@@ -13,6 +13,7 @@ import type {
   RestaurantTable,
   StockStatus,
   User,
+  Invoice,
   Vehicle,
 } from "../types";
 
@@ -251,4 +252,18 @@ export const mapBackendVehicle = (raw: any): Vehicle => ({
   capacityOrders: Number(raw.capacityOrders || 1),
   status: raw.status || "available",
   notes: raw.notes || undefined,
+});
+
+export const mapBackendInvoice = (raw: any): Invoice => ({
+  id: String(raw._id || raw.id),
+  code: raw.code || "",
+  kind: raw.kind || "order",
+  total: Number(raw.total || 0),
+  currency: raw.currency || "DOP",
+  issuedAt: raw.issuedAt || raw.createdAt || new Date().toISOString(),
+  qrImageDataUrl: raw.qrImageDataUrl || "",
+  orderId: raw.order?._id ? String(raw.order._id) : raw.order || undefined,
+  tableBillId: raw.tableBill?._id
+    ? String(raw.tableBill._id)
+    : raw.tableBill || undefined,
 });

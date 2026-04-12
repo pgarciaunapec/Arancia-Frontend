@@ -27,6 +27,15 @@ interface TableBill {
   createdAt?: string;
 }
 
+interface GeneratedInvoice {
+  _id: string;
+  code: string;
+  total: number;
+  currency: string;
+  qrImageDataUrl: string;
+  issuedAt: string;
+}
+
 interface MenuOption {
   _id: string;
   name: string;
@@ -55,6 +64,9 @@ const AdminTableBills: React.FC = () => {
   >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeInvoice, setActiveInvoice] = useState<GeneratedInvoice | null>(
+    null,
+  );
 
   const availableTables = useMemo(
     () => tables.filter((table) => table.status === "available"),
@@ -130,13 +142,18 @@ const AdminTableBills: React.FC = () => {
 
   const closeBill = async (id: string) => {
     try {
-      await apiRequest(`/admin/table-bills/${id}/close`, {
+      const response = await apiRequest<ApiEnvelope<TableBill> & {
+        invoice?: GeneratedInvoice;
+      }>(`/admin/table-bills/${id}/close`, {
         method: "POST",
         auth: true,
         body: JSON.stringify({
           paymentMethod: paymentMethodByBill[id] || "cash",
         }),
       });
+      if (response.invoice) {
+        setActiveInvoice(response.invoice);
+      }
       setExpandedBillId(null);
       await loadBills();
     } catch {
@@ -528,6 +545,50 @@ const AdminTableBills: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {activeInvoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+          <Card className="w-full max-w-md p-6 bg-[#2d1f0f] border border-white/10">
+            <h3 className="text-xl font-bold text-white">Comprobante emitido</h3>
+            <p className="text-sm text-white/60 mt-1">Código: {activeInvoice.code}</p>
+            <p className="text-xs text-white/50 mt-1">
+              {new Date(activeInvoice.issuedAt).toLocaleString("es-DO")}
+            </p>
+
+            <div className="mt-4 rounded-lg bg-white p-4 flex items-center justify-center">
+              <img
+                src={activeInvoice.qrImageDataUrl}
+                alt={`QR ${activeInvoice.code}`}
+                className="w-52 h-52 object-contain"
+              />
+            </div>
+
+            <div className="mt-4 flex justify-between text-sm text-white">
+              <span>Total</span>
+              <span className="font-semibold text-amber-300">
+                {formatCurrencyDOP(activeInvoice.total)}
+              </span>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 border-white/20 text-white"
+                onClick={() => setActiveInvoice(null)}
+              >
+                Cerrar
+              </Button>
+              <a
+                href={activeInvoice.qrImageDataUrl}
+                download={`${activeInvoice.code}.png`}
+                className="flex-1"
+              >
+                <Button className="w-full">Descargar QR</Button>
+              </a>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

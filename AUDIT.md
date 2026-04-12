@@ -323,3 +323,31 @@
 
 #### Verificacion
 - Build: OK (`pnpm run build`)
+
+### Task 6 - Comprobantes con QR y mejoras en colecciones
+#### Rama
+- `feature/task6-invoices-qr-collections`
+
+#### Cambios clave
+- `MyOrders` ampliado para consultar comprobante por orden y mostrar modal con QR descargable.
+- `admin/table-bills` integrado con respuesta de cierre que incluye comprobante e interfaz POS para visualizar QR emitido.
+- `admin/collections` mejorado con:
+  - filtro por nombre en cliente
+  - ordenamiento estable alfabetico
+  - estado vacio cuando no hay coincidencias
+- `admin/collections/:collection` robustecido con:
+  - serializacion segura/truncada de celdas complejas
+  - claves de fila estables
+  - limpieza de seleccion al refrescar registros
+- Mappers y tipos sincronizados para nueva entidad `Invoice`.
+
+#### Archivos principales
+- `src/pages/MyOrders.tsx`
+- `src/pages/admin/AdminTableBills.tsx`
+- `src/pages/admin/AdminCollections.tsx`
+- `src/pages/admin/AdminCollectionView.tsx`
+- `src/lib/mappers.ts`
+- `src/types/index.ts`
+
+#### Verificacion
+- Build: OK (`pnpm run build`)

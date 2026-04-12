@@ -10,9 +10,15 @@ import type { AuditLogEntry } from "../../types/admin";
 const serializeCell = (value: unknown) => {
   if (value === undefined || value === null) return "-";
   if (typeof value === "object") {
-    return JSON.stringify(value);
+    try {
+      const text = JSON.stringify(value);
+      return text.length > 140 ? `${text.slice(0, 140)}...` : text;
+    } catch {
+      return "[Objeto]";
+    }
   }
-  return String(value);
+  const text = String(value);
+  return text.length > 140 ? `${text.slice(0, 140)}...` : text;
 };
 
 const downloadBlob = (blob: Blob, fileName: string) => {
@@ -100,10 +106,19 @@ const AdminCollectionView: React.FC = () => {
   }, [config, records]);
 
   const toggleSelection = (id: string) => {
+    if (!id) return;
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
+
+  const selectableIds = useMemo(
+    () =>
+      records
+        .map((row) => String(row._id || row.id || ""))
+        .filter((id) => id.length > 0),
+    [records],
+  );
 
   const submitRecord = async (payload: Record<string, unknown>) => {
     if (!collection) return;
@@ -436,16 +451,12 @@ const AdminCollectionView: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={
-                        records.length > 0 &&
-                        selectedIds.length === records.length
+                        selectableIds.length > 0 &&
+                        selectedIds.length === selectableIds.length
                       }
                       onChange={(event) =>
                         setSelectedIds(
-                          event.target.checked
-                            ? records.map((row) =>
-                                String(row._id || row.id || ""),
-                              )
-                            : [],
+                          event.target.checked ? selectableIds : [],
                         )
                       }
                     />
@@ -462,14 +473,15 @@ const AdminCollectionView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {records.map((row) => {
+                {records.map((row, rowIndex) => {
                   const id = String(row._id || row.id || "");
                   return (
-                    <tr key={id || Math.random()}>
+                    <tr key={id || `${collection}-${rowIndex}`}>
                       <td className="px-3 py-2">
                         <input
                           type="checkbox"
-                          checked={selectedIds.includes(id)}
+                          checked={id.length > 0 && selectedIds.includes(id)}
+                          disabled={id.length === 0}
                           onChange={() => toggleSelection(id)}
                         />
                       </td>

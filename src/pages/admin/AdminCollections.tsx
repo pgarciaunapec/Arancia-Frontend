@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import adminService from "../../services/admin.service";
 
@@ -6,6 +6,7 @@ const AdminCollections: React.FC = () => {
   const [collections, setCollections] = useState<
     { name: string; count: number }[]
   >([]);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -31,6 +32,20 @@ const AdminCollections: React.FC = () => {
     void load();
   }, []);
 
+  const filteredCollections = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const sorted = [...collections].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+    if (!q) {
+      return sorted;
+    }
+
+    return sorted.filter((collection) =>
+      collection.name.toLowerCase().includes(q),
+    );
+  }, [collections, query]);
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Colecciones de BD</h2>
@@ -40,12 +55,20 @@ const AdminCollections: React.FC = () => {
       </p>
 
       <div className="mb-4">
-        <button
-          className="rounded border border-slate-300 px-3 py-1 text-sm"
-          onClick={() => void load()}
-        >
-          Recargar
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            className="rounded border border-slate-300 px-3 py-1 text-sm"
+            onClick={() => void load()}
+          >
+            Recargar
+          </button>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filtrar colecciones..."
+            className="rounded border border-slate-300 px-3 py-1 text-sm min-w-[220px]"
+          />
+        </div>
       </div>
 
       {error && (
@@ -67,7 +90,7 @@ const AdminCollections: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {collections.map((c) => (
+              {filteredCollections.map((c) => (
                 <tr key={c.name} className="border-t">
                   <td className="p-2">{c.name}</td>
                   <td className="p-2">{c.count}</td>
@@ -95,6 +118,13 @@ const AdminCollections: React.FC = () => {
                   </td>
                 </tr>
               ))}
+              {filteredCollections.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="p-4 text-sm text-slate-500">
+                    No se encontraron colecciones para el filtro aplicado.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

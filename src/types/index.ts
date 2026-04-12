@@ -211,3 +211,17 @@ export interface CashSession {
   isOpen: boolean;
   transactions: PaymentTransaction[];
 }
+
+export type InvoiceKind = "order" | "table_bill";
+
+export interface Invoice {
+  id: string;
+  code: string;
+  kind: InvoiceKind;
+  total: number;
+  currency: string;
+  issuedAt: string;
+  qrImageDataUrl: string;
+  orderId?: string;
+  tableBillId?: string;
+}
