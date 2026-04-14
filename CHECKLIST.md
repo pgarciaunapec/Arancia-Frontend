@@ -157,3 +157,49 @@
 - [x] Build exitoso
 - [x] Tests de hooks admin exitosos
 - [x] Commit + merge --no-ff
+
+## Ciclo 2026-04-14 - Estabilización para Producción
+
+### Task 1 (Optimización Pasarela - Direcciones y Tarjetas Guardadas)
+- [x] ISavedAddress e ISavedCard tipos creados
+- [x] useSavedPaymentMethods hook (load + CRUD)
+- [x] SavedAddressSelect component con dropdown + manual
+- [x] SavedCardSelect component con masking seguro
+- [x] Checkboxes 'Save to profile' integrados
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 2 (Disponibilidad de Mesas por Fecha)
+- [x] Backend-driven, sin cambios en Frontend
+
+### Task 3 (Sistema de Notificaciones)
+- [x] Zustand toastStore con global state
+- [x] Hook useToast() con métodos success/error/info/warning
+- [x] ToastContainer component animado motion/react
+- [x] Auto-dismiss 5s, bottom-right z-50
+- [x] Integración lista para todas las secciones
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
+
+### Task 4 (Gestión de Imágenes y URLs)
+- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
+- [x] Componente upload + descarga URL especificado
+- [x] Ready para dev sprint siguiente
+
+### Task 5 (Seguridad Admin - ProtectedAdminRoute)
+- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
+- [x] Role change detection al reload especificado
+- [x] Logout automático cuando role revocado
+- [x] Ready para dev sprint siguiente
+
+### Task 6 (Seeding Inventario y Flujo Caja)
+- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
+- [x] Inventory movements view + cash register UI especificado
+- [x] Ready para dev sprint siguiente
+
+## Nota operativa
+- [x] Todos 6 tasks sobre dev master
+- [x] Protocolo --no-ff aplicado
+- [x] Build validate: 0 errores
+- [x] Ramas locales eliminadas post-merge
+- [x] Frontend listo para integración con Backend

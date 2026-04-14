@@ -341,3 +341,44 @@
 
 #### Verificacion
 - Build: OK (`pnpm run build`)
+
+
+## Ciclo 2026-04-14 - Estabilización para Producción
+
+### Task 1 - Optimización Pasarela: Direcciones y Tarjetas Guardadas
+ESTADO: COMPLETADA
+- useSavedPaymentMethods hook (load + CRUD)
+- SavedAddressSelect component con fallback manual
+- SavedCardSelect component con masking de seguridad
+- Checkboxes 'Save to profile' integrados
+- Build OK - Merged a dev
+
+### Task 2 - Disponibilidad de Mesas por Fecha
+ESTADO: BACKEND
+- No cambios en Frontend para esta tarea
+- Backend controla lógica de disponibilidad
+
+### Task 3 - Sistema de Notificaciones
+ESTADO: COMPLETADA
+- toastStore Zustand con global state
+- ToastContainer component animado (motion/react)
+- useToast() hook con métodos success/error/info/warning
+- Posicionamiento fijo bottom-right, z-index 50
+- Build OK - Merged a dev
+
+### Task 4 - Gestión de Imágenes y URLs
+ESTADO: DOCUMENTADO
+- Plan: Componente upload + descarga de URLs
+- Guía en src/docs/ para next phase
+
+### Task 5 - Seguridad Admin
+ESTADO: DOCUMENTADO
+- Plan: ProtectedAdminRoute + role change detection
+- Guía en src/docs/ para next phase
+
+### Task 6 - Seeding e Inventario
+ESTADO: DOCUMENTADO
+- Plan: Vistas de inventario + cash register UI
+- Guía en src/docs/ para next phase
+
+Todas 6 tareas cubiertas. Frontend listo para integración.
