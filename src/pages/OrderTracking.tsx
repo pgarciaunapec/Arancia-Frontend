@@ -17,6 +17,7 @@ import type { OrderStatus } from "../types";
 import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
 import { mapBackendOrder } from "../lib/mappers";
+import { subscribeToOrderStatusUpdates } from "../lib/realtime";
 import {
     clearCheckoutRedirectFlag,
     useCheckoutState,
@@ -94,6 +95,22 @@ const OrderTracking: React.FC = () => {
         return null;
     };
 
+    const mapRealtimeStatus = (status?: string): OrderStatus | null => {
+        if (
+            status === "pending" ||
+            status === "confirmed" ||
+            status === "preparing" ||
+            status === "ready" ||
+            status === "shipped" ||
+            status === "delivered" ||
+            status === "cancelled"
+        ) {
+            return status;
+        }
+
+        return null;
+    };
+
     useEffect(() => {
         if (!orderId) {
             setLoading(false);
@@ -150,13 +167,35 @@ const OrderTracking: React.FC = () => {
 
         load(true);
 
-        const intervalId = window.setInterval(() => {
-            load(false);
-        }, 8000);
+        const unsubscribe = subscribeToOrderStatusUpdates(
+            { orderId },
+            (event) => {
+                if (event.orderId !== orderId || !isMounted) {
+                    return;
+                }
+
+                const nextStatus = mapRealtimeStatus(event.status);
+                if (nextStatus) {
+                    setLiveOrder((current) => {
+                        if (!current) {
+                            return current;
+                        }
+
+                        return {
+                            ...current,
+                            status: nextStatus,
+                            updatedAt: event.updatedAt || current.updatedAt,
+                        };
+                    });
+                }
+
+                void load(false);
+            },
+        );
 
         return () => {
             isMounted = false;
-            window.clearInterval(intervalId);
+            unsubscribe();
         };
     }, [orderId]);
 

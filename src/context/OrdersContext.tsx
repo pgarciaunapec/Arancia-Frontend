@@ -5,10 +5,17 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import type { Order, PaymentMethod, DeliveryType, CartItem } from "../types";
+import type {
+  Order,
+  OrderStatus,
+  PaymentMethod,
+  DeliveryType,
+  CartItem,
+} from "../types";
 import { apiRequest } from "../lib/api";
 import type { ApiEnvelope } from "../lib/api";
 import { mapBackendOrder } from "../lib/mappers";
+import { subscribeToOrderStatusUpdates } from "../lib/realtime";
 import { useAuth } from "./AuthContext";
 
 interface OrdersContextValue {
@@ -58,6 +65,18 @@ const unpackArrayData = (payload: unknown): any[] => {
   return [];
 };
 
+const isOrderStatus = (status: string): status is OrderStatus => {
+  return [
+    "pending",
+    "confirmed",
+    "preparing",
+    "ready",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ].includes(status);
+};
+
 export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -100,16 +119,46 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    const intervalId = window.setInterval(() => {
-      refreshOrders().catch(() => {
-        // Keep current UI state if polling fails transiently.
-      });
-    }, 8000);
+    const unsubscribe = subscribeToOrderStatusUpdates(
+      {
+        userId: user?.id,
+        adminScope: isAdmin,
+      },
+      (event) => {
+        if (!event.orderId || !isOrderStatus(event.status)) {
+          return;
+        }
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [isAuthenticated, refreshOrders]);
+        let hasMatch = false;
+
+        setOrders((current) =>
+          current.map((order) => {
+            if (
+              order.id !== event.orderId &&
+              order.backendId !== event.orderId
+            ) {
+              return order;
+            }
+
+            hasMatch = true;
+            return {
+              ...order,
+              status: event.status,
+              updatedAt: event.updatedAt || order.updatedAt,
+            };
+          }),
+        );
+
+        if (!hasMatch) {
+          refreshOrders().catch(() => {
+            // Keep existing state if background refresh fails.
+          });
+        }
+      },
+    );
+
+    return unsubscribe;
+  }, [isAdmin, isAuthenticated, refreshOrders, user?.id]);
 
   const createOrder = useCallback(
     async (data: CreateOrderData): Promise<Order> => {
@@ -138,34 +187,31 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({
             zip: "00000",
           },
           isDelivery: data.deliveryType === "delivery",
+          payment: {
+            method: data.paymentMethod,
+            cardNumber:
+              data.paymentMethod === "card"
+                ? data.cardNumber || `400000000000${data.cardLast4 || "0000"}`
+                : undefined,
+          },
         }),
       });
 
-      const backendOrder = orderResponse.data;
+      const mapped = mapBackendOrder(orderResponse.data, data.userId);
 
-      await apiRequest<ApiEnvelope<any>>("/payments", {
-        method: "POST",
-        auth: true,
-        body: JSON.stringify({
-          orderId: String(backendOrder._id),
-          method: data.paymentMethod,
-          cardNumber:
-            data.paymentMethod === "card"
-              ? data.cardNumber || `400000000000${data.cardLast4 || "0000"}`
-              : undefined,
-        }),
+      setOrders((current) => {
+        const withoutCurrent = current.filter(
+          (order) =>
+            order.id !== mapped.id &&
+            order.backendId !== mapped.backendId &&
+            order.backendId !== mapped.id,
+        );
+        return [mapped, ...withoutCurrent];
       });
 
-      const paidOrderResponse = await apiRequest<ApiEnvelope<any>>(
-        `/orders/${backendOrder._id}`,
-        { auth: true },
-      );
-      const mapped = mapBackendOrder(paidOrderResponse.data, data.userId);
-
-      await refreshOrders();
       return mapped;
     },
-    [refreshOrders, user?.name],
+    [user?.name],
   );
 
   const getOrdersByUser = useCallback(

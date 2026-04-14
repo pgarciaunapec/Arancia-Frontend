@@ -56,13 +56,24 @@ export const mapBackendCartItem = (raw: any): CartItem => {
   const backendId = String(
     raw.menuItem?._id || raw.menuItem || raw._id || raw.id,
   );
+  const resolvedName =
+    raw.name ||
+    raw.label ||
+    raw.title ||
+    raw.menuItem?.name ||
+    raw.menuItem?.label ||
+    "Producto";
+
+  const resolvedImage =
+    raw.image || raw.imageUrl || raw.menuItem?.image || raw.menuItem?.imageUrl || "";
+
   return {
     id: backendId,
     backendId,
-    name: raw.name || raw.menuItem?.name || "Item",
+    name: resolvedName,
     price: Number(raw.price || raw.menuItem?.price || 0),
     quantity: Number(raw.quantity || 1),
-    image: raw.image || raw.menuItem?.image || "",
+    image: resolvedImage,
     category: raw.category || raw.menuItem?.category || "General",
     description: raw.description || raw.menuItem?.description || undefined,
     ingredients: Array.isArray(raw.ingredients)
@@ -118,10 +129,21 @@ export const mapBackendOrder = (raw: any, userId?: string): Order => {
           item._id ||
           strHash(item.name || "item"),
       ),
-      name: item.name || item.menuItem?.name || "Item",
+      name:
+        item.name ||
+        item.label ||
+        item.title ||
+        item.menuItem?.name ||
+        item.menuItem?.label ||
+        "Producto",
       price: Number(item.price || item.menuItem?.price || 0),
       quantity: Number(item.quantity || 1),
-      image: item.menuItem?.image || item.image || "",
+      image:
+        item.menuItem?.image ||
+        item.image ||
+        item.imageUrl ||
+        item.menuItem?.imageUrl ||
+        "",
       description: item.description || item.menuItem?.description || undefined,
       ingredients: Array.isArray(item.ingredients)
         ? item.ingredients

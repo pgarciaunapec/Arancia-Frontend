@@ -17,6 +17,7 @@ import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { formatCurrencyDOP } from "../lib/currency";
+import { getImageUrl } from "../services/api";
 
 const COLORS = {
   primary: "#f5b400",
@@ -24,6 +25,19 @@ const COLORS = {
   white: "#ffffff",
   muted: "rgba(255,255,255,0.6)",
   border: "rgba(245, 180, 0, 0.3)",
+};
+
+const CART_ITEM_FALLBACK_IMAGE =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg==";
+
+const resolveCartItemName = (item: Record<string, unknown>) => {
+  const candidate =
+    (typeof item.name === "string" && item.name.trim()) ||
+    (typeof item.label === "string" && item.label.trim()) ||
+    (typeof item.title === "string" && item.title.trim()) ||
+    (typeof item.menuItemName === "string" && item.menuItemName.trim());
+
+  return candidate || "Producto";
 };
 
 const Cart: React.FC = () => {
@@ -165,10 +179,22 @@ const Cart: React.FC = () => {
                         border: `1px solid ${COLORS.border}`,
                       }}
                     >
+                      {(() => {
+                        const displayName = resolveCartItemName(
+                          item as unknown as Record<string, unknown>,
+                        );
+                        const imageSource = item.image
+                          ? getImageUrl(item.image)
+                          : CART_ITEM_FALLBACK_IMAGE;
+
+                        return (
                       <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={imageSource}
+                          alt={displayName}
+                          onError={(event) => {
+                            event.currentTarget.src = CART_ITEM_FALLBACK_IMAGE;
+                          }}
                           className="w-full sm:w-28 h-36 sm:h-28 rounded-xl object-cover"
                         />
 
@@ -176,7 +202,7 @@ const Cart: React.FC = () => {
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div>
                               <h3 className="font-bold text-lg text-white leading-tight">
-                                {item.name}
+                                {displayName}
                               </h3>
                               <p className="text-xs text-white/50 mt-1">
                                 {item.category}
@@ -247,6 +273,8 @@ const Cart: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                        );
+                      })()}
                     </Card>
                   </motion.div>
                 ))}
