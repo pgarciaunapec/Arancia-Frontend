@@ -76,39 +76,9 @@ const Profile: React.FC = () => {
     },
   });
 
-  const passwordForm = useForm({
-    defaultValues: {
-      current: "",
-      new: "",
-      confirm: "",
-    },
-    validators: {
-      onChange: ({ value }) => validateWithYup(passwordUpdateSchema, value),
-      onSubmit: ({ value }) => validateWithYup(passwordUpdateSchema, value),
-    },
-    onSubmitInvalid: () => {
-      setPasswordError("Completa correctamente los campos de contraseña.");
-    },
-    onSubmit: async ({ value }) => {
-      setPasswordError("");
-      const result = await changePassword(value.current, value.new);
-      if (!result.success) {
-        setPasswordError(result.error || "No se pudo cambiar la contraseña.");
-        return;
-      }
-
-      passwordForm.reset();
-      window.alert("Contraseña actualizada correctamente.");
-    },
-  });
-
   const handleLogout = () => {
     logout();
     navigate("/");
-  };
-
-  const handlePasswordUpdate = () => {
-    void passwordForm.handleSubmit();
   };
 
   const initials = user?.name
@@ -339,63 +309,6 @@ const Profile: React.FC = () => {
             {profileError && (
               <p className="text-sm text-red-400">{profileError}</p>
             )}
-          </Card>
-
-          <Card
-            className="p-8 space-y-6 opacity-75 hover:opacity-100 transition-all"
-            style={{
-              backgroundColor: COLORS.secondary,
-              border: `1px solid ${COLORS.border}`,
-            }}
-          >
-            <h3 className="text-xl font-bold mb-4 text-white pb-2 border-b border-white/10 flex items-center gap-2">
-              <Lock size={20} /> Cambiar Contraseña
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input
-                type="password"
-                placeholder="Contraseña Actual"
-                value={String(passwordForm.state.values.current)}
-                onChange={(event) =>
-                  passwordForm.setFieldValue("current", event.target.value)
-                }
-                className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
-                style={{ borderColor: COLORS.border }}
-              />
-              <input
-                type="password"
-                placeholder="Nueva Contraseña"
-                value={String(passwordForm.state.values.new)}
-                onChange={(event) =>
-                  passwordForm.setFieldValue("new", event.target.value)
-                }
-                className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
-                style={{ borderColor: COLORS.border }}
-              />
-              <input
-                type="password"
-                placeholder="Confirmar Nueva Contraseña"
-                value={String(passwordForm.state.values.confirm)}
-                onChange={(event) =>
-                  passwordForm.setFieldValue("confirm", event.target.value)
-                }
-                className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none md:col-span-2"
-                style={{ borderColor: COLORS.border }}
-              />
-            </div>
-            {passwordError && (
-              <p className="text-sm text-red-400">{passwordError}</p>
-            )}
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                type="button"
-                className="border-white/20 text-white/60 hover:text-white"
-                onClick={handlePasswordUpdate}
-              >
-                Actualizar Contraseña
-              </Button>
-            </div>
           </Card>
         </form>
       </div>
