@@ -96,11 +96,11 @@ const Checkout: React.FC = () => {
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
-      address: user?.address || "",
+      address: user?.address || "Calle Principal 123",
       city: "Santo Domingo",
-      cardNumber: "",
-      cardExp: "",
-      cardCvv: "",
+      cardNumber: "4532123456789010",
+      cardExp: "12/25",
+      cardCvv: "123",
     },
     onSubmit: async ({ value }) => {
       const validation = validateCheckoutByMode(value);
@@ -307,7 +307,8 @@ const Checkout: React.FC = () => {
                       form.setFieldValue("address", event.target.value)
                     }
                     placeholder="Dirección de Envío"
-                    className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
+                    disabled
+                    className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none opacity-75 cursor-not-allowed"
                     style={{ borderColor: COLORS.border }}
                   />
                   <input
@@ -317,7 +318,8 @@ const Checkout: React.FC = () => {
                       form.setFieldValue("city", event.target.value)
                     }
                     placeholder="Ciudad"
-                    className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
+                    disabled
+                    className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none opacity-75 cursor-not-allowed"
                     style={{ borderColor: COLORS.border }}
                   />
                   <input
@@ -393,7 +395,8 @@ const Checkout: React.FC = () => {
                       placeholder="Número de Tarjeta (1234 5678 9012 3456)"
                       inputMode="numeric"
                       autoComplete="cc-number"
-                      className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
+                      disabled
+                      className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none opacity-75 cursor-not-allowed"
                       style={{ borderColor: COLORS.border }}
                     />
                     <div className="grid grid-cols-2 gap-3">
@@ -406,7 +409,8 @@ const Checkout: React.FC = () => {
                         placeholder="MM/AA"
                         inputMode="numeric"
                         autoComplete="cc-exp"
-                        className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
+                        disabled
+                        className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none opacity-75 cursor-not-allowed"
                         style={{ borderColor: COLORS.border }}
                       />
                       <input
@@ -418,7 +422,8 @@ const Checkout: React.FC = () => {
                         placeholder="CVV"
                         inputMode="numeric"
                         autoComplete="cc-csc"
-                        className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none"
+                        disabled
+                        className="w-full bg-black/20 p-3 rounded-lg border text-white focus:ring-2 outline-none opacity-75 cursor-not-allowed"
                         style={{ borderColor: COLORS.border }}
                       />
                     </div>

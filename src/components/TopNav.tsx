@@ -201,9 +201,6 @@ export const TopNav: React.FC = () => {
                   >
                     {initials}
                   </div>
-                  <span className="text-xs text-white/80 hidden xl:block max-w-[80px] truncate">
-                    {user?.name.split(" ")[0]}
-                  </span>
                 </button>
               ) : (
                 <Link
