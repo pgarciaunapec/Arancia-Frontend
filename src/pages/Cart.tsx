@@ -183,22 +183,9 @@ const Cart: React.FC = () => {
                         const displayName = resolveCartItemName(
                           item as unknown as Record<string, unknown>,
                         );
-                        const imageSource = item.image
-                          ? getImageUrl(item.image)
-                          : CART_ITEM_FALLBACK_IMAGE;
 
                         return (
                           <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-                            <img
-                              src={imageSource}
-                              alt={displayName}
-                              onError={(event) => {
-                                event.currentTarget.src =
-                                  CART_ITEM_FALLBACK_IMAGE;
-                              }}
-                              className="w-full sm:w-28 h-36 sm:h-28 rounded-xl object-cover"
-                            />
-
                             <div className="flex-1 min-w-0 space-y-2">
                               <div className="flex flex-wrap items-start justify-between gap-2">
                                 <div>

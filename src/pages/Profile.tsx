@@ -20,7 +20,7 @@ import { useOrders } from "../context/OrdersContext";
 import { useReservations } from "../context/ReservationsContext";
 import { useNavigate, Link } from "react-router-dom";
 import { validateWithYup } from "../lib/forms/yupTanstack";
-import { passwordUpdateSchema, profileSchema } from "../schemas/forms.schema";
+import { profileSchema } from "../schemas/forms.schema";
 import {
   formatDominicanPhoneInput,
   normalizeDominicanPhone,
@@ -35,7 +35,7 @@ const COLORS = {
 };
 
 const Profile: React.FC = () => {
-  const { user, updateProfile, changePassword, logout } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
   const { getOrdersByUser } = useOrders();
   const { getReservationsByUser } = useReservations();
   const navigate = useNavigate();
@@ -45,7 +45,6 @@ const Profile: React.FC = () => {
 
   const [saved, setSaved] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
 
   const profileForm = useForm({
     defaultValues: {
