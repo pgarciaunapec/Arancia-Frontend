@@ -84,7 +84,7 @@ export const TopNav: React.FC = () => {
       className={`hidden lg:block fixed top-0 left-0 right-0 z-50 px-8 xl:px-16 2xl:px-24 pt-5 transition-all duration-500 ease-out ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
     >
       <nav
-        className="max-w-4xl mx-auto rounded-full border-2 shadow-lg"
+        className="w-fit mx-auto rounded-full border-2 shadow-lg"
         style={{
           backgroundColor: COLORS.secondary,
           borderColor: COLORS.primary,

@@ -105,6 +105,7 @@ const AdminCollectionView: React.FC = () => {
   const [importConflictMode, setImportConflictMode] = useState<
     "skip" | "replace" | "merge"
   >("skip");
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
 
   useEffect(() => {
     if (!searchParams.get("config")) {
@@ -116,6 +117,13 @@ const AdminCollectionView: React.FC = () => {
   useEffect(() => {
     setSelectedIds([]);
   }, [records]);
+
+  // Sincronizar localSearchQuery cuando se presiona Limpiar
+  useEffect(() => {
+    if (!query.q) {
+      setLocalSearchQuery("");
+    }
+  }, [query.q]);
 
   const visibleFields = useMemo(() => {
     if (config?.fields?.length) {
@@ -147,9 +155,7 @@ const AdminCollectionView: React.FC = () => {
 
   const selectableIds = useMemo(
     () =>
-      records
-        .map((row) => resolveRecordId(row))
-        .filter((id) => id.length > 0),
+      records.map((row) => resolveRecordId(row)).filter((id) => id.length > 0),
     [records],
   );
 
@@ -418,9 +424,14 @@ const AdminCollectionView: React.FC = () => {
 
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <input
-            value={query.q || ""}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Búsqueda de texto"
+            value={localSearchQuery}
+            onChange={(event) => setLocalSearchQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                setSearch(localSearchQuery);
+              }
+            }}
+            placeholder="Búsqueda de texto (Enter para buscar)"
             className="rounded-lg border border-amber-300/30 bg-[#120d08] px-3 py-2 text-sm text-amber-50 placeholder:text-amber-200/50"
           />
           <button
@@ -524,10 +535,7 @@ const AdminCollectionView: React.FC = () => {
                         />
                       </td>
                       {visibleFields.map((field) => (
-                        <td
-                          key={field.name}
-                          className="px-3 py-2"
-                        >
+                        <td key={field.name} className="px-3 py-2">
                           {serializeCell(row[field.name])}
                         </td>
                       ))}
