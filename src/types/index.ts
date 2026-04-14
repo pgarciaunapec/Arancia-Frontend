@@ -225,3 +225,24 @@ export interface Invoice {
   orderId?: string;
   tableBillId?: string;
 }
+
+// ─── Payment Methods (Saved) ─────────────────────────────────────────────────
+export interface ISavedAddress {
+  _id?: string;
+  label?: string;
+  name: string;
+  address: string;
+  city: string;
+  zip?: string;
+  isDefault?: boolean;
+}
+
+export interface ISavedCard {
+  _id?: string;
+  label?: string;
+  last4: string;
+  cardType: "visa" | "mastercard" | "other";
+  expiryMonth: number;
+  expiryYear: number;
+  isDefault?: boolean;
+}
