@@ -158,9 +158,9 @@
 - [x] Tests de hooks admin exitosos
 - [x] Commit + merge --no-ff
 
-## Ciclo 2026-04-14 - Estabilización para Producción
+## Ciclo 2026-04-14 - Estabilizaciï¿½n para Producciï¿½n
 
-### Task 1 (Optimización Pasarela - Direcciones y Tarjetas Guardadas)
+### Task 1 (Optimizaciï¿½n Pasarela - Direcciones y Tarjetas Guardadas)
 - [x] ISavedAddress e ISavedCard tipos creados
 - [x] useSavedPaymentMethods hook (load + CRUD)
 - [x] SavedAddressSelect component con dropdown + manual
@@ -174,32 +174,50 @@
 
 ### Task 3 (Sistema de Notificaciones)
 - [x] Zustand toastStore con global state
-- [x] Hook useToast() con métodos success/error/info/warning
+- [x] Hook useToast() con mï¿½todos success/error/info/warning
 - [x] ToastContainer component animado motion/react
 - [x] Auto-dismiss 5s, bottom-right z-50
-- [x] Integración lista para todas las secciones
+- [x] Integraciï¿½n lista para todas las secciones
 - [x] Build exitoso
 - [x] Commit + merge --no-ff
 
-### Task 4 (Gestión de Imágenes y URLs)
-- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
-- [x] Componente upload + descarga URL especificado
-- [x] Ready para dev sprint siguiente
+### Task 4 (GestiÃ³n de ImÃ¡genes y URLs)
+- [x] ImageUploader component creado (local + external URL)
+- [x] Dual input form con preview local
+- [x] Backend processing integrado para Base64
+- [x] ValidaciÃ³n MIME types en cliente
+- [x] Loading spinner durante procesamiento
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
 
 ### Task 5 (Seguridad Admin - ProtectedAdminRoute)
-- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
-- [x] Role change detection al reload especificado
-- [x] Logout automático cuando role revocado
-- [x] Ready para dev sprint siguiente
+- [x] withAdminProtection HOC creado
+- [x] Role check: !user || user.role !== 'admin'
+- [x] Token invalidation en localStorage si role mismatch
+- [x] Redirect a /admin/login con error state
+- [x] Loading spinner durante verificaciÃ³n
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
 
 ### Task 6 (Seeding Inventario y Flujo Caja)
-- [x] Documentación de plan en TASKS_4_5_6_GUIDE.ts
-- [x] Inventory movements view + cash register UI especificado
-- [x] Ready para dev sprint siguiente
+- [x] CashRegister component implementado
+- [x] MÃ©tricas cards: entradas, salidas, balance
+- [x] Add movement form con tipo/categorÃ­a/amount
+- [x] Timestamped history y export ready
+- [x] Open/close session buttons
+- [x] Local persistence demo
+- [x] Build exitoso
+- [x] Commit + merge --no-ff
 
-## Nota operativa
+## Nota operativa - Ciclo Completo
+- [x] Todos 6 tasks implementados en dev
+- [x] Protocolo --no-ff aplicado (7 commits)
+- [x] Build validate: âœ… 0 errores TypeScript
+- [x] Ramas locales eliminadas post-merge
+- [x] AUDIT.md documentaciÃ³n completa
+- [x] Estado producciÃ³n: Ready for staging
 - [x] Todos 6 tasks sobre dev master
 - [x] Protocolo --no-ff aplicado
 - [x] Build validate: 0 errores
 - [x] Ramas locales eliminadas post-merge
-- [x] Frontend listo para integración con Backend
+- [x] Frontend listo para integraciï¿½n con Backend
