@@ -24,23 +24,6 @@ const COLORS = {
 
 type PaymentMethod = "cash" | "card" | "transfer";
 
-const maskCardNumber = (value: string) =>
-  value
-    .replace(/\D/g, "")
-    .slice(0, 19)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
-
-const maskCardExp = (value: string) => {
-  const digits = value.replace(/\D/g, "").slice(0, 4);
-  if (digits.length <= 2) {
-    return digits;
-  }
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-};
-
-const maskCardCvv = (value: string) => value.replace(/\D/g, "").slice(0, 4);
-
 const normalizeCardNumber = (value: string) => value.replace(/\s/g, "").trim();
 
 const Checkout: React.FC = () => {
@@ -405,10 +388,7 @@ const Checkout: React.FC = () => {
                       name="cardNumber"
                       value={String(form.state.values.cardNumber)}
                       onChange={(event) =>
-                        form.setFieldValue(
-                          "cardNumber",
-                          maskCardNumber(event.target.value),
-                        )
+                        form.setFieldValue("cardNumber", event.target.value)
                       }
                       placeholder="Número de Tarjeta (1234 5678 9012 3456)"
                       inputMode="numeric"
@@ -421,10 +401,7 @@ const Checkout: React.FC = () => {
                         name="cardExp"
                         value={String(form.state.values.cardExp)}
                         onChange={(event) =>
-                          form.setFieldValue(
-                            "cardExp",
-                            maskCardExp(event.target.value),
-                          )
+                          form.setFieldValue("cardExp", event.target.value)
                         }
                         placeholder="MM/AA"
                         inputMode="numeric"
@@ -436,10 +413,7 @@ const Checkout: React.FC = () => {
                         name="cardCvv"
                         value={String(form.state.values.cardCvv)}
                         onChange={(event) =>
-                          form.setFieldValue(
-                            "cardCvv",
-                            maskCardCvv(event.target.value),
-                          )
+                          form.setFieldValue("cardCvv", event.target.value)
                         }
                         placeholder="CVV"
                         inputMode="numeric"

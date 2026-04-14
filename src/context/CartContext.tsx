@@ -23,10 +23,73 @@ const TAX_RATE = 0.18;
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const normalizeStoredCartItem = (raw: Record<string, unknown>): CartItem | null => {
+  const idCandidate =
+    (typeof raw.id === 'string' && raw.id) ||
+    (typeof raw.backendId === 'string' && raw.backendId) ||
+    (typeof raw.menuItemId === 'string' && raw.menuItemId) ||
+    (typeof raw.menuItem === 'string' && raw.menuItem) ||
+    (typeof raw._id === 'string' && raw._id);
+
+  if (!idCandidate) {
+    return null;
+  }
+
+  const resolvedName =
+    (typeof raw.name === 'string' && raw.name.trim()) ||
+    (typeof raw.label === 'string' && raw.label.trim()) ||
+    (typeof raw.title === 'string' && raw.title.trim()) ||
+    (typeof raw.menuItemName === 'string' && raw.menuItemName.trim()) ||
+    'Producto';
+
+  const quantityValue = Number(raw.quantity ?? 1);
+  const parsedIngredients = Array.isArray(raw.ingredients)
+    ? raw.ingredients.filter((value): value is string => typeof value === 'string')
+    : [];
+
+  return {
+    id: String(idCandidate),
+    backendId:
+      typeof raw.backendId === 'string' && raw.backendId.trim()
+        ? raw.backendId
+        : undefined,
+    name: resolvedName,
+    price: Number(raw.price ?? 0),
+    quantity: Number.isFinite(quantityValue) && quantityValue > 0 ? quantityValue : 1,
+    image:
+      (typeof raw.image === 'string' && raw.image) ||
+      (typeof raw.imageUrl === 'string' && raw.imageUrl) ||
+      '',
+    category:
+      (typeof raw.category === 'string' && raw.category.trim()) ||
+      'General',
+    ingredients: parsedIngredients,
+    description:
+      typeof raw.description === 'string' && raw.description.trim().length > 0
+        ? raw.description
+        : undefined,
+  };
+};
+
 const parseLocalCart = (): CartItem[] => {
   try {
     const stored = localStorage.getItem(CART_KEY);
-    return stored ? (JSON.parse(stored) as CartItem[]) : [];
+    if (!stored) {
+      return [];
+    }
+
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map((raw) =>
+        raw && typeof raw === 'object'
+          ? normalizeStoredCartItem(raw as Record<string, unknown>)
+          : null,
+      )
+      .filter((item): item is CartItem => Boolean(item));
   } catch {
     return [];
   }
