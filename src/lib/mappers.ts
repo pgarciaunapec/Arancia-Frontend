@@ -65,7 +65,11 @@ export const mapBackendCartItem = (raw: any): CartItem => {
     "Producto";
 
   const resolvedImage =
-    raw.image || raw.imageUrl || raw.menuItem?.image || raw.menuItem?.imageUrl || "";
+    raw.image ||
+    raw.imageUrl ||
+    raw.menuItem?.image ||
+    raw.menuItem?.imageUrl ||
+    "";
 
   return {
     id: backendId,

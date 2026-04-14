@@ -238,8 +238,8 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-        await apiRequest<ApiEnvelope<any>>(`/admin/orders/${orderId}/status`, {
-          method: "PATCH",
+      await apiRequest<ApiEnvelope<any>>(`/admin/orders/${orderId}/status`, {
+        method: "PATCH",
         auth: true,
         body: JSON.stringify({
           status,

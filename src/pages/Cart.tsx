@@ -188,91 +188,94 @@ const Cart: React.FC = () => {
                           : CART_ITEM_FALLBACK_IMAGE;
 
                         return (
-                      <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-                        <img
-                          src={imageSource}
-                          alt={displayName}
-                          onError={(event) => {
-                            event.currentTarget.src = CART_ITEM_FALLBACK_IMAGE;
-                          }}
-                          className="w-full sm:w-28 h-36 sm:h-28 rounded-xl object-cover"
-                        />
+                          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                            <img
+                              src={imageSource}
+                              alt={displayName}
+                              onError={(event) => {
+                                event.currentTarget.src =
+                                  CART_ITEM_FALLBACK_IMAGE;
+                              }}
+                              className="w-full sm:w-28 h-36 sm:h-28 rounded-xl object-cover"
+                            />
 
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <div className="flex flex-wrap items-start justify-between gap-2">
-                            <div>
-                              <h3 className="font-bold text-lg text-white leading-tight">
-                                {displayName}
-                              </h3>
-                              <p className="text-xs text-white/50 mt-1">
-                                {item.category}
-                              </p>
-                            </div>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div>
+                                  <h3 className="font-bold text-lg text-white leading-tight">
+                                    {displayName}
+                                  </h3>
+                                  <p className="text-xs text-white/50 mt-1">
+                                    {item.category}
+                                  </p>
+                                </div>
 
-                            <button
-                              onClick={() => removeItem(item.id)}
-                              className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors"
-                              style={{ color: COLORS.muted }}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-
-                          {item.description && (
-                            <p className="text-sm text-white/70 line-clamp-2">
-                              {item.description}
-                            </p>
-                          )}
-
-                          <div className="flex flex-wrap gap-1.5">
-                            {(item.ingredients || [])
-                              .slice(0, 4)
-                              .map((ingredient) => (
-                                <span
-                                  key={`${item.id}-${ingredient}`}
-                                  className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-white/75"
+                                <button
+                                  onClick={() => removeItem(item.id)}
+                                  className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors"
+                                  style={{ color: COLORS.muted }}
                                 >
-                                  {ingredient}
-                                </span>
-                              ))}
-                          </div>
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
 
-                          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                            <p
-                              className="text-sm font-semibold"
-                              style={{ color: COLORS.primary }}
-                            >
-                              {formatCurrencyDOP(item.price)} c/u
-                            </p>
+                              {item.description && (
+                                <p className="text-sm text-white/70 line-clamp-2">
+                                  {item.description}
+                                </p>
+                              )}
 
-                            <div className="flex items-center gap-3 bg-black/20 rounded-xl p-1.5">
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
-                                }
-                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <span className="font-bold text-white w-6 text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
-                                }
-                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
-                              >
-                                <Plus size={14} />
-                              </button>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(item.ingredients || [])
+                                  .slice(0, 4)
+                                  .map((ingredient) => (
+                                    <span
+                                      key={`${item.id}-${ingredient}`}
+                                      className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-white/75"
+                                    >
+                                      {ingredient}
+                                    </span>
+                                  ))}
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                <p
+                                  className="text-sm font-semibold"
+                                  style={{ color: COLORS.primary }}
+                                >
+                                  {formatCurrencyDOP(item.price)} c/u
+                                </p>
+
+                                <div className="flex items-center gap-3 bg-black/20 rounded-xl p-1.5">
+                                  <button
+                                    onClick={() =>
+                                      updateQuantity(item.id, item.quantity - 1)
+                                    }
+                                    className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                                  >
+                                    <Minus size={14} />
+                                  </button>
+                                  <span className="font-bold text-white w-6 text-center">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      updateQuantity(item.id, item.quantity + 1)
+                                    }
+                                    className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                                  >
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
+
+                                <p className="font-bold text-white text-lg">
+                                  {formatCurrencyDOP(
+                                    item.price * item.quantity,
+                                  )}
+                                </p>
+                              </div>
                             </div>
-
-                            <p className="font-bold text-white text-lg">
-                              {formatCurrencyDOP(item.price * item.quantity)}
-                            </p>
                           </div>
-                        </div>
-                      </div>
                         );
                       })()}
                     </Card>
