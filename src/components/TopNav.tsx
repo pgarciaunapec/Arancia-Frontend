@@ -103,7 +103,7 @@ export const TopNav: React.FC = () => {
               className="font-bold text-xs tracking-wider hidden xl:block"
               style={{ color: COLORS.primary }}
             >
-              BOB TORONJA
+              Arancia
             </span>
           </Link>
 
